@@ -1,9 +1,10 @@
 import { useEffect, useMemo } from "react";
-import type { ExpressionSpecification, GeoJSONSource } from "maplibre-gl";
+import type { ExpressionSpecification, GeoJSONSource, LayerSpecification } from "maplibre-gl";
 import { VOLTAGE_STOPS, type FeederRun, type LngLat } from "@/lib/geo";
 import { feederFeatures, heatFeatures } from "@/lib/geo-features";
 import type { FeederHouse, TransformerPoint } from "@/lib/types";
 import type { MapPlacement } from "@/lib/map-geography";
+import { COUNTRY_MASK_LAYER_ID } from "@/lib/romania-map";
 import { useMapApi } from "./MapCanvas";
 
 export interface LayerToggles {
@@ -44,6 +45,7 @@ export function GridLayers({
   useEffect(() => {
     if (!api) return;
     const { map } = api;
+    const addLayer = (layer: LayerSpecification) => map.addLayer(layer, COUNTRY_MASK_LAYER_ID);
     const vColor = [
       "interpolate",
       ["linear"],
@@ -52,7 +54,7 @@ export function GridLayers({
     ] as unknown as ExpressionSpecification;
     map.addSource("sp-feeders", { type: "geojson", data: EMPTY });
     map.addSource("sp-heat", { type: "geojson", data: EMPTY });
-    map.addLayer({
+    addLayer({
       id: "sp-heat",
       type: "heatmap",
       source: "sp-heat",
@@ -77,7 +79,7 @@ export function GridLayers({
         ],
       },
     });
-    map.addLayer({
+    addLayer({
       id: "sp-drop",
       type: "line",
       source: "sp-feeders",
@@ -85,7 +87,7 @@ export function GridLayers({
       minzoom: 14,
       paint: { "line-color": vColor, "line-width": 1, "line-opacity": 0.7 },
     });
-    map.addLayer({
+    addLayer({
       id: "sp-trunk-casing",
       type: "line",
       source: "sp-feeders",
@@ -97,7 +99,7 @@ export function GridLayers({
         "line-opacity": 0.8,
       },
     });
-    map.addLayer({
+    addLayer({
       id: "sp-trunk",
       type: "line",
       source: "sp-feeders",

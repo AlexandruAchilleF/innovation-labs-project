@@ -52,3 +52,11 @@ npm run build
 Python tests compare bundled anchors with source footprints and each route segment with the
 bundled source road geometry. Frontend tests cover all offline dataset houses, stable placement
 across reorder/filter/simulation, reversed power flow, shared heat coordinates, and missing coverage.
+
+## Romania-only basemap
+
+`frontend/src/lib/romania-boundary.json` bundles the Romania feature from Natural Earth's
+1:10m Admin 0 countries dataset, retrieved on 2026-10-25. Source URL and license are
+recorded in its properties. [Natural Earth data is public domain](https://www.naturalearthdata.com/about/terms-of-use/).
+An opaque inverse polygon hides the basemap outside Romania in both satellite and dark
+views. Congestion layers sit below that mask, and repeated world copies are disabled.

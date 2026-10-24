@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import type { Map as MlMap, StyleSpecification } from "maplibre-gl";
 import { ROMANIA_CENTER } from "@/lib/geo";
+import { COUNTRY_MASK_LAYER_ID, OUTSIDE_ROMANIA, ROMANIA_BOUNDARY } from "@/lib/romania-map";
 
 type MapLib = typeof import("maplibre-gl");
 export interface MapApi {
@@ -19,6 +20,8 @@ export const useMapApi = () => useContext(MapCtx);
 const style: StyleSpecification = {
   version: 8,
   sources: {
+    "outside-romania": { type: "geojson", data: OUTSIDE_ROMANIA },
+    "romania-boundary": { type: "geojson", data: ROMANIA_BOUNDARY },
     satellite: {
       type: "raster",
       tiles: [
@@ -55,6 +58,7 @@ const style: StyleSpecification = {
     },
   },
   layers: [
+    { id: "base-background", type: "background", paint: { "background-color": "#111111" } },
     // muted + darkened imagery so data layers stay legible on the Altitude canvas
     {
       id: "base-satellite",
@@ -70,6 +74,18 @@ const style: StyleSpecification = {
       source: "darkLabels",
       layout: { visibility: "none" },
       paint: { "raster-opacity": 0.85 },
+    },
+    {
+      id: COUNTRY_MASK_LAYER_ID,
+      type: "fill",
+      source: "outside-romania",
+      paint: { "fill-color": "#111111", "fill-opacity": 1, "fill-antialias": false },
+    },
+    {
+      id: "romania-outline",
+      type: "line",
+      source: "romania-boundary",
+      paint: { "line-color": "#a4a19b", "line-width": 1, "line-opacity": 0.65 },
     },
   ],
 };
@@ -102,6 +118,7 @@ export function MapCanvas({
         zoom: 6,
         maxPitch: 0,
         dragRotate: false,
+        renderWorldCopies: false,
         attributionControl: { compact: true },
       });
       map.touchZoomRotate.disableRotation();
