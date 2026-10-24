@@ -13,3 +13,13 @@ data/raw/*
 !data/raw/.gitkeep
 *.db
 out/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/.output/
+frontend/.vinxi/
+frontend/.tanstack/
+frontend/.nitro/
+frontend/.wrangler/

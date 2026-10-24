@@ -40,59 +40,66 @@ Date (simulator / API invertor / curba distribuitorului)
         ▼
    SQLite ──► Detector determinist ──► evenimente: rețea │ echipament │ baterie
                                              │
-             ┌───────────────────────────────┼───────────────────────────┐
-             ▼                               ▼                           ▼
+             ┌───────────────────────────────┼───────────────────────────────┐
+             ▼                               ▼                               ▼
    Dosar de sesizare (PDF)        Tichete O&M + Telegram         Raport baterie
    fapte din cod, text LLM        ordonate după lei pierduți     (doar cu acord)
              │
              ▼
-   Interfață Streamlit: Prosumator · O&M · Copilot AI (răspunde apelând unelte)
+   Interfață TanStack Start / React (frontend/) + FastAPI backend (sunproof/app.py)
 ```
 
 LLM-ul nu ia decizii. Detecția și calculele sunt deterministe, iar LLM-ul doar redactează și explică. Orice cifră din textul lui e verificată în cod.
 
 ## Tehnologii
 
-Python 3.12, pandas, numpy, SQLite, Streamlit + pydeck, matplotlib, fpdf2, httpx, Anthropic API, pytest.
+- **Backend**: Python 3.12+, FastAPI, uvicorn, pydantic, fpdf2, httpx, pytest
+- **Frontend**: TanStack Start, React 19, Tailwind CSS, Lucide icons, Recharts, Vite
 
 ## Structura
 
 ```
-sunproof/      logica: config, profiles, feeder (simulator), events (detector), store (SQLite),
-               dossier (PDF), om (tichete, Telegram), battery, reconcile, consent, copilot, evaluate, llm
-ui/app.py      Streamlit: modurile Prosumator și O&M + panoul demo
-scripts/       download_data.sh (date PVGIS)
-data/raw/      date descărcate (nu se pun în git)
-tests/         pytest, câte un fișier per modul
+sunproof/      nucleul de business: modele, motoare deterministe, scenarii, explainer, PDF dossier, Telegram bot, FastAPI app
+frontend/      noua interfață React 19 / TanStack Start (Triaj O&M, Rețea ce-ar fi dacă, Prosumator)
+static/        interfață standalone MVP (HTML/CSS/JS)
+tests/         teste automate pytest (acoperire completă motoare & API)
 ```
 
 ## Cum rulezi
 
+### 1. Backend (FastAPI)
 ```bash
 pip install -e ".[dev]"
-pytest -q                      # toate testele
-streamlit run ui/app.py        # interfața
-bash scripts/download_data.sh  # date PVGIS (are nevoie de internet)
+uvicorn sunproof.app:app --reload --port 8000
+```
+
+### 2. Frontend (React 19 / TanStack Start)
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### 3. Teste
+```bash
+# Teste backend (Python)
+pytest tests/test_step*.py tests/test_engine*.py tests/test_neighborhoods.py -q
+
+# Teste frontend (Vitest)
+cd frontend && npm test
 ```
 
 Variabilele de mediu sunt în `.env.example`. Nu pune chei în git.
 
 ## Status
 
-🚧 În lucru la hackathon (24–25 octombrie 2026).
+🏗️ În lucru la hackathon (24–25 octombrie 2026).
 
-- [ ] Simulatorul străzii (tensiune, opriri, volt-watt, baterie)
-- [ ] Detectarea și clasificarea evenimentelor: rețea vs. echipament
-- [ ] Dosarul de sesizare (PDF)
-- [ ] Verificarea bateriei
-- [ ] Tichete O&M și alerte Telegram
-- [ ] Interfața: Prosumator și O&M
-- [ ] Reconcilierea invertor–contor–factură
-- [ ] „Cine vede ce”
-- [ ] Copilotul AI
-
-## Ce urmează după hackathon
-
-- Conectori reali: Huawei FusionSolar Northbound, Fronius Solar API, SunSpec Modbus
-- Importul curbei de sarcină din portalurile distribuitorilor
-- Hărți agregate de supratensiune pentru distribuitori
+- [x] Modele modulare & scenarii (81 gospodării, 5 flagships)
+- [x] Motoare deterministe (rețea, baterie, facturare)
+- [x] Generare dosar sesizare distribuitor (PDF)
+- [x] Simulator baterie & optimizare prag descărcare
+- [x] Tichete O&M și alerte Telegram
+- [x] Explainer cu guardrails anti-halucinații
+- [x] API HTTP complet (FastAPI)
+- [x] Noua interfață web React 19 (Triaj O&M, Rețea, Prosumator)
