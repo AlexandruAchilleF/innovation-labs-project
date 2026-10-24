@@ -1,6 +1,5 @@
 import { Link, useHydrated, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -11,7 +10,7 @@ import {
 import { portfolioQuery } from "@/lib/queries";
 import { useCurrentHousehold } from "./SupplierTopBar";
 
-/** Homeowner header: wordmark, account switcher (demo flagships) and a discreet portal switch. */
+/** Homeowner header: wordmark and account switcher (demo flagships). No route into the supplier portal. */
 export function ProsumerHeader() {
   const household = useCurrentHousehold();
   const navigate = useNavigate();
@@ -48,13 +47,6 @@ export function ProsumerHeader() {
           </SelectContent>
         </Select>
       </div>
-      <Link
-        to="/harta"
-        search={{ household }}
-        className="ml-auto hidden items-center gap-1 text-[12.5px] text-fog transition-colors hover:text-bone sm:flex"
-      >
-        Comută la Portalul Furnizorului <ArrowRight className="size-3.5" strokeWidth={1.5} />
-      </Link>
     </header>
   );
 }

@@ -278,6 +278,15 @@
   stroke-dasharray: 6 6;
   animation: flow-dash 0.9s linear infinite;
 }
+/* energy pulses on the prosumer scene cables: round dots travelling along the path */
+@keyframes energy-pulse {
+  to { stroke-dashoffset: -14; }
+}
+@utility energy-pulse {
+  stroke-dasharray: 0.01 14;
+  stroke-linecap: round;
+  animation: energy-pulse 1.2s linear infinite;
+}
 @utility glow-sun {
   box-shadow: none;
 }

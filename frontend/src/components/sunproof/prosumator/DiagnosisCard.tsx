@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { caseKind, prosumerCause, prosumerSolution } from "@/lib/case-summary";
 import { prosumerResponsibleLabel } from "@/lib/i18n";
 import type { HouseholdDetail } from "@/lib/types";
@@ -17,49 +16,43 @@ export function DiagnosisCard({ d }: { d: HouseholdDetail }) {
   return (
     <section
       aria-labelledby="diag-title"
-      className={cn("rounded-lg border bg-card p-6 sm:p-8", ok ? "border-border" : "border-iron")}
+      className={cn("rounded-lg border bg-card p-5 sm:p-6", ok ? "border-border" : "border-iron")}
     >
-      <div className="grid gap-8 md:grid-cols-[1fr_auto]">
-        <div className="space-y-6">
-          <div>
-            <h2 id="diag-title" className="eyebrow text-fog">
-              Ce am detectat
-            </h2>
-            <p className="font-display mt-3 max-w-[40ch] text-[24px] leading-snug text-bone sm:text-[28px]">
+      <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-start">
+        <div className="space-y-3">
+          <h2 id="diag-title" className="flex items-start gap-3">
+            <span
+              aria-hidden
+              className={cn("mt-3 size-2 shrink-0 rounded-full", ok ? "bg-success" : "bg-warning")}
+            />
+            <span className="font-display max-w-[40ch] text-[22px] leading-snug text-bone sm:text-[24px]">
               {d.scenario.scenario_badge_ro}
-            </p>
-            <Explained text={d.scenario.customer_answer_ro} />
-          </div>
-          <div>
-            <h3 className="eyebrow text-fog">Cauza exactă, pe înțelesul tău</h3>
-            <p className="mt-2 max-w-[70ch] text-[16px] leading-relaxed text-bone">
-              {prosumerCause(d)}
-            </p>
-          </div>
-          <div>
-            <h3 className="eyebrow text-fog">Ce urmează</h3>
-            <p className="mt-2 max-w-[70ch] text-[14px] leading-relaxed text-fog">
+            </span>
+          </h2>
+          <p className="max-w-[70ch] pl-5 text-[15px] leading-relaxed text-bone">
+            {prosumerCause(d)}
+          </p>
+          {!ok && (
+            <p className="max-w-[70ch] pl-5 text-[13px] leading-relaxed text-fog">
               {prosumerSolution(d)}
             </p>
-          </div>
-        </div>
-        <div className="md:w-[240px]">
-          <h3 className="eyebrow text-fog">Cine trebuie să rezolve</h3>
-          <p
-            className={cn(
-              "mt-3 rounded-[4px] border px-4 py-3 text-[16px] font-medium",
-              party === "NONE" ? "border-iron text-fog" : "border-bone text-bone",
-            )}
-          >
-            {prosumerResponsibleLabel[party] ?? party}
-          </p>
-          {party === "DISTRIBUTION_OPERATOR" && (
-            <p className="mt-2 text-[12px] text-fog">{a.distribution_operator}</p>
           )}
         </div>
+        <p
+          className={cn(
+            "rounded-[4px] border px-3 py-2 text-[13px] md:w-[220px]",
+            party === "NONE" ? "border-iron text-fog" : "border-bone text-bone",
+          )}
+        >
+          <span className="block text-[11.5px] text-fog">Cine rezolvă</span>
+          {prosumerResponsibleLabel[party] ?? party}
+          {party === "DISTRIBUTION_OPERATOR" && (
+            <span className="block text-[11.5px] text-fog">{a.distribution_operator}</span>
+          )}
+        </p>
       </div>
       {kind === "battery" && (
-        <div className="mt-8">
+        <div className="mt-6">
           <BatteryFix d={d} />
         </div>
       )}
@@ -76,23 +69,5 @@ export function DiagnosisCard({ d }: { d: HouseholdDetail }) {
         </details>
       )}
     </section>
-  );
-}
-
-function Explained({ text }: { text: string }) {
-  const [open, setOpen] = useState(false);
-  if (!text) return null;
-  return (
-    <div className="mt-3 max-w-[70ch]">
-      <p className={cn("text-[14px] leading-relaxed text-fog", !open && "line-clamp-2")}>{text}</p>
-      {text.length > 160 && (
-        <button
-          onClick={() => setOpen(!open)}
-          className="mt-1 text-[12px] text-voltage hover:underline"
-        >
-          {open ? "Mai puțin" : "Citește explicația completă"}
-        </button>
-      )}
-    </div>
   );
 }

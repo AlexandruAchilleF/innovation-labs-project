@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
-import { ArrowRight, Check } from "lucide-react";
+import { Check } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TICKET_TOPICS, defaultTopic } from "@/lib/case-summary";
 import { createTicket, openTicketFor, useTickets, type Ticket } from "@/lib/tickets";
@@ -51,13 +50,9 @@ export function TicketForm({ d }: { d: HouseholdDetail }) {
           <p className="max-w-[70ch] text-[14px] text-fog">
             {ticket.topic_ro} · „{ticket.message_ro}”
           </p>
-          <Link
-            to="/harta"
-            search={{ household: a.household_id }}
-            className="inline-flex h-10 items-center gap-2 rounded-[4px] border border-bone px-4 text-[14px] font-medium text-bone transition-colors hover:bg-slate"
-          >
-            Vezi tichetul în Dashboard-ul Furnizorului <ArrowRight className="size-4" />
-          </Link>
+          <p className="text-[13px] text-fog">
+            Furnizorul te contactează pe măsură ce tichetul avansează.
+          </p>
         </div>
       ) : (
         <form onSubmit={submit} className="mt-5 space-y-5">

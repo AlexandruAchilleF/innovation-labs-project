@@ -1,12 +1,18 @@
+import { useMemo, useState } from "react";
 import { createFileRoute, useHydrated } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { DiagnosisCard } from "@/components/sunproof/prosumator/DiagnosisCard";
-import { EnergyFlow } from "@/components/sunproof/prosumator/EnergyFlow";
-import { EnergySummary } from "@/components/sunproof/prosumator/EnergySummary";
+import { DayCharts } from "@/components/sunproof/prosumator/DayCharts";
+import { MonthCard } from "@/components/sunproof/prosumator/MonthCard";
+import { EnergyScene } from "@/components/sunproof/prosumator/scene/EnergyScene";
+import { TimeScrub } from "@/components/sunproof/prosumator/scene/TimeScrub";
+import { clock, dayTotals, pointAt } from "@/lib/energy-day";
+import { fmt } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import { TicketForm } from "@/components/sunproof/prosumator/TicketForm";
 import { householdQuery } from "@/lib/queries";
-import type { HouseholdDetail } from "@/lib/types";
+import type { HouseholdDetail, MinutePoint } from "@/lib/types";
 
 export const Route = createFileRoute("/prosumator")({
   validateSearch: (s: Record<string, unknown>) => ({
@@ -39,13 +45,13 @@ function ProsumatorPage() {
   const detail = hydrated ? d.data : undefined;
 
   return (
-    <main className="mx-auto max-w-[1200px] space-y-10 px-4 py-8 sm:px-6 sm:py-10">
+    <main className="mx-auto max-w-[1200px] space-y-6 px-4 py-8 sm:px-6 sm:py-10">
       {detail ? (
         <Dashboard key={household} d={detail} />
       ) : (
         <div className="space-y-6">
           <Skeleton className="h-10 w-80" />
-          <Skeleton className="h-[320px]" />
+          <Skeleton className="h-[480px]" />
           <Skeleton className="h-[280px]" />
         </div>
       )}
@@ -55,24 +61,56 @@ function ProsumatorPage() {
 
 function Dashboard({ d }: { d: HouseholdDetail }) {
   const a = d.analysis;
+  const now = useMemo(() => {
+    const t = new Date();
+    return Math.floor((t.getHours() * 60 + t.getMinutes()) / 5) * 5;
+  }, []);
+  const [minute, setMinute] = useState(now);
+  const p = pointAt(d.timeseries.minutes, minute) ?? d.timeseries.minutes[0]!;
+  const day = useMemo(() => dayTotals(d.timeseries.minutes), [d]);
   return (
     <>
-      <header>
-        <h1 className="font-display text-[32px] leading-tight text-bone sm:text-[36px]">
-          Bună ziua, {a.customer_name}
-        </h1>
-        <p className="mt-2 text-[14px] text-fog">
-          {a.street_address} · <span className="num">{a.installed_pv_kw} kWp</span> ·{" "}
-          {a.inverter_brand}
-        </p>
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="font-display text-[28px] leading-tight text-bone sm:text-[32px]">
+            Bună ziua, {a.customer_name}
+          </h1>
+          <p className="mt-1 text-[13px] text-fog">{a.street_address}</p>
+        </div>
+        <dl className="flex gap-6 text-right">
+          <DayFigure label="Produs azi" value={day.produced} tone="text-sun" />
+          <DayFigure label="Trimis în rețea" value={day.exported} tone="text-sky" />
+          <DayFigure label="Luat din rețea" value={day.imported} tone="text-bone" />
+        </dl>
       </header>
 
-      <section aria-label="Energia ta" className="grid gap-4 lg:grid-cols-12">
-        <div className="lg:col-span-7">
-          <EnergySummary d={d} />
+      <section
+        aria-label="Instalația ta, în timp real"
+        className="overflow-hidden rounded-lg border border-border bg-card"
+      >
+        <div className="flex items-center justify-between gap-4 px-5 pt-4">
+          <p className="num text-[22px] text-bone">{clock(p.minute_of_day)}</p>
+          <p className={cn("text-right text-[13px]", tone(p, a.battery_verdict.battery_kwh > 0))}>
+            {caption(p, a.battery_verdict.battery_kwh > 0)}
+          </p>
         </div>
-        <div className="lg:col-span-5">
-          <EnergyFlow d={d} />
+        <EnergyScene d={d} p={p} />
+        <div className="border-t border-border px-5 pb-4 pt-12">
+          <TimeScrub
+            minutes={d.timeseries.minutes}
+            minute={minute}
+            onChange={setMinute}
+            now={now}
+          />
+        </div>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-12">
+        <div className="lg:col-span-8">
+          <DayCharts d={d} minute={minute} onMinute={setMinute} />
+        </div>
+        <div className="lg:col-span-4">
+          <MonthCard d={d} />
         </div>
       </section>
 
@@ -81,4 +119,37 @@ function Dashboard({ d }: { d: HouseholdDetail }) {
       <TicketForm d={d} />
     </>
   );
+}
+
+function DayFigure({ label, value, tone }: { label: string; value: number; tone: string }) {
+  return (
+    <div>
+      <dt className="text-[11.5px] text-fog">{label}</dt>
+      <dd className={`num mt-0.5 text-[18px] leading-none ${tone}`}>
+        {fmt(value, 1)} <span className="text-[11px] text-fog">kWh</span>
+      </dd>
+    </div>
+  );
+}
+
+function tone(p: MinutePoint, hasBatt: boolean) {
+  if (p.status === "TRIP") return "text-critical";
+  return caption(p, hasBatt).startsWith("Bateria stă") ? "text-warning" : "text-fog";
+}
+
+/** One plain sentence for the selected minute: what the energy is doing right now. */
+function caption(p: MinutePoint, hasBatt: boolean): string {
+  if (p.status === "TRIP") return "Invertorul s-a oprit: tensiunea rețelei e prea mare";
+  if (
+    hasBatt &&
+    p.grid_import_kw > 0.05 &&
+    Math.abs(p.battery_power_kw) < 0.05 &&
+    p.battery_soc_pct > 30
+  )
+    return `Bateria stă la ${fmt(p.battery_soc_pct)}%, dar casa cumpără din rețea`;
+  if (p.grid_export_kw > 0.05)
+    return `Casa e acoperită, surplusul de ${fmt(p.grid_export_kw, 1)} kW pleacă în rețea`;
+  if (hasBatt && p.battery_power_kw < -0.05) return "Bateria alimentează casa";
+  if (p.pv_power_kw > 0.05) return "Panourile acoperă o parte din consum, restul vine din rețea";
+  return "Casa folosește energie din rețea";
 }
