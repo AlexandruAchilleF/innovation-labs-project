@@ -56,12 +56,16 @@ export async function withFallback<T>(path: string, init: RequestInit | undefine
     try {
       const ctrl = new AbortController();
       const t = setTimeout(() => ctrl.abort(), 15000);
-      const res = await fetcher(`${API_BASE}${path}`, {
-        ...init,
-        headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
-        signal: ctrl.signal,
-      });
-      clearTimeout(t);
+      let res: Response;
+      try {
+        res = await fetcher(`${API_BASE}${path}`, {
+          ...init,
+          headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
+          signal: ctrl.signal,
+        });
+      } finally {
+        clearTimeout(t);
+      }
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = (await res.json()) as T;
       setMode("live");

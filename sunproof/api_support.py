@@ -7,6 +7,7 @@ Heavy 1-min telemetry is never returned raw: it is aggregated into 5-minute buck
 from __future__ import annotations
 
 import os
+import threading
 from typing import Any, Dict, List, Optional
 
 from sunproof.engine import analyze_household, analyze_portfolio
@@ -28,6 +29,7 @@ _NEIGHBORHOOD_HEAVY = {"transformer_timeseries", "houses", "voltage_profile_at_p
 _RAW: Dict[str, HouseholdCompleteAnalysis] = {}
 _EXPLAINED: Dict[str, HouseholdCompleteAnalysis] = {}
 _PORTFOLIO: Optional[PortfolioSummaryMetrics] = None
+_LOCK = threading.RLock()
 
 
 def use_llm() -> bool:
@@ -41,9 +43,10 @@ def dump(model: Any) -> Any:
 # ---------------------------------------------------------------- analyses (cached)
 def raw_analysis(household_id: str) -> HouseholdCompleteAnalysis:
     """Engine output without texts (KeyError if the household is unknown)."""
-    if household_id not in _RAW:
-        _RAW[household_id] = analyze_household(get_scenario_by_id(household_id))
-    return _RAW[household_id]
+    with _LOCK:
+        if household_id not in _RAW:
+            _RAW[household_id] = analyze_household(get_scenario_by_id(household_id))
+        return _RAW[household_id]
 
 
 def explained(scenario: HouseholdScenario, analysis: HouseholdCompleteAnalysis) -> HouseholdCompleteAnalysis:
@@ -52,16 +55,18 @@ def explained(scenario: HouseholdScenario, analysis: HouseholdCompleteAnalysis) 
 
 def explained_analysis(household_id: str) -> HouseholdCompleteAnalysis:
     """Engine output with the 3 verified texts filled (cached)."""
-    if household_id not in _EXPLAINED:
-        _EXPLAINED[household_id] = explained(get_scenario_by_id(household_id), raw_analysis(household_id))
-    return _EXPLAINED[household_id]
+    with _LOCK:
+        if household_id not in _EXPLAINED:
+            _EXPLAINED[household_id] = explained(get_scenario_by_id(household_id), raw_analysis(household_id))
+        return _EXPLAINED[household_id]
 
 
 def portfolio_metrics() -> PortfolioSummaryMetrics:
     global _PORTFOLIO
-    if _PORTFOLIO is None:
-        _PORTFOLIO = analyze_portfolio([raw_analysis(s.household_id) for s in get_all_scenarios()])
-    return _PORTFOLIO
+    with _LOCK:
+        if _PORTFOLIO is None:
+            _PORTFOLIO = analyze_portfolio([raw_analysis(s.household_id) for s in get_all_scenarios()])
+        return _PORTFOLIO
 
 
 def household_summary(scenario: HouseholdScenario, a: HouseholdCompleteAnalysis) -> Dict[str, Any]:
