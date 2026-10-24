@@ -53,6 +53,8 @@ class SettlementRegime(str, Enum):
 class GridFaultCause(str, Enum):
     """Root-cause classification for midday inverter shutdowns."""
     NONE = "NONE"
+    INSUFFICIENT_DATA = "INSUFFICIENT_DATA"
+    MONITORING_UNCERTAIN = "MONITORING_UNCERTAIN"
     GRID_OVERVOLTAGE = "GRID_OVERVOLTAGE"  # Multiple houses on same transformer hit >=253V simultaneously
     LOCAL_OVERVOLTAGE_SENSITIVITY = "LOCAL_OVERVOLTAGE_SENSITIVITY"  # Wrong country code / trip threshold (e.g., 245V)
     LOCAL_CABLE_IMPEDANCE = "LOCAL_CABLE_IMPEDANCE"  # Undersized AC cable between inverter and smart meter (>8V rise)
@@ -65,7 +67,9 @@ class BatteryVerdictStatus(str, Enum):
     OPTIMAL = "OPTIMAL"
     MISCONFIGURED_SOC_RESERVE = "MISCONFIGURED_SOC_RESERVE"  # e.g., customer wants 20% reserve, inverter set to 80%
     MISCONFIGURED_MODE = "MISCONFIGURED_MODE"  # e.g., stuck in Backup-only or wrong TOU schedule
+    MISCONFIGURED_DISCHARGE_POLICY = "MISCONFIGURED_DISCHARGE_POLICY"
     UNDERPERFORMING_CAPACITY = "UNDERPERFORMING_CAPACITY"
+    INSUFFICIENT_DATA = "INSUFFICIENT_DATA"
 
 
 class BillingVerdictStatus(str, Enum):
@@ -74,6 +78,8 @@ class BillingVerdictStatus(str, Enum):
     MISSING_EXPORT_INDEX = "MISSING_EXPORT_INDEX"  # Distributor/supplier failed to read 2.8.0 export index
     ESTIMATED_INDEX_OVERCHARGE = "ESTIMATED_INDEX_OVERCHARGE"  # Estimated import instead of smart meter profile
     METER_INVERTER_DISCREPANCY = "METER_INVERTER_DISCREPANCY"  # CT clamp reversed or phase metering mismatch
+    AMOUNT_MISMATCH = "AMOUNT_MISMATCH"
+    UNSUPPORTED_SETTLEMENT = "UNSUPPORTED_SETTLEMENT"
 
 
 class SeverityLevel(str, Enum):

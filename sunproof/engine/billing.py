@@ -12,8 +12,9 @@ The correct amount uses the smart-meter registers (1.8.0 import / 2.8.0 export) 
 Rule precedence (first match wins):
 1. MISSING_EXPORT_INDEX       - export index flagged missing, or meter export not (fully) credited on the bill.
 2. ESTIMATED_INDEX_OVERCHARGE - import estimated / billed import above the meter-verified import.
-3. METER_INVERTER_DISCREPANCY - inverter vs meter differ by > 10 % AND > 20 kWh (fleet noise is <= 2.3 % / 6 kWh).
-4. INVOICE_VALID_EXPLAINED    - invoice correct; explain self-consumption vs export.
+Unsupported regimes fail closed before calculation. After quantity-index checks,
+AMOUNT_MISMATCH covers payable, compensation, net energy and carried credit;
+only then are meter/inverter discrepancies and valid invoices classified.
 
 Romanian texts only quote numbers that are fields of the verdict (2-decimal rounding, comma decimal,
 no thousands separator) so the explainer's numeric guardrail can verify them.
@@ -21,12 +22,15 @@ no thousands separator) so the explainer's numeric guardrail can verify them.
 
 from __future__ import annotations
 
+from sunproof.engine.billing_texts import _texts
+
 from sunproof.models import (
     BillingReconciliationVerdict,
     BillingVerdictStatus,
     HouseholdScenario,
     ResponsibleParty,
     SeverityLevel,
+    SettlementRegime,
 )
 
 KWH_TOLERANCE = 1.0  # kWh: below this, invoice vs meter quantities are considered equal (index rounding)
@@ -38,14 +42,6 @@ CRITICAL_RON = 100.0  # billing error above this is CRITICAL, otherwise WARNING
 
 def _r2(value: float) -> float:
     return round(float(value), 2)
-
-
-def _fmt(value: float) -> str:
-    """Romanian number format matching the 2-decimal verdict value: 1320 / 210,80."""
-    value = _r2(value)
-    if value == int(value):
-        return str(int(value))
-    return f"{value:.2f}".replace(".", ",")
 
 
 def _payable(import_kwh: float, export_kwh: float, scenario: HouseholdScenario) -> float:
@@ -61,111 +57,30 @@ def _exceeds(a: float, b: float) -> bool:
 
 def _classify(scenario: HouseholdScenario) -> BillingVerdictStatus:
     m, inv = scenario.monthly_summary, scenario.invoice
+    if inv.settlement_regime != SettlementRegime.QUANTITY_COMPENSATION_UNDER_200KW:
+        return BillingVerdictStatus.UNSUPPORTED_SETTLEMENT
     if inv.is_export_index_missing_on_bill or (
         m.meter_verified_export_kwh > 0 and inv.billed_export_kwh == 0
     ) or inv.billed_export_kwh < m.meter_verified_export_kwh - KWH_TOLERANCE:
         return BillingVerdictStatus.MISSING_EXPORT_INDEX
     if inv.is_import_estimated or inv.billed_import_kwh > m.meter_verified_import_kwh + KWH_TOLERANCE:
         return BillingVerdictStatus.ESTIMATED_INDEX_OVERCHARGE
+    expected_compensation = min(inv.billed_import_kwh, inv.billed_export_kwh)
+    lines = ((inv.compensated_active_energy_kwh, expected_compensation),
+             (inv.net_billed_active_energy_kwh, max(0, inv.billed_import_kwh-inv.billed_export_kwh)),
+             (inv.carried_forward_export_credit_kwh, max(0, inv.billed_export_kwh-inv.billed_import_kwh)),
+             (inv.billed_import_kwh, m.meter_verified_import_kwh),
+             (inv.billed_export_kwh, m.meter_verified_export_kwh))
+    if (any(abs(a-b) > KWH_TOLERANCE for a,b in lines)
+            or abs(inv.total_payable_ron - _payable(m.meter_verified_import_kwh,
+                                                   m.meter_verified_export_kwh, scenario)) > .05):
+        return BillingVerdictStatus.AMOUNT_MISMATCH
     if _exceeds(m.inverter_reported_export_kwh, m.meter_verified_export_kwh) or _exceeds(
         m.inverter_reported_import_kwh, m.meter_verified_import_kwh
     ):
         return BillingVerdictStatus.METER_INVERTER_DISCREPANCY
     return BillingVerdictStatus.INVOICE_VALID_EXPLAINED
 
-
-def _texts(status: BillingVerdictStatus, n: dict[str, float]) -> dict[str, str]:
-    """Romanian headline / call-center script / customer explanation / recommended action."""
-    f = {k: _fmt(v) for k, v in n.items()}
-    walk = (
-        f"Luna aceasta panourile au produs {f['prod']} kWh. Din aceștia, {f['self']} kWh "
-        f"({f['ratio']}%) au fost consumați direct în casă, fără să treacă prin contorul rețelei"
-        + (f", inclusiv {f['batt']} kWh stocați în baterie și folosiți seara" if n["batt"] > 0 else "")
-        + f". Doar surplusul de {f['inv_exp']} kWh a plecat în rețea; contorul inteligent "
-        f"(registrul de export) a măsurat oficial {f['m_exp']} kWh injectați. "
-    )
-    savings = (
-        f"Energia consumată direct v-a economisit deja {f['savings']} RON, bani pe care nu îi mai "
-        "vedeți pe factură tocmai pentru că nu ați cumpărat-o din rețea."
-    )
-    if status == BillingVerdictStatus.MISSING_EXPORT_INDEX:
-        return {
-            "headline": f"Factura nu recunoaște {f['missing']} kWh injectați: plată în plus de {f['disc']} RON",
-            "script": (
-                f"Aveți dreptate să verificați. Contorul a înregistrat {f['m_exp']} kWh injectați în rețea, "
-                f"dar pe factură apar doar {f['b_exp']} kWh, deci indexul de export lipsește. Suma corectă "
-                f"este {f['correct']} RON, nu {f['billed']} RON. Deschidem acum o cerere de refacturare."
-            ),
-            "explanation": walk + (
-                f"Factura a recunoscut însă doar {f['b_exp']} kWh exportați, așa că cei {f['m_imp']} kWh "
-                f"importați nu au fost compensați kWh pentru kWh cu energia injectată. Ați fost facturat cu "
-                f"{f['billed']} RON, iar suma corectă este {f['correct']} RON (diferență {f['disc']} RON). "
-            ) + savings,
-            "action": (
-                "Furnizorul trebuie să preia indexul real de export de la distribuitor, să storneze factura "
-                f"și să reemită factura cu {f['m_exp']} kWh compensați; diferența de {f['disc']} RON se "
-                "restituie sau se compensează pe factura următoare. Dacă nu se rezolvă, reclamație la ANRE."
-            ),
-        }
-    if status == BillingVerdictStatus.ESTIMATED_INDEX_OVERCHARGE:
-        return {
-            "headline": f"Import facturat pe estimare: {f['b_imp']} kWh în loc de {f['m_imp']} kWh, {f['disc']} RON în plus",
-            "script": (
-                f"Factura folosește un index de consum estimat: {f['b_imp']} kWh facturați, dar contorul "
-                f"inteligent a măsurat {f['m_imp']} kWh. Suma corectă este {f['correct']} RON în loc de "
-                f"{f['billed']} RON. Solicităm regularizarea pe baza citirii reale."
-            ),
-            "explanation": walk + (
-                f"Din rețea ați consumat de fapt {f['m_imp']} kWh, însă factura a folosit o estimare de "
-                f"{f['b_imp']} kWh. Recalculată pe indexul real, factura este {f['correct']} RON, nu "
-                f"{f['billed']} RON (diferență {f['disc']} RON). "
-            ) + savings,
-            "action": (
-                "Furnizorul (care a emis factura) trebuie să ceară distribuitorului citirea reală a "
-                f"contorului inteligent și să regularizeze factura cu {f['disc']} RON în favoarea clientului."
-            ),
-        }
-    if status == BillingVerdictStatus.METER_INVERTER_DISCREPANCY:
-        return {
-            "headline": "Invertorul și contorul inteligent raportează cantități diferite",
-            "script": (
-                f"Invertorul raportează {f['inv_exp']} kWh exportați și {f['inv_imp']} kWh importați, "
-                f"iar contorul oficial {f['m_exp']} kWh și {f['m_imp']} kWh. Factura respectă contorul; "
-                "trimitem un tehnician să verifice senzorul de măsură al invertorului."
-            ),
-            "explanation": walk + (
-                f"Aplicația invertorului arată însă alte valori ({f['inv_exp']} kWh export, {f['inv_imp']} kWh "
-                f"import). Factura se bazează legal pe contor: {f['billed']} RON. "
-            ) + savings,
-            "action": (
-                "Instalatorul verifică senzorul de curent (CT/smart meter) al invertorului, cablarea și "
-                "configurarea; dacă diferența persistă, se solicită distribuitorului verificarea contorului."
-            ),
-        }
-    return {
-        "headline": f"Factura este corectă: {f['b_exp']} kWh injectați, restul de {f['self']} kWh i-ați consumat direct",
-        "script": (
-            f"Factura este corectă. Panourile au produs {f['prod']} kWh, dar {f['self']} kWh au fost "
-            f"consumați direct în casă și nu ajung la contor; doar {f['m_exp']} kWh au fost injectați, "
-            f"exact cât apare pe factură. De plată: {f['billed']} RON."
-        ),
-        "explanation": walk + (
-            f"Aceasta este exact cantitatea recunoscută pe factură ({f['b_exp']} kWh). Din rețea ați "
-            f"consumat {f['m_imp']} kWh"
-            + (
-                ", toți compensați kWh pentru kWh cu energia injectată; surplusul rămâne credit pentru "
-                "lunile următoare. Suma de "
-                if n["m_exp"] >= n["m_imp"] else
-                f", din care {f['m_exp']} kWh au fost compensați kWh pentru kWh cu energia injectată, iar "
-                "diferența neacoperită se plătește la prețul energiei. Suma de "
-            )
-            + f"{f['billed']} RON include tarifele de rețea și taxele, care prin lege nu se compensează. "
-        ) + savings,
-        "action": (
-            "Nicio corecție necesară. Explicați clientului diferența dintre producția totală a panourilor "
-            "și energia injectată în rețea; pentru a reduce importul, mutați consumul mare la prânz."
-        ),
-    }
 
 
 def analyze_billing_reconciliation(scenario: HouseholdScenario) -> BillingReconciliationVerdict:
@@ -175,6 +90,7 @@ def analyze_billing_reconciliation(scenario: HouseholdScenario) -> BillingReconc
 
     production = m.inverter_total_production_kwh
     ratio = 100.0 * m.inverter_direct_self_consumption_kwh / production if production > 0 else 0.0
+    supported = status != BillingVerdictStatus.UNSUPPORTED_SETTLEMENT
     correct = _payable(m.meter_verified_import_kwh, m.meter_verified_export_kwh, scenario)
     n = {
         "prod": production,
@@ -196,7 +112,7 @@ def analyze_billing_reconciliation(scenario: HouseholdScenario) -> BillingReconc
     n = {k: _r2(v) for k, v in n.items()}
     n["disc"] = _r2(n["billed"] - n["correct"])
 
-    if status in (BillingVerdictStatus.MISSING_EXPORT_INDEX, BillingVerdictStatus.ESTIMATED_INDEX_OVERCHARGE):
+    if status in (BillingVerdictStatus.MISSING_EXPORT_INDEX, BillingVerdictStatus.ESTIMATED_INDEX_OVERCHARGE, BillingVerdictStatus.AMOUNT_MISMATCH):
         # The supplier issues the invoice and is the customer's single contractual counterparty,
         # so it owns the correction even when the missing/estimated reading came from the distributor.
         severity = SeverityLevel.CRITICAL if abs(n["disc"]) >= CRITICAL_RON else SeverityLevel.WARNING
@@ -204,6 +120,8 @@ def analyze_billing_reconciliation(scenario: HouseholdScenario) -> BillingReconc
         anre_risk = abs(n["disc"]) >= MATERIAL_RON
     elif status == BillingVerdictStatus.METER_INVERTER_DISCREPANCY:
         severity, responsible, anre_risk = SeverityLevel.WARNING, ResponsibleParty.INSTALLER_TECHNICIAN, False
+    elif status == BillingVerdictStatus.UNSUPPORTED_SETTLEMENT:
+        severity, responsible, anre_risk = SeverityLevel.WARNING, ResponsibleParty.SUPPLIER_BILLING, False
     else:
         severity, responsible, anre_risk = SeverityLevel.INFO, ResponsibleParty.NONE, False
 
@@ -229,8 +147,10 @@ def analyze_billing_reconciliation(scenario: HouseholdScenario) -> BillingReconc
         meter_import_kwh=n["m_imp"],
         billed_import_kwh=n["b_imp"],
         billed_payable_ron=n["billed"],
-        correct_payable_ron=n["correct"],
-        financial_discrepancy_ron=n["disc"],
+        reconciliation_supported=supported,
+        evidence_status="sufficient" if supported else "unsupported",
+        correct_payable_ron=n["correct"] if supported else None,
+        financial_discrepancy_ron=n["disc"] if supported else None,
         self_consumption_savings_ron=n["savings"],
         anre_complaint_risk_high=anre_risk,
     )
