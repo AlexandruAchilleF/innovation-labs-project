@@ -12,8 +12,7 @@ import { cn } from "@/lib/utils";
 export const glass = "border border-iron bg-obsidian/85 backdrop-blur-sm shadow-overlay";
 
 export const prefersReducedMotion = () =>
-  typeof window !== "undefined" &&
-  window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
 export function LayersMenu({
   basemap,
@@ -28,7 +27,6 @@ export function LayersMenu({
 }) {
   const rows: [keyof LayerToggles, string, string][] = [
     ["feeders", "Fideri JT", "culoare = tensiune, grosime = încărcare"],
-    ["flow", "Sensul puterii", "animat spre PT la export"],
     ["heat", "Hartă termică", "creșterea tensiunii"],
   ];
   return (

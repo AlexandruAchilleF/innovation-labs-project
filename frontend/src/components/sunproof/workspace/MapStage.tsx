@@ -50,7 +50,7 @@ export function MapStage({
   caseChip?: ReactNode;
 }) {
   const [basemap, setBasemap] = useState<Basemap>("satellite");
-  const [toggles, setToggles] = useState<LayerToggles>({ feeders: true, heat: true, flow: true });
+  const [toggles, setToggles] = useState<LayerToggles>({ feeders: true, heat: true });
 
   const houses = useMemo(() => grid?.houses ?? [], [grid]);
   const geography = useMemo(() => (nb ? resolveMapGeometry(nb, houses) : null), [nb, houses]);

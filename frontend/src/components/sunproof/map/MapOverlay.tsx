@@ -116,7 +116,8 @@ export function MapOverlay({
           const status = houseStatusAt(h, slot);
           const mpp = (156543.03392 * Math.cos((active.center[1] * Math.PI) / 180)) / 2 ** zoom;
           const roofM = active.roofSizes?.get(h.house_id) ?? ROOF_M;
-          const size = Math.max(8, Math.min(150, roofM / mpp));
+          const roofScale = zoom >= ROOF_ZOOM ? 1.25 : 1;
+          const size = Math.max(8, Math.min(150, (roofM * roofScale) / mpp));
           const v = houseVoltageAt(h, slot);
           return (
             <div

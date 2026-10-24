@@ -9,32 +9,13 @@ import { useMapApi } from "./MapCanvas";
 export interface LayerToggles {
   feeders: boolean;
   heat: boolean;
-  flow: boolean;
 }
 
 const cssVar = (name: string) =>
   getComputedStyle(document.documentElement).getPropertyValue(name).trim() || "#a4a19b";
 const EMPTY = { type: "FeatureCollection" as const, features: [] };
 
-// MapLibre's dashed-line animation: cycle through offsets of a 4-unit dash pattern.
-const DASH_SEQ: number[][] = [
-  [0, 4, 3],
-  [0.5, 4, 2.5],
-  [1, 4, 2],
-  [1.5, 4, 1.5],
-  [2, 4, 1],
-  [2.5, 4, 0.5],
-  [3, 4, 0],
-  [0, 0.5, 3, 3.5],
-  [0, 1, 3, 3],
-  [0, 1.5, 3, 2.5],
-  [0, 2, 3, 2],
-  [0, 2.5, 3, 1.5],
-  [0, 3, 3, 1],
-  [0, 3.5, 3, 0.5],
-];
-
-/** Congestion layers: voltage-coloured feeder trunks (width = loading), service drops, flow dashes and a voltage-rise heatmap. */
+/** Congestion layers: voltage-coloured feeder trunks (width = loading), service drops and a voltage-rise heatmap. */
 export function GridLayers({
   center,
   runs,
@@ -75,11 +56,11 @@ export function GridLayers({
       id: "sp-heat",
       type: "heatmap",
       source: "sp-heat",
-      minzoom: 12,
+      minzoom: 0,
       paint: {
         "heatmap-weight": ["get", "w"],
-        "heatmap-intensity": ["interpolate", ["linear"], ["zoom"], 12, 0.6, 17, 1.6],
-        "heatmap-radius": ["interpolate", ["exponential", 2], ["zoom"], 12, 12, 18, 160],
+        "heatmap-intensity": ["interpolate", ["linear"], ["zoom"], 0, 0.8, 12, 0.6, 17, 1.6],
+        "heatmap-radius": ["interpolate", ["exponential", 2], ["zoom"], 0, 18, 12, 24, 18, 160],
         "heatmap-opacity": 0.55,
         "heatmap-color": [
           "interpolate",
@@ -127,38 +108,9 @@ export function GridLayers({
         "line-width": ["interpolate", ["linear"], ["get", "load"], 0, 2.5, 100, 11],
       },
     });
-    map.addLayer({
-      id: "sp-flow",
-      type: "line",
-      source: "sp-feeders",
-      filter: ["all", ["==", ["get", "kind"], "trunk"], [">", ["get", "load"], 2]],
-      paint: {
-        "line-color": cssVar("--bone"),
-        "line-width": 1.6,
-        "line-opacity": 0.75,
-        "line-dasharray": DASH_SEQ[0]!,
-      },
-    });
-
-    let step = -1;
-    let raf = 0;
-    const animate = (t: number) => {
-      const next = Math.floor(t / 70) % DASH_SEQ.length;
-      if (
-        next !== step &&
-        map.getLayer("sp-flow") &&
-        map.getLayoutProperty("sp-flow", "visibility") !== "none"
-      ) {
-        map.setPaintProperty("sp-flow", "line-dasharray", DASH_SEQ[next]!);
-        step = next;
-      }
-      raf = requestAnimationFrame(animate);
-    };
-    raf = requestAnimationFrame(animate);
     return () => {
-      cancelAnimationFrame(raf);
       if (!map.getStyle()) return;
-      ["sp-flow", "sp-trunk", "sp-trunk-casing", "sp-drop", "sp-heat"].forEach(
+      ["sp-trunk", "sp-trunk-casing", "sp-drop", "sp-heat"].forEach(
         (id) => map.getLayer(id) && map.removeLayer(id),
       );
       ["sp-feeders", "sp-heat"].forEach((id) => map.getSource(id) && map.removeSource(id));
@@ -178,7 +130,6 @@ export function GridLayers({
     const set = (id: string, on: boolean) =>
       api.map.getLayer(id) && api.map.setLayoutProperty(id, "visibility", vis(on));
     ["sp-trunk", "sp-trunk-casing", "sp-drop"].forEach((id) => set(id, toggles.feeders));
-    set("sp-flow", toggles.feeders && toggles.flow);
     set("sp-heat", toggles.heat);
   }, [api, toggles]);
 
