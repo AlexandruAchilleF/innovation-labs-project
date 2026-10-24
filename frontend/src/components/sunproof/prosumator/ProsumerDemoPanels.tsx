@@ -11,9 +11,9 @@ const PILOT_BONUS_RON_KWH = 0.4; // bonus pilot tip Electrica, august 2026, vâr
 
 function Panel({ title, icon, children }: { title: string; icon: ReactNode; children: ReactNode }) {
   return (
-    <section className="rounded-2xl border border-border bg-card p-5">
+    <section className="rounded-lg border border-border bg-card p-5">
       <h2 className="mb-3 flex items-center gap-2 text-[14px] font-semibold">
-        <span className="flex size-7 items-center justify-center rounded-lg bg-sun-soft text-warning">{icon}</span>
+        <span className="flex size-7 items-center justify-center rounded-[4px] border border-iron text-fog">{icon}</span>
         {title}
       </h2>
       {children}
@@ -56,14 +56,14 @@ function IntentCard() {
             key={v}
             type="button"
             onClick={() => setIntent(v)}
-            className={cn("rounded-full border px-3 py-1.5 text-[12px]", intent === v ? "border-sun bg-sun text-ink font-semibold" : "border-border text-muted-foreground")}
+            className={cn("rounded-[4px] border px-3 py-1.5 text-[12px]", intent === v ? "border-voltage text-bone" : "border-border text-muted-foreground")}
           >
             {l}
           </button>
         ))}
       </div>
       {intent === 20 ? (
-        <div className="mt-3 rounded-xl border border-critical/40 bg-critical/10 p-3 text-[12.5px] leading-snug">
+        <div className="mt-3 rounded-lg border border-critical/40 bg-critical/10 p-3 text-[12.5px] leading-snug">
           <div className="font-semibold text-critical">Alertă: setarea invertorului (80%) nu corespunde intenției tale (20%)</div>
           <div className="mt-1">
             Cost import de seară: <span className="num font-semibold">{fmt(costRon, 2)} RON/lună</span>{" "}
@@ -77,7 +77,7 @@ function IntentCard() {
           </div>
         </div>
       ) : (
-        <div className="mt-3 inline-flex rounded-full bg-success-soft px-3 py-1.5 text-[12.5px] font-semibold text-success">
+        <div className="mt-3 inline-flex rounded-[4px] bg-success-soft px-3 py-1.5 text-[12.5px] font-semibold text-success">
           Fără alertă: setarea invertorului (80%) corespunde intenției tale declarate (80%)
         </div>
       )}
@@ -98,7 +98,7 @@ function TicketCard({ d }: { d: HouseholdDetail }) {
         Trimite problemă către O&amp;M cu verdictul SunProof atașat
       </button>
       {sent && (
-        <div className="mt-3 rounded-xl border border-success/40 bg-success-soft p-3 text-[12.5px] leading-snug">
+        <div className="mt-3 rounded-lg border border-success/40 bg-success-soft p-3 text-[12.5px] leading-snug">
           <div className="font-semibold text-success">Tichet creat și trimis către echipa O&amp;M</div>
           <div className="mt-1 text-[11.5px] uppercase tracking-wide text-muted-foreground">Pachet atașat</div>
           <ul className="mt-1 space-y-0.5">

@@ -26,20 +26,20 @@ export function TriageHeader({ d }: { d: HouseholdDetail }) {
     ["Fază", a.phase],
   ];
   return (
-    <div className="bg-banner rounded-xl border border-ink-line p-4 text-ink-foreground">
+    <div className="bg-banner rounded-lg border border-ink-line p-4 text-ink-foreground">
       <div className="flex flex-wrap items-start gap-4">
         <div className="min-w-0 flex-1">
           <div className="mb-3 rounded-lg border border-ink-line bg-ink/60 px-3 py-2">
-            <div className="text-[9.5px] font-semibold uppercase tracking-[0.14em] text-sun">Întrebarea clientului</div>
-            <p className="mt-0.5 text-[13px] italic text-ink-foreground/90">„{d.scenario.customer_question_ro}”</p>
+            <div className="eyebrow !text-[10px]">Întrebarea clientului</div>
+            <p className="mt-0.5 font-display text-[13.5px] italic text-ink-foreground/90">„{d.scenario.customer_question_ro}”</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className={cn("text-[10px] font-bold uppercase tracking-[0.14em]", sevText[a.overall_severity])}>● {severityLabel[a.overall_severity]}</span>
-            <h2 className="text-[17px] font-semibold tracking-tight">{a.customer_name}</h2>
+            <span className={cn("text-[10px] font-medium uppercase tracking-[0.14em]", sevText[a.overall_severity])}>● {severityLabel[a.overall_severity]}</span>
+            <h2 className="font-display text-[20px] leading-tight">{a.customer_name}</h2>
             <span className="num text-[12px] text-ink-muted">
               {a.household_id} · {a.city}
             </span>
-            <span className="rounded-full border border-ink-line bg-ink/60 px-2 py-0.5 text-[11px] text-ink-muted">{d.scenario.scenario_badge_ro}</span>
+            <span className="rounded-[4px] border border-ink-line bg-ink/60 px-2 py-0.5 text-[11px] text-ink-muted">{d.scenario.scenario_badge_ro}</span>
           </div>
           <p className="mt-2 flex gap-2 text-[13.5px] font-medium leading-snug">
             <Zap className={cn("mt-0.5 size-4 shrink-0", sevText[a.overall_severity])} />
@@ -57,19 +57,19 @@ export function TriageHeader({ d }: { d: HouseholdDetail }) {
           <div className="flex gap-2 text-right">
             <div className="rounded-lg border border-ink-line bg-ink/60 px-3 py-1.5">
               <div className="text-[9px] uppercase tracking-wider text-ink-muted">Furnizor</div>
-              <div className="num text-[15px] font-semibold text-success">+{fmt(a.total_supplier_monthly_benefit_ron)} RON</div>
+              <div className="num text-[15px] text-bone">+{fmt(a.total_supplier_monthly_benefit_ron)} RON</div>
             </div>
             <div className="rounded-lg border border-ink-line bg-ink/60 px-3 py-1.5">
               <div className="text-[9px] uppercase tracking-wider text-ink-muted">Client</div>
-              <div className="num text-[15px] font-semibold text-success">+{fmt(a.total_customer_monthly_benefit_ron)} RON</div>
+              <div className="num text-[15px] text-bone">+{fmt(a.total_customer_monthly_benefit_ron)} RON</div>
             </div>
           </div>
-          <span className="rounded-md bg-ink-foreground px-2 py-1 text-[11px] font-semibold text-ink">Responsabil: {responsibleLabel[a.primary_responsible_party]}</span>
+          <span className="rounded-[4px] border border-iron px-2 py-1 text-[11px] text-bone">Responsabil: {responsibleLabel[a.primary_responsible_party]}</span>
           <div className="flex gap-2">
-            <Button size="sm" className="bg-success text-ink-foreground hover:bg-success/90" onClick={() => api.openPdfDossier(a.household_id)}>
+            <Button size="sm" variant="outline" className="border-bone bg-transparent text-bone hover:bg-slate" onClick={() => api.openPdfDossier(a.household_id)}>
               <FileDown /> Dosar PDF ANRE
             </Button>
-            <Button size="sm" className="bg-sky text-ink hover:bg-sky/90" onClick={() => tg.mutate()} disabled={tg.isPending}>
+            <Button size="sm" variant="outline" className="border-iron bg-transparent text-bone hover:bg-slate" onClick={() => tg.mutate()} disabled={tg.isPending}>
               <Send /> {tg.isPending ? "Se trimite…" : "Alertă Telegram Tehnician"}
             </Button>
           </div>
@@ -93,7 +93,7 @@ export function TriageHeader({ d }: { d: HouseholdDetail }) {
 
 function VCard({ n, title, icon, sev, children }: { n: number; title: string; icon: ReactNode; sev: Severity; children: ReactNode }) {
   return (
-    <section className="overflow-hidden rounded-xl border border-border bg-card">
+    <section className="overflow-hidden rounded-lg border border-border bg-card">
       <div className={cn("h-1", strip[sev])} />
       <header className="flex items-center justify-between gap-2 px-3 pt-2.5">
         <h3 className="flex items-center gap-1.5 text-[12.5px] font-semibold">
@@ -119,8 +119,8 @@ function CompareBar({ items, max }: { items: { l: string; v: number; tone: strin
               {x.suffix}
             </span>
           </div>
-          <div className="mt-0.5 h-1.5 overflow-hidden rounded-full bg-muted">
-            <div className={cn("h-full rounded-full", x.tone)} style={{ width: `${Math.min(100, (x.v / max) * 100)}%` }} />
+          <div className="mt-0.5 h-1.5 overflow-hidden rounded-[4px] bg-muted">
+            <div className={cn("h-full rounded-[4px]", x.tone)} style={{ width: `${Math.min(100, (x.v / max) * 100)}%` }} />
           </div>
         </div>
       ))}
@@ -212,7 +212,7 @@ function tripZones(minutes: MinutePoint[]) {
 
 function ChartCard({ title, sub, children }: { title: string; sub?: string; children: ReactNode }) {
   return (
-    <section className="rounded-xl border border-border bg-card p-3">
+    <section className="rounded-lg border border-border bg-card p-3">
       <div className="mb-1 flex items-baseline justify-between gap-2">
         <h3 className="text-[12.5px] font-semibold">{title}</h3>
         {sub && <span className="num text-[10.5px] text-muted-foreground">{sub}</span>}

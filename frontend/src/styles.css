@@ -1,21 +1,17 @@
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
+@import "maplibre-gl/dist/maplibre-gl.css";
 
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Design system definition.
+ * Altitude design system (see .claude/skills/altitude-design/DESIGN.md).
  *
- * The @theme inline block maps CSS custom properties to Tailwind utility
- * classes (e.g. --color-primary -> bg-primary, text-primary).
- *
- * The :root and .dark blocks define the actual color values using oklch.
- * All colors MUST use oklch format.
- *
- * To add a new semantic color:
- * 1. Add the variable to :root (light value) and .dark (dark value)
- * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ * Dark only: surfaces step obsidian #111 -> canvas #181818 -> graphite #1f1f1f -> slate #262626 -> iron #323232.
+ * Structure comes from hairline borders. Voltage Blue #2b7fff is the only accent (links, selection, focus).
+ * critical / warning / success are reserved for grid status (overvoltage, derating, healthy) and never decorate.
+ * The shadcn variable names (--card, --muted, ...) are kept so ui/* components inherit the palette.
  */
 
 @theme inline {
@@ -72,8 +68,20 @@
   --color-sky: var(--sky);
   --color-sun: var(--sun);
   --color-sun-soft: var(--sun-soft);
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Fira Code", "JetBrains Mono", ui-monospace, monospace;
+  --font-serif: "Libre Baskerville", "Source Serif Pro", Lora, Georgia, serif;
+  --color-obsidian: var(--obsidian);
+  --color-canvas: var(--canvas);
+  --color-graphite: var(--graphite);
+  --color-slate: var(--slate);
+  --color-iron: var(--iron);
+  --color-bone: var(--bone);
+  --color-fog: var(--fog);
+  --color-smoke: var(--smoke);
+  --color-pewter: var(--pewter);
+  --color-voltage: var(--voltage);
+  --color-navy: var(--navy);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -85,96 +93,84 @@
 }
 
 :root {
-  --radius: 0.5rem;
-  --background: oklch(0.984 0.003 247.858);
-  --critical: oklch(0.505 0.213 27.518);
-  --critical-soft: oklch(0.971 0.013 17.38);
-  --critical-border: oklch(0.885 0.062 18.334);
-  --warning: oklch(0.555 0.163 48.998);
-  --warning-soft: oklch(0.987 0.022 95.277);
-  --warning-border: oklch(0.924 0.12 95.746);
-  --success: oklch(0.508 0.118 165.612);
-  --success-soft: oklch(0.979 0.021 166.113);
-  --success-border: oklch(0.905 0.093 164.15);
-  --info: oklch(0.488 0.217 264.376);
-  --info-soft: oklch(0.97 0.014 254.604);
-  --info-border: oklch(0.882 0.059 254.128);
-  --sun: oklch(0.769 0.165 70.08);
-  --ink: oklch(0.129 0.042 264.695);
-  --ink-2: oklch(0.208 0.042 265.755);
-  --ink-3: oklch(0.279 0.041 260.031);
-  --ink-line: oklch(0.32 0.04 260);
-  --ink-foreground: oklch(0.984 0.003 247.858);
-  --ink-muted: oklch(0.704 0.04 256.788);
-  --sky: oklch(0.685 0.169 237.323);
-  --gradient-banner: linear-gradient(90deg, var(--ink-2), var(--ink-3) 50%, var(--ink-2));
-  --sun-soft: oklch(0.987 0.022 95.277);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
-}
+  color-scheme: dark;
+  --radius: 8px;
 
-.dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
+  /* Altitude surfaces + foreground */
+  --obsidian: #111111;
+  --canvas: #181818;
+  --graphite: #1f1f1f;
+  --slate: #262626;
+  --iron: #323232;
+  --bone: #eeeeee;
+  --fog: #a4a19b;
+  --smoke: #5e5d59;
+  --pewter: #4b4b4b;
+  --voltage: #2b7fff;
+  --navy: #1a365d;
+
+  /* Grid status (functional only) */
+  --critical: #e86e58;
+  --critical-soft: color-mix(in oklab, #e86e58 12%, transparent);
+  --critical-border: color-mix(in oklab, #e86e58 45%, transparent);
+  --warning: #d4a35a;
+  --warning-soft: color-mix(in oklab, #d4a35a 12%, transparent);
+  --warning-border: color-mix(in oklab, #d4a35a 45%, transparent);
+  --success: #8fae95;
+  --success-soft: color-mix(in oklab, #8fae95 12%, transparent);
+  --success-border: color-mix(in oklab, #8fae95 40%, transparent);
+  --info: #2b7fff;
+  --info-soft: color-mix(in oklab, #2b7fff 12%, transparent);
+  --info-border: color-mix(in oklab, #2b7fff 45%, transparent);
+  --sun: #d4a35a;
+  --sun-soft: color-mix(in oklab, #d4a35a 12%, transparent);
+  --sky: #2b7fff;
+
+  /* Legacy "ink" command surfaces, now the same Altitude stack */
+  --ink: #111111;
+  --ink-2: #1f1f1f;
+  --ink-3: #262626;
+  --ink-line: #2e2e2e;
+  --ink-foreground: #eeeeee;
+  --ink-muted: #a4a19b;
+  --gradient-banner: none;
+
+  /* shadcn semantic aliases */
+  --background: #181818;
+  --foreground: #eeeeee;
+  --card: #1f1f1f;
+  --card-foreground: #eeeeee;
+  --popover: #262626;
+  --popover-foreground: #eeeeee;
+  --primary: #eeeeee;
+  --primary-foreground: #181818;
+  --secondary: #262626;
+  --secondary-foreground: #eeeeee;
+  --muted: #262626;
+  --muted-foreground: #a4a19b;
+  --accent: #262626;
+  --accent-foreground: #eeeeee;
+  --destructive: #e86e58;
+  --destructive-foreground: #111111;
+  --border: #2a2a2a;
+  --input: #323232;
+  --ring: #2b7fff;
+  --chart-1: #eeeeee;
+  --chart-2: #2b7fff;
+  --chart-3: #a4a19b;
+  --chart-4: #d4a35a;
+  --chart-5: #e86e58;
+  --sidebar: #111111;
+  --sidebar-foreground: #eeeeee;
+  --sidebar-primary: #2b7fff;
+  --sidebar-primary-foreground: #eeeeee;
+  --sidebar-accent: #262626;
+  --sidebar-accent-foreground: #eeeeee;
+  --sidebar-border: #262626;
+  --sidebar-ring: #2b7fff;
+
+  --shadow-card: 0px 2px 15px 0px rgba(51, 51, 51, 0.05), 0px 1px 2px -1px rgba(51, 51, 51, 0.05);
+  --shadow-overlay: 0px 0px 0px 1px rgba(255, 255, 255, 0.1), 0px 8px 24px 0px rgba(0, 0, 0, 0.3), 0px 2px 8px 0px rgba(0, 0, 0, 0.2);
 }
 
 @layer base {
@@ -186,7 +182,18 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--voltage) 40%, transparent);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--iron) transparent;
   }
 }
 
@@ -214,13 +221,54 @@
   animation: flow-dash 0.9s linear infinite;
 }
 @utility glow-sun {
-  box-shadow: 0 0 18px -2px color-mix(in oklab, var(--sun) 70%, transparent);
+  box-shadow: none;
+}
+
+/* Libre Baskerville display voice: weight 400, tight tracking, never bold */
+@utility font-display {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.025em;
+}
+
+/* 11px uppercase label with +0.05em tracking (table headers, badges) */
+@utility eyebrow {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fog);
+}
+
+@utility shadow-overlay {
+  box-shadow: var(--shadow-overlay);
+}
+
+/* ---------- map (MapLibre) chrome ---------- */
+.maplibregl-map {
+  font-family: var(--font-sans);
+  background: var(--obsidian);
+}
+.maplibregl-ctrl-attrib {
+  background: color-mix(in oklab, var(--obsidian) 80%, transparent) !important;
+  color: var(--smoke);
+  font-size: 10px;
+}
+.maplibregl-ctrl-attrib a {
+  color: var(--fog);
+}
+.maplibregl-ctrl-scale {
+  background: color-mix(in oklab, var(--obsidian) 70%, transparent);
+  border-color: var(--fog);
+  color: var(--fog);
+  font-family: var(--font-mono);
+  font-size: 10px;
 }
 
 /* Scope for controls placed on dark "ink" command surfaces */
 .ink-scope {
-  --primary: var(--sun);
-  --primary-foreground: var(--ink);
+  --primary: var(--bone);
+  --primary-foreground: var(--canvas);
   --input: oklch(1 0 0 / 18%);
-  --ring: var(--sun);
+  --ring: var(--voltage);
 }

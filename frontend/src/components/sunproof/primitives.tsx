@@ -3,11 +3,12 @@ import { cn } from "@/lib/utils";
 import { severityLabel } from "@/lib/i18n";
 import type { Severity } from "@/lib/types";
 
+// Altitude badges: no fill, status carried by text tone + a hairline border
 const sevClass: Record<Severity, string> = {
-  CRITICAL: "bg-critical-soft text-critical border-critical-border",
-  WARNING: "bg-warning-soft text-warning border-warning-border",
-  OK: "bg-success-soft text-success border-success-border",
-  INFO: "bg-info-soft text-info border-info-border",
+  CRITICAL: "text-critical border-critical-border",
+  WARNING: "text-warning border-warning-border",
+  OK: "text-fog border-iron",
+  INFO: "text-bone border-iron",
 };
 const dotClass: Record<Severity, string> = {
   CRITICAL: "bg-critical",
@@ -18,7 +19,7 @@ const dotClass: Record<Severity, string> = {
 
 export function StatusBadge({ severity, label, className }: { severity: Severity; label?: string; className?: string }) {
   return (
-    <span className={cn("inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px] font-medium", sevClass[severity], className)}>
+    <span className={cn("inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[4px] border px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.05em]", sevClass[severity], className)}>
       <span className={cn("size-1.5 rounded-full", dotClass[severity])} />
       {label ?? severityLabel[severity]}
     </span>

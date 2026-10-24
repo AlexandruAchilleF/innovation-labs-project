@@ -33,7 +33,7 @@ export function OmTicketLifecycleCard({ d }: { d: HouseholdDetail }) {
   const [i, setI] = useState(0);
   const s = STATES[i] ?? STATES[0]!;
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
+    <div className="rounded-lg border border-border bg-card p-4">
       <div className="mb-2 flex items-center justify-between gap-2">
         <h3 className="text-sm font-semibold">Ciclul de viață al tichetului O&amp;M</h3>
         <span className="num text-[11px] text-muted-foreground">{d.analysis.household_id}</span>
@@ -81,14 +81,14 @@ export function ProofBenchmarkPanel() {
     <div className="space-y-3">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {CARDS.map((c) => (
-          <div key={c.t} className={cn("rounded-xl border border-border p-4", c.tone)}>
-            <div className="num text-2xl font-bold">{c.v}</div>
+          <div key={c.t} className={cn("rounded-lg border border-border p-4", c.tone)}>
+            <div className="num text-2xl font-medium">{c.v}</div>
             <div className="num text-[12px] font-semibold">({c.p})</div>
             <div className="mt-1 text-[12px] text-muted-foreground">{c.t}</div>
           </div>
         ))}
       </div>
-      <div className="rounded-xl border border-border bg-card p-4">
+      <div className="rounded-lg border border-border bg-card p-4">
         <h3 className="mb-2 text-sm font-semibold">Categorii Ground Truth (81 scenarii)</h3>
         <table className="w-full text-[12px]">
           <thead>

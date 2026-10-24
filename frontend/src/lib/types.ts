@@ -211,9 +211,66 @@ export interface FeederHouse {
   phase: "L1" | "L2" | "L3" | "3P";
   pv_kw: number;
   voltage_v: number;
+  // Live backend extras (optional: the offline mocks omit them; see lib/geo.ts fallbacks)
+  household_id?: string | null;
+  monitored?: boolean;
+  feeder_id?: string;
+  has_battery?: boolean;
+  x_m?: number;
+  y_m?: number;
+  trip_minutes?: number;
+  derating_minutes?: number;
+  lost_kwh?: number;
+  pcc_voltage_15m?: number[];
+  worst_status_15m?: string[];
 }
 
-export interface Neighborhood {
+export interface FeederInfo {
+  feeder_id: string;
+  street_name: string;
+  cable_code: string;
+  length_m: number;
+  houses_count: number;
+  installed_pv_kw: number;
+  max_voltage_v: number;
+  minutes_above_253v: number;
+  peak_reverse_current_a: number;
+  peak_loading_pct_of_ampacity: number;
+  houses_tripped: number;
+}
+
+export interface TransformerPoint {
+  minute_of_day: number;
+  timestamp: string;
+  active_power_kw: number;
+  loading_pct: number;
+  max_house_voltage_v: number;
+  pv_production_kw: number;
+  houses_tripped: number;
+  houses_derating: number;
+}
+
+export interface NeighborhoodGeoExtras {
+  latitude?: number;
+  longitude?: number;
+  county?: string;
+  headline_ro?: string;
+  explanation_ro?: string;
+  recommended_distributor_action_ro?: string;
+  max_voltage_time?: string;
+  minutes_above_253v?: number;
+  peak_reverse_power_kw?: number;
+  peak_reverse_loading_pct?: number;
+  peak_reverse_time?: string;
+  peak_voltage_minute?: number;
+  lost_energy_kwh?: number;
+  pv_to_transformer_ratio_pct?: number;
+  monitored_household_ids?: string[];
+  feeders?: FeederInfo[];
+  transformer_timeseries?: TransformerPoint[];
+}
+
+export interface Neighborhood extends NeighborhoodGeoExtras {
   neighborhood_id: string;
   name: string;
   city: string;
@@ -236,7 +293,7 @@ export interface GridWhatIfParams {
   fix_all_batteries?: boolean;
 }
 
-export interface GridState {
+export interface GridState extends NeighborhoodGeoExtras {
   peak_voltage_v: number;
   houses_tripped: number;
   houses_derating: number;

@@ -51,11 +51,11 @@ export function GuardrailPanel({ d }: { d: HouseholdDetail }) {
       icon={<ShieldCheck className="size-4" />}
       actions={
         sim?.fallback_applied ? (
-          <span className="inline-flex items-center gap-1 rounded-full border border-warning-border bg-warning-soft px-2 py-0.5 text-[11px] font-medium text-warning">
+          <span className="inline-flex items-center gap-1 rounded-[4px] border border-warning-border bg-warning-soft px-2 py-0.5 text-[11px] font-medium text-warning">
             <ShieldAlert className="size-3" /> Fallback aplicat
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1 rounded-full border border-success-border bg-success-soft px-2 py-0.5 text-[11px] font-medium text-success">Guardrail Verificat ✓</span>
+          <span className="inline-flex items-center gap-1 rounded-[4px] border border-success-border bg-success-soft px-2 py-0.5 text-[11px] font-medium text-success">Guardrail Verificat ✓</span>
         )
       }
     >

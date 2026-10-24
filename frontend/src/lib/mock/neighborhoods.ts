@@ -1,6 +1,6 @@
 import { gridState } from "../sim";
 import type { FeederHouse, Neighborhood } from "../types";
-import { NB_META } from "./households";
+import { NB_META, householdSpecs } from "./households";
 
 const defs: Array<{ id: string; name: string; kva: number; tap: number; rise: number; imb: number; cause: string; feeders: number; houses: number }> = [
   { id: "NB-DUMBRAVITA", name: "Dumbrăvița Nord", kva: 250, tap: 2.5, rise: 19, imb: 1.25, cause: "Densitate PV mare + plot trafo +2,5%", feeders: 3, houses: 18 },
@@ -29,6 +29,12 @@ function build(): Neighborhood[] {
         pv_kw: [5, 6, 8, 10, 6, 12][(i * 3 + ni) % 6]!,
         voltage_v: 0,
       };
+    });
+    // Link the fleet's monitored households to evenly spread connection points so the map can find them.
+    const members = householdSpecs.filter((h) => h.neighborhood_id === d.id).slice(0, houses.length);
+    members.forEach((m, k) => {
+      const i = Math.floor((k * houses.length) / members.length);
+      houses[i] = { ...houses[i]!, house_id: m.id, label: m.id, household_id: m.id, monitored: true, pv_kw: m.pv_kw };
     });
     const n: Neighborhood = {
       neighborhood_id: d.id,

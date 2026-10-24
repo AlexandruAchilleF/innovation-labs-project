@@ -74,7 +74,7 @@ export function BatterySimulator({ d }: { d: HouseholdDetail }) {
             <div className="num mt-1 text-[12px] text-muted-foreground">
               {fmt(c.b, c.dec)} → <span className="text-[15px] font-semibold text-foreground">{fmt(c.a, c.dec)}</span>
             </div>
-            <div className={cn("num mt-1 inline-block rounded-full px-1.5 py-px text-[11px] font-semibold", c.d > 0 ? "bg-success-soft text-success" : c.d < 0 ? "bg-critical-soft text-critical" : "bg-muted text-muted-foreground")}>
+            <div className={cn("num mt-1 inline-block rounded-[4px] px-1.5 py-px text-[11px] font-semibold", c.d > 0 ? "bg-success-soft text-success" : c.d < 0 ? "bg-critical-soft text-critical" : "bg-muted text-muted-foreground")}>
               {c.d > 0 ? "+" : ""}
               {fmt(c.d, c.dec)} {c.u}
             </div>

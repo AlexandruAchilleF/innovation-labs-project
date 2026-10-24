@@ -37,7 +37,7 @@ function ProsumatorPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <div className="text-[12px] text-muted-foreground">Bună ziua,</div>
-          <h1 className="text-2xl font-semibold tracking-tight">{d.data?.analysis.customer_name ?? "…"}</h1>
+          <h1 className="font-display text-[28px] leading-tight">{d.data?.analysis.customer_name ?? "…"}</h1>
         </div>
         <Select value={household} onValueChange={(v) => navigate({ search: { household: v } })}>
           <SelectTrigger className="w-64 bg-card text-[13px]">
@@ -59,9 +59,9 @@ function ProsumatorPage() {
 
 function Card({ title, icon, children, className }: { title: string; icon: ReactNode; children: ReactNode; className?: string }) {
   return (
-    <section className={cn("rounded-2xl border border-border bg-card p-5", className)}>
+    <section className={cn("rounded-lg border border-border bg-card p-5", className)}>
       <h2 className="mb-3 flex items-center gap-2 text-[14px] font-semibold">
-        <span className="flex size-7 items-center justify-center rounded-lg bg-sun-soft text-warning">{icon}</span>
+        <span className="flex size-7 items-center justify-center rounded-[4px] border border-iron text-fog">{icon}</span>
         {title}
       </h2>
       {children}
@@ -90,7 +90,7 @@ function Dashboard({ d }: { d: HouseholdDetail }) {
           <ol className="mt-3 grid gap-2">
             {s.app_steps_ro.map((step, i) => (
               <li key={i} className="flex gap-2.5 rounded-lg border border-border p-2.5 text-[12.5px] leading-snug">
-                <span className="num flex size-5 shrink-0 items-center justify-center rounded-full bg-sun text-[11px] font-bold text-ink">{i + 1}</span>
+                <span className="num flex size-5 shrink-0 items-center justify-center rounded-full border border-iron text-[11px] text-fog">{i + 1}</span>
                 {step}
               </li>
             ))}
@@ -99,7 +99,7 @@ function Dashboard({ d }: { d: HouseholdDetail }) {
       </div>
       <div className="col-span-12 space-y-5 md:col-span-7">
         <Card title="1. Răspunsul pe scurt la întrebarea ta" icon={<MessageCircleQuestion className="size-4" />}>
-          <blockquote className="rounded-xl border-l-4 border-sun bg-muted/60 px-4 py-2.5 text-[13.5px] italic text-muted-foreground">„{s.customer_question_ro}”</blockquote>
+          <blockquote className="rounded-lg border-l border-iron bg-transparent font-display px-4 py-2.5 text-[13.5px] italic text-muted-foreground">„{s.customer_question_ro}”</blockquote>
           <p className="mt-3 text-[14.5px] leading-relaxed">{s.customer_answer_ro}</p>
         </Card>
         <Card title="2. Unde s-a dus energia produsă luna aceasta" icon={<Sun className="size-4" />}>
@@ -112,13 +112,13 @@ function Dashboard({ d }: { d: HouseholdDetail }) {
                     <span className="font-semibold">{fmt(b.v)} kWh</span> <span className="text-muted-foreground">· {b.note}</span>
                   </span>
                 </div>
-                <div className="mt-1 h-2.5 overflow-hidden rounded-full bg-muted">
-                  <div className={cn("h-full rounded-full", b.c)} style={{ width: `${(b.v / max) * 100}%` }} />
+                <div className="mt-1 h-2.5 overflow-hidden rounded-[4px] bg-muted">
+                  <div className={cn("h-full rounded-[4px]", b.c)} style={{ width: `${(b.v / max) * 100}%` }} />
                 </div>
               </div>
             ))}
           </div>
-          <div className="mt-3 flex h-3 overflow-hidden rounded-full">
+          <div className="mt-3 flex h-3 overflow-hidden rounded-[4px]">
             <div className="bg-success" style={{ width: `${(f.self_consumed_kwh / f.produced_kwh) * 100}%` }} />
             <div className="bg-info" style={{ width: `${(f.meter_export_kwh / f.produced_kwh) * 100}%` }} />
           </div>
@@ -154,7 +154,7 @@ function EnergyFlow({ d }: { d: HouseholdDetail }) {
   ];
   const Node = ({ k, icon, label, value }: { k: keyof typeof nodes; icon: ReactNode; label: string; value: string }) => (
     <foreignObject x={nodes[k].x - 44} y={nodes[k].y - 30} width={88} height={64}>
-      <div className="flex h-full flex-col items-center justify-center rounded-xl border border-ink-line bg-ink-2 text-ink-foreground">
+      <div className="flex h-full flex-col items-center justify-center rounded-lg border border-ink-line bg-ink-2 text-ink-foreground">
         <span className="text-sun">{icon}</span>
         <span className="text-[9px] uppercase tracking-wider text-ink-muted">{label}</span>
         <span className="num text-[11.5px] font-semibold">{value}</span>
@@ -162,15 +162,15 @@ function EnergyFlow({ d }: { d: HouseholdDetail }) {
     </foreignObject>
   );
   return (
-    <section className="flex max-h-[360px] flex-col rounded-2xl border border-ink-line bg-ink p-5 text-ink-foreground">
+    <section className="flex max-h-[360px] flex-col rounded-lg border border-ink-line bg-ink p-5 text-ink-foreground">
       <div className="mb-2 flex items-center justify-between">
         <h2 className="text-[14px] font-semibold">Fluxul de energie al casei</h2>
-        <div className="flex rounded-full bg-ink-2 p-0.5 text-[11px]">
+        <div className="flex rounded-[4px] bg-ink-2 p-0.5 text-[11px]">
           {[
             [false, "13:00", <Sun key="s" className="size-3" />],
             [true, "20:00", <Moon key="m" className="size-3" />],
           ].map(([v, l, ic]) => (
-            <button key={String(l)} onClick={() => setEvening(v as boolean)} className={cn("flex items-center gap-1 rounded-full px-2.5 py-1", evening === v ? "bg-ink-foreground text-ink" : "text-ink-muted")}>
+            <button key={String(l)} onClick={() => setEvening(v as boolean)} className={cn("flex items-center gap-1 rounded-[4px] px-2.5 py-1", evening === v ? "bg-ink-foreground text-ink" : "text-ink-muted")}>
               {ic as ReactNode} {l as string}
             </button>
           ))}
@@ -205,8 +205,8 @@ function EnergyFlow({ d }: { d: HouseholdDetail }) {
             <span>SoC baterie</span>
             <span className="num text-ink-foreground">{fmt(pt.battery_soc_pct)}%</span>
           </div>
-          <div className="mt-1 h-2 overflow-hidden rounded-full bg-ink-3">
-            <div className="h-full rounded-full bg-gradient-to-r from-info to-success transition-all" style={{ width: `${pt.battery_soc_pct}%` }} />
+          <div className="mt-1 h-2 overflow-hidden rounded-[4px] bg-ink-3">
+            <div className="h-full rounded-[4px] bg-voltage transition-all" style={{ width: `${pt.battery_soc_pct}%` }} />
           </div>
         </div>
       )}
@@ -238,12 +238,12 @@ function SavingsCalculator({ d }: { d: HouseholdDetail }) {
           <Slider min={5} max={100} step={5} value={[soc]} onValueChange={(v) => setSoc(v[0] ?? 20)} />
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <div className="rounded-xl bg-muted p-3">
+          <div className="rounded-lg bg-muted p-3">
             <div className="text-[10px] uppercase tracking-wide text-muted-foreground">Economie acum</div>
             <div className="num text-xl font-semibold">{fmt(now.ron_month)} RON</div>
             <div className="num text-[11px] text-muted-foreground">{fmt(now.kwh_day, 1)} kWh/seară</div>
           </div>
-          <div className="rounded-xl bg-success-soft p-3">
+          <div className="rounded-lg bg-success-soft p-3">
             <div className="text-[10px] uppercase tracking-wide text-success">La 20% rezervă</div>
             <div className="num text-xl font-semibold text-success">{fmt(best.ron_month)} RON</div>
             <div className="num text-[11px] text-success">+{fmt(Math.max(0, best.ron_month - now.ron_month))} RON/lună</div>

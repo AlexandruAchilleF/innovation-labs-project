@@ -24,7 +24,7 @@ export function HouseholdList({ households, selected, onSelect }: { households: 
   }, [households, filter, q]);
 
   return (
-    <aside className="flex max-h-[calc(100vh-160px)] flex-col overflow-hidden rounded-xl border border-border bg-card lg:sticky lg:top-[112px]">
+    <aside className="flex max-h-[calc(100vh-80px)] flex-col overflow-hidden rounded-lg border border-border bg-card lg:sticky lg:top-3">
       <div className="space-y-2 border-b border-border p-2.5">
         <div className="grid grid-cols-2 gap-0.5 rounded-lg bg-muted p-0.5 text-[12px] font-medium">
           {(["demo", "all"] as const).map((f) => (

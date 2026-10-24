@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as HartaRouteImport } from './routes/harta'
 import { Route as ProsumatorRouteImport } from './routes/prosumator'
 import { Route as ReteaRouteImport } from './routes/retea'
 import { Route as TriajRouteImport } from './routes/triaj'
@@ -17,6 +18,11 @@ import { Route as TriajRouteImport } from './routes/triaj'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HartaRoute = HartaRouteImport.update({
+  id: '/harta',
+  path: '/harta',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProsumatorRoute = ProsumatorRouteImport.update({
@@ -37,12 +43,14 @@ const TriajRoute = TriajRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/harta': typeof HartaRoute
   '/prosumator': typeof ProsumatorRoute
   '/retea': typeof ReteaRoute
   '/triaj': typeof TriajRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/harta': typeof HartaRoute
   '/prosumator': typeof ProsumatorRoute
   '/retea': typeof ReteaRoute
   '/triaj': typeof TriajRoute
@@ -50,20 +58,22 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/harta': typeof HartaRoute
   '/prosumator': typeof ProsumatorRoute
   '/retea': typeof ReteaRoute
   '/triaj': typeof TriajRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/prosumator' | '/retea' | '/triaj'
+  fullPaths: '/' | '/harta' | '/prosumator' | '/retea' | '/triaj'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/prosumator' | '/retea' | '/triaj'
-  id: '__root__' | '/' | '/prosumator' | '/retea' | '/triaj'
+  to: '/' | '/harta' | '/prosumator' | '/retea' | '/triaj'
+  id: '__root__' | '/' | '/harta' | '/prosumator' | '/retea' | '/triaj'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  HartaRoute: typeof HartaRoute
   ProsumatorRoute: typeof ProsumatorRoute
   ReteaRoute: typeof ReteaRoute
   TriajRoute: typeof TriajRoute
@@ -76,6 +86,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/harta': {
+      id: '/harta'
+      path: '/harta'
+      fullPath: '/harta'
+      preLoaderRoute: typeof HartaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/prosumator': {
@@ -104,6 +121,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  HartaRoute: HartaRoute,
   ProsumatorRoute: ProsumatorRoute,
   ReteaRoute: ReteaRoute,
   TriajRoute: TriajRoute,
