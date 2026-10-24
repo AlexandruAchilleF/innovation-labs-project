@@ -75,7 +75,8 @@ function IntentCard({ d }: { d: HouseholdDetail }) {
           {intent < configured && (
             <>
               <div>
-                Energie blocată în rezervă: <span className="num">{fmt(b.locked_kwh, 1)} kWh/zi</span>
+                Energie blocată în rezervă:{" "}
+                <span className="num">{fmt(b.locked_kwh, 1)} kWh/zi</span>
               </div>
               <div>
                 Tarife rețea neeconomisite:{" "}
@@ -83,8 +84,8 @@ function IntentCard({ d }: { d: HouseholdDetail }) {
               </div>
               <div className="text-fog">
                 Impact PZU furnizor:{" "}
-                <span className="num text-bone">{fmt(b.monthly_pzu_loss_ron, 1)} RON/lună</span> (vârf{" "}
-                <span className="num">{fmt(b.pzu_evening_ron_mwh)}</span> vs. prânz{" "}
+                <span className="num text-bone">{fmt(b.monthly_pzu_loss_ron, 1)} RON/lună</span>{" "}
+                (vârf <span className="num">{fmt(b.pzu_evening_ron_mwh)}</span> vs. prânz{" "}
                 <span className="num">{fmt(b.pzu_midday_ron_mwh)} RON/MWh</span>)
               </div>
             </>
