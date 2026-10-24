@@ -28,10 +28,51 @@ vi.mock("@/components/sunproof/map/MapCanvas", () => ({ useMapApi: () => camera.
 
 afterEach(() => {
   cleanup();
+  camera.state.zoom = 18;
   vi.unstubAllGlobals();
 });
 
 describe("map overlay camera synchronization", () => {
+  it("replaces the pin with a larger detailed house and grows it as zoom increases", () => {
+    camera.state.zoom = 16.49;
+    const nb = neighborhoods[0]!;
+    const house = nb.houses[0]!;
+    render(
+      <MapOverlay
+        pins={[]}
+        active={{
+          nb,
+          center: [21, 45],
+          houses: [house],
+          roofSizes: new Map([[house.house_id, 8]]),
+          bearings: new Map(),
+          kva: 250,
+          loadingPct: 50,
+          reverse: false,
+        }}
+        slot={48}
+        selectedId={null}
+        onPin={() => {}}
+        onHouse={() => {}}
+      />,
+    );
+    const dimensions = () => {
+      const svg = screen.getByRole("button").querySelector("svg")!;
+      return [Number(svg.getAttribute("width")), Number(svg.getAttribute("height"))];
+    };
+    let previous = dimensions();
+    for (const zoom of [16.5, 17.5, 18.5]) {
+      act(() => {
+        camera.state.zoom = zoom;
+        camera.listeners.get("move")!.forEach((fn) => fn());
+      });
+      const current = dimensions();
+      expect(current[0]).toBeGreaterThan(previous[0]!);
+      expect(current[1]).toBeGreaterThan(previous[1]!);
+      previous = current;
+    }
+  });
+
   it.each(["move", "resize"])(
     "anchors roofs and transformer during %s, before the next browser frame",
     (event) => {
