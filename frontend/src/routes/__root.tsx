@@ -15,20 +15,18 @@ import { AppShell } from "@/components/sunproof/shell/AppShell";
 import { Toaster } from "@/components/ui/sonner";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
+const ghostBtn =
+  "inline-flex items-center justify-center rounded-[4px] border border-bone bg-transparent px-4 py-2 text-[14px] font-medium text-bone transition-colors hover:bg-slate";
+
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-screen items-center justify-center bg-canvas px-4">
       <div className="max-w-md text-center">
-        <h1 className="font-display text-7xl text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Pagina nu a fost găsită</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Pagina căutată nu există sau a fost mutată.
-        </p>
+        <h1 className="font-display text-7xl text-bone">404</h1>
+        <h2 className="mt-4 font-display text-xl text-bone">Pagina nu a fost găsită</h2>
+        <p className="mt-2 text-[14px] text-fog">Pagina căutată nu există sau a fost mutată.</p>
         <div className="mt-6">
-          <Link
-            to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
+          <Link to="/" className={ghostBtn}>
             Înapoi la hartă
           </Link>
         </div>
@@ -45,10 +43,10 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   }, [error]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-screen items-center justify-center bg-canvas px-4">
       <div className="max-w-md text-center">
-        <h1 className="font-display text-2xl text-foreground">Pagina nu s-a încărcat</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <h2 className="font-display text-2xl text-bone">Pagina nu s-a încărcat</h2>
+        <p className="mt-2 text-[14px] text-fog">
           A apărut o eroare la noi. Reîncearcă sau întoarce-te la hartă.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
@@ -57,13 +55,13 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
               router.invalidate();
               reset();
             }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className={ghostBtn}
           >
             Reîncearcă
           </button>
           <a
             href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+            className="inline-flex items-center justify-center rounded-[4px] border border-iron bg-transparent px-4 py-2 text-[14px] font-medium text-fog transition-colors hover:bg-slate hover:text-bone"
           >
             Înapoi la hartă
           </a>

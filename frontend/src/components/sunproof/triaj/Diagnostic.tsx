@@ -1,10 +1,10 @@
 import { useState, type ReactNode } from "react";
-import { useMutation } from "@tanstack/react-query";
 import { FileDown, Send } from "lucide-react";
 import {
   Area,
   CartesianGrid,
   ComposedChart,
+  Legend,
   Line,
   ReferenceArea,
   ReferenceLine,
@@ -14,28 +14,16 @@ import {
   YAxis,
 } from "recharts";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { api } from "@/lib/api";
 import { fmt } from "@/lib/format";
 import { responsibleLabel } from "@/lib/i18n";
-import { plainText } from "@/lib/format";
 import type { HouseholdDetail, MinutePoint, Severity } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { AlertConfirm, openDossier } from "../AlertConfirm";
 import { DisclosureChevron, Row, StatusBadge, axisProps, chartTooltipStyle } from "../primitives";
 
 export function TriageHeader({ d }: { d: HouseholdDetail }) {
   const a = d.analysis;
-  const [open, setOpen] = useState(false);
-  const tg = useMutation({
-    mutationFn: () => api.telegram(a.household_id),
-    onSuccess: () => setOpen(true),
-  });
+  const [alertOpen, setAlertOpen] = useState(false);
   const meta: [string, string][] = [
     ["POD", a.pod_code],
     ["PT", a.transformer_id],
@@ -55,18 +43,38 @@ export function TriageHeader({ d }: { d: HouseholdDetail }) {
             </span>
             <StatusBadge severity={a.overall_severity} />
           </div>
-          <p className="mt-2 max-w-[75ch] text-[14px] leading-relaxed text-bone">
-            {a.one_line_triage_ro}
-          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <p className="max-w-[70ch] text-[14px] leading-relaxed text-bone">
+              {a.one_line_triage_ro}
+            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-bone bg-transparent text-bone hover:bg-slate"
+                onClick={() => openDossier(a.household_id, a.transformer_id)}
+              >
+                <FileDown /> Dosar PDF pentru distribuitor
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-iron bg-transparent text-bone hover:bg-slate"
+                onClick={() => setAlertOpen(true)}
+              >
+                <Send /> Alertă tehnician O&M
+              </Button>
+            </div>
+          </div>
           <details className="group mt-2 text-[12px] text-fog">
             <summary className="flex w-fit cursor-pointer list-none items-center gap-1 hover:text-bone">
               Detalii instalație
               <DisclosureChevron />
             </summary>
-            <p className="mt-1.5 max-w-[75ch] font-display text-[13px] italic">
+            <p className="mt-2 max-w-[75ch] font-display text-[13px] italic">
               „{d.scenario.customer_question_ro}”
             </p>
-            <p className="num mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-[11px]">
+            <p className="num mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px]">
               {meta.map(([k, v]) => (
                 <span key={k}>
                   {k} <span className="text-bone">{v}</span>
@@ -75,58 +83,24 @@ export function TriageHeader({ d }: { d: HouseholdDetail }) {
             </p>
           </details>
         </div>
-        <div className="flex shrink-0 flex-col items-start gap-2.5 sm:items-end sm:text-right">
-          <dl className="num flex gap-5 text-[12px]">
-            <div>
-              <dt className="text-fog">Furnizor</dt>
-              <dd className="text-[16px] text-bone">
-                +{fmt(a.total_supplier_monthly_benefit_ron)} RON
-                <span className="text-[11px] text-fog">/lună</span>
-              </dd>
-            </div>
-            <div>
-              <dt className="text-fog">Client</dt>
-              <dd className="text-[16px] text-bone">
-                +{fmt(a.total_customer_monthly_benefit_ron)} RON
-                <span className="text-[11px] text-fog">/lună</span>
-              </dd>
-            </div>
-          </dl>
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              className="border-bone bg-transparent text-bone hover:bg-slate"
-              onClick={() => api.openPdfDossier(a.household_id)}
-            >
-              <FileDown /> Dosar PDF ANRE
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="border-iron bg-transparent text-bone hover:bg-slate"
-              onClick={() => tg.mutate()}
-              disabled={tg.isPending}
-            >
-              <Send /> {tg.isPending ? "Se trimite…" : "Alertă Telegram"}
-            </Button>
+        <dl className="num flex shrink-0 gap-5 text-[12px] sm:text-right">
+          <div>
+            <dt className="text-fog">Furnizor</dt>
+            <dd className="text-[16px] text-bone">
+              +{fmt(a.total_supplier_monthly_benefit_ron)} RON
+              <span className="text-[11px] text-fog">/lună</span>
+            </dd>
           </div>
-        </div>
+          <div>
+            <dt className="text-fog">Client</dt>
+            <dd className="text-[16px] text-bone">
+              +{fmt(a.total_customer_monthly_benefit_ron)} RON
+              <span className="text-[11px] text-fog">/lună</span>
+            </dd>
+          </div>
+        </dl>
       </div>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-xl">
-          <DialogHeader>
-            <DialogTitle>Alertă trimisă tehnicianului O&M</DialogTitle>
-            <DialogDescription>
-              Chat <span className="num">{tg.data?.chat_id}</span>
-              {tg.data?.simulated ? " · simulare (mod demo)" : " · trimis prin Telegram"}
-            </DialogDescription>
-          </DialogHeader>
-          <pre className="num max-h-[60vh] overflow-auto whitespace-pre-wrap rounded-md bg-ink p-3 text-[12px] leading-relaxed text-ink-foreground">
-            {plainText(tg.data?.message_text ?? "")}
-          </pre>
-        </DialogContent>
-      </Dialog>
+      <AlertConfirm d={d} open={alertOpen} onOpenChange={setAlertOpen} />
     </header>
   );
 }
@@ -135,7 +109,7 @@ function VCard({ title, sev, children }: { title: string; sev: Severity; childre
   return (
     <section className="rounded-lg border border-border bg-card p-4">
       <header className="mb-3 flex items-center justify-between gap-2">
-        <h3 className="text-[13px] font-medium text-bone">{title}</h3>
+        <h2 className="text-[13px] font-medium text-bone">{title}</h2>
         <StatusBadge severity={sev} />
       </header>
       {children}
@@ -246,8 +220,8 @@ function ChartCard({ title, sub, children }: { title: string; sub?: string; chil
   return (
     <section className="rounded-lg border border-border bg-card p-4">
       <div className="mb-2 flex items-baseline justify-between gap-2">
-        <h3 className="text-[13px] font-medium text-bone">{title}</h3>
-        {sub && <span className="num text-[10.5px] text-muted-foreground">{sub}</span>}
+        <h2 className="text-[13px] font-medium text-bone">{title}</h2>
+        {sub && <span className="num text-[11px] text-fog">{sub}</span>}
       </div>
       <div className="h-56">{children}</div>
     </section>
@@ -272,7 +246,7 @@ export function EngineeringCharts({ d }: { d: HouseholdDetail }) {
     : "fără declanșări";
   return (
     <div className="grid gap-3 lg:grid-cols-2">
-      <ChartCard title="Tensiune AC Invertor vs. PCC Contor" sub={zoneLabel}>
+      <ChartCard title="Tensiune invertor vs. contor (PCC)" sub={zoneLabel}>
         <ResponsiveContainer>
           <ComposedChart
             data={data}
@@ -300,7 +274,7 @@ export function EngineeringCharts({ d }: { d: HouseholdDetail }) {
               strokeDasharray="6 4"
               label={{
                 value: "253 V",
-                fontSize: 10,
+                fontSize: 11,
                 fill: "var(--critical)",
                 position: "insideTopLeft",
               }}
@@ -312,7 +286,7 @@ export function EngineeringCharts({ d }: { d: HouseholdDetail }) {
                 strokeDasharray="2 3"
                 label={{
                   value: `prag ${g.inverter_threshold_v}V`,
-                  fontSize: 10,
+                  fontSize: 11,
                   fill: "var(--warning)",
                   position: "insideBottomRight",
                 }}
@@ -339,7 +313,7 @@ export function EngineeringCharts({ d }: { d: HouseholdDetail }) {
           </ComposedChart>
         </ResponsiveContainer>
       </ChartCard>
-      <ChartCard title="PV actual vs. PVGIS · Consum · PZU" sub="kW · RON/MWh">
+      <ChartCard title="PV real vs. PVGIS · Consum · PZU" sub="kW · RON/MWh">
         <ResponsiveContainer>
           <ComposedChart
             data={data}
@@ -351,6 +325,7 @@ export function EngineeringCharts({ d }: { d: HouseholdDetail }) {
             <YAxis yAxisId="kw" {...axisProps} width={56} tickFormatter={(v) => `${v}kW`} />
             <YAxis yAxisId="pzu" orientation="right" {...axisProps} width={40} />
             <Tooltip {...chartTooltipStyle} />
+            <Legend wrapperStyle={{ fontSize: 11, color: "var(--fog)" }} iconType="plainline" />
             {zones.map(([a, b]) => (
               <ReferenceArea
                 key={a}
@@ -375,7 +350,7 @@ export function EngineeringCharts({ d }: { d: HouseholdDetail }) {
               yAxisId="kw"
               type="monotone"
               dataKey="pv"
-              name="PV actual (kW)"
+              name="PV real (kW)"
               stroke="var(--sun)"
               strokeWidth={2}
               fill="var(--sun)"

@@ -52,9 +52,9 @@ export function NeighborStrip({
         <h2 className="text-[13px] font-medium text-bone">Strada clientului</h2>
         <span
           className="num text-[11px] text-fog"
-          title="Vecini opriți sau în derating la ora selectată"
+          title="Vecini de pe stradă opriți sau în derating la ora selectată"
         >
-          {peersHit}/{peers.length} vecini afectați · {slotLabel(slot)}
+          pe stradă, la {slotLabel(slot)}: {peersHit} din {peers.length} vecini
         </span>
       </div>
       <div className="relative rounded-[8px] border border-border bg-obsidian px-2 pb-2 pt-3">

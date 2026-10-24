@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ChevronRight, FileDown, ReceiptText, Send, Smartphone } from "lucide-react";
-import { toast } from "sonner";
-import { api } from "@/lib/api";
-import { fmt, plainText } from "@/lib/format";
+import { fmt } from "@/lib/format";
 import { responsibleLabel, severityLabel } from "@/lib/i18n";
 import type { GridState, HouseholdDetail, Neighborhood, Severity } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { AlertConfirm, openDossier } from "../AlertConfirm";
 import { ActionButton, type Action } from "./CaseActions";
 import { NeighborStrip } from "./NeighborStrip";
 import { SeverityTag, sevText } from "./SeverityTag";
@@ -30,40 +29,24 @@ export function CaseFile({
   const g = a.grid_verdict;
   const b = a.battery_verdict;
   const f = a.billing_verdict;
-  const [sent, setSent] = useState<string | null>(null);
-  const [sending, setSending] = useState(false);
-
-  const sendAlert = async () => {
-    setSending(true);
-    try {
-      const r = await api.telegram(a.household_id);
-      setSent(plainText(r.message_text));
-      toast(r.simulated ? "Alertă Telegram simulată" : "Alertă Telegram trimisă");
-    } catch {
-      toast.error("Alerta nu a putut fi trimisă", {
-        action: { label: "Reîncearcă", onClick: () => void sendAlert() },
-      });
-    } finally {
-      setSending(false);
-    }
-  };
+  const [sentByHouse, setSentByHouse] = useState<Record<string, string>>({});
+  const [alertOpen, setAlertOpen] = useState(false);
+  const sent = sentByHouse[a.household_id] ?? null;
+  const transformerId = nb?.transformer_id ?? a.transformer_id;
 
   const party = a.primary_responsible_party;
   const dossier: Action = {
     id: "pdf",
     icon: <FileDown />,
     label: "Dosar PDF pentru distribuitor",
-    short: "Dosar PDF",
-    onClick: () => api.openPdfDossier(a.household_id),
-    title: nb ? `Dosar pentru distribuitor · ${nb.transformer_id}` : undefined,
+    onClick: () => openDossier(a.household_id, transformerId),
+    title: `Dosar pentru distribuitor · ${transformerId}`,
   };
   const alert: Action = {
     id: "alert",
     icon: <Send />,
-    label: sending ? "Se trimite…" : "Alertă tehnician O&M",
-    short: sending ? "Se trimite…" : "Alertă O&M",
-    onClick: sendAlert,
-    disabled: sending,
+    label: "Alertă tehnician O&M",
+    onClick: () => setAlertOpen(true),
   };
   const primary: Action | null =
     party === "DISTRIBUTION_OPERATOR"
@@ -167,11 +150,7 @@ export function CaseFile({
         {secondary.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {secondary.map((x) => (
-              <ActionButton
-                key={x.id}
-                a={{ ...x, label: x.short ?? x.label }}
-                household={a.household_id}
-              />
+              <ActionButton key={x.id} a={x} household={a.household_id} />
             ))}
           </div>
         )}
@@ -197,6 +176,12 @@ export function CaseFile({
           </pre>
         </details>
       )}
+      <AlertConfirm
+        d={d}
+        open={alertOpen}
+        onOpenChange={setAlertOpen}
+        onSent={(text) => setSentByHouse((prev) => ({ ...prev, [a.household_id]: text }))}
+      />
     </div>
   );
 }
@@ -226,7 +211,7 @@ function VerdictRow({ v, open }: { v: Verdict; open: boolean }) {
           {v.value}
         </span>
         {expandable && (
-          <ChevronRight className="size-3.5 shrink-0 self-center text-smoke transition-transform group-open:rotate-90" />
+          <ChevronRight className="size-3.5 shrink-0 self-center text-fog transition-transform group-open:rotate-90" />
         )}
       </summary>
       {expandable && (

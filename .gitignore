@@ -23,6 +23,8 @@ build/
 .cursor/
 .gemini/
 .github/hooks/
+.impeccable/
+context_update.txt
 
 # Frontend
 frontend/node_modules/

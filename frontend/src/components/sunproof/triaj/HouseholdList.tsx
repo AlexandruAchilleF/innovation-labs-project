@@ -3,8 +3,10 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { fmt } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import type { HouseholdSummary } from "@/lib/types";
+import type { HouseholdSummary, Severity } from "@/lib/types";
 import { StatusBadge } from "../primitives";
+
+const RANK: Record<Severity, number> = { CRITICAL: 0, WARNING: 1, INFO: 2, OK: 3 };
 
 export function HouseholdList({
   households,
@@ -15,7 +17,7 @@ export function HouseholdList({
   selected: string;
   onSelect: (id: string) => void;
 }) {
-  const [filter, setFilter] = useState<"demo" | "all">("demo");
+  const [filter, setFilter] = useState<"demo" | "all">("all");
   const [q, setQ] = useState("");
   const list = useMemo(() => {
     const term = q.trim().toLowerCase();
@@ -27,6 +29,11 @@ export function HouseholdList({
           `${h.customer_name} ${h.city} ${h.household_id} ${h.scenario_badge_ro}`
             .toLowerCase()
             .includes(term),
+      )
+      .sort(
+        (x, y) =>
+          RANK[x.overall_severity] - RANK[y.overall_severity] ||
+          y.monthly_impact_ron - x.monthly_impact_ron,
       );
   }, [households, filter, q]);
 
@@ -34,7 +41,7 @@ export function HouseholdList({
     <aside className="flex max-h-[calc(100vh-80px)] flex-col overflow-hidden rounded-lg border border-border bg-card lg:sticky lg:top-3">
       <div className="space-y-2 border-b border-border p-2.5">
         <div className="flex gap-4 px-1 text-[12.5px]">
-          {(["demo", "all"] as const).map((f) => (
+          {(["all", "demo"] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}

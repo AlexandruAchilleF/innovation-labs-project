@@ -8,6 +8,7 @@ import {
   type LngLat,
 } from "@/lib/geo";
 import { fmt } from "@/lib/format";
+import { DERATING_START_V, LEGAL_LIMIT_V } from "@/lib/sim";
 import type { FeederHouse, Neighborhood } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useMapApi } from "./MapCanvas";
@@ -89,7 +90,7 @@ export function MapOverlay({
               )}
             >
               <span className="block text-[11px] font-medium text-bone">{nb.city}</span>
-              <span className="num flex items-center gap-1.5 text-[10px] text-fog">
+              <span className="num flex items-center gap-1.5 text-[11px] text-fog">
                 <span
                   className={cn(
                     "size-1.5 rounded-[1px]",
@@ -163,10 +164,14 @@ export function MapOverlay({
                         : "Vecin"}{" "}
                     · {id}
                   </div>
-                  <div className="num text-[10px] text-fog">
+                  <div className="num text-[11px] text-fog">
                     <span
                       className={cn(
-                        v >= 253 ? "text-critical" : v >= 248 ? "text-warning" : "text-bone",
+                        v >= LEGAL_LIMIT_V
+                          ? "text-critical"
+                          : v >= DERATING_START_V
+                            ? "text-warning"
+                            : "text-bone",
                       )}
                     >
                       {fmt(v, 1)} V
