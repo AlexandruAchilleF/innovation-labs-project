@@ -95,6 +95,8 @@ class GridFaultVerdict(BaseModel):
     # Workflow triggers
     requires_distributor_pdf_dossier: bool = Field(default=False)
     requires_technician_telegram_alert: bool = Field(default=False)
+    evidence_status: str = "sufficient"
+    avoided_visit_saving_ron: float = Field(default=0.0, ge=0.0)
 
 
 class BatteryOptimizationVerdict(BaseModel):
@@ -156,6 +158,7 @@ class BatteryOptimizationVerdict(BaseModel):
     )
     eligible_for_supplier_bonus_now: bool = Field(default=False)
     evening_delivery_verified_today: bool = Field(default=False)
+    evidence_status: str = "sufficient"
 
 
 class BillingReconciliationVerdict(BaseModel):
@@ -202,6 +205,7 @@ class BillingReconciliationVerdict(BaseModel):
         description="Money the customer already saved this month by consuming solar energy directly in the house"
     )
     anre_complaint_risk_high: bool = Field(default=False)
+    evidence_status: str = "sufficient"
 
 
 class VerifiedTextOutput(BaseModel):

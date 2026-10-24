@@ -68,6 +68,13 @@ def _windows(tele) -> list[tuple[int, int]]:
     return out
 
 
+def _validated_samples(tele):
+    ordered = sorted(tele, key=lambda s: s.minute_of_day)
+    if any(b.minute_of_day <= a.minute_of_day for a, b in zip(ordered, ordered[1:])):
+        raise ValueError("inverter telemetry minutes must be unique and ordered")
+    return ordered
+
+
 def _neighbor_minutes(scenario: HouseholdScenario) -> dict[str, tuple[set[int], set[int]]]:
     """neighbor_id -> (tripped minutes, minutes >= 250 V)."""
     return {n.neighbor_id: ({t.minute_of_day for t in n.telemetry if t.status == _TRIP},
@@ -80,10 +87,11 @@ def _hits(minutes: set[int], lo: int, hi: int) -> bool:
 
 
 def analyze_grid_fault(scenario: HouseholdScenario) -> GridFaultVerdict:
-    tele = scenario.inverter_telemetry
+    tele = _validated_samples(scenario.inverter_telemetry)
     meter_v = {m.interval_index: m.meter_voltage_avg_v for m in scenario.smart_meter_15m}
     nb_min = _neighbor_minutes(scenario)
     affected: set[str] = set()
+    strongest_peer_count = 0
     events: list[OvervoltageEventWindow] = []
     in_event: set[int] = set()
 
@@ -97,6 +105,7 @@ def analyze_grid_fault(scenario: HouseholdScenario) -> GridFaultVerdict:
         tripped = {nid for nid, (tr, _) in nb_min.items() if _hits(tr, a, b)}
         high = {nid for nid, (_, hv) in nb_min.items() if _hits(hv, a, b)}
         affected |= tripped | high
+        strongest_peer_count = max(strongest_peer_count, len(tripped | high))
         codes = Counter(s.error_code for s in win if s.error_code)
         events.append(OvervoltageEventWindow(
             start_time=_hhmm(lo), end_time=_hhmm(hi + 1), duration_minutes=j - i + 1,
@@ -110,10 +119,10 @@ def analyze_grid_fault(scenario: HouseholdScenario) -> GridFaultVerdict:
     trip_min = sum(s.status == _TRIP for s in tele)
     derate_min = sum(s.status == _DERATE for s in tele)
     max_inv = max((s.ac_voltage_v for s in tele), default=0.0)
-    max_met = max(meter_v.values(), default=0.0)
+    max_met = max((e.peak_meter_voltage_v for e in events), default=0.0)
     rise = max(0.0, max_inv - max_met) if max_inv > 0 else 0.0
     n_total = len(scenario.neighbors)
-    ratio = len(affected) / n_total if n_total else 0.0
+    ratio = strongest_peer_count / n_total if n_total else 0.0
     threshold = scenario.configured_overvoltage_trip_v
 
     expected = sum(s.pvgis_expected_kw for s in tele) / 60
@@ -134,6 +143,8 @@ def analyze_grid_fault(scenario: HouseholdScenario) -> GridFaultVerdict:
             cause = G.LOCAL_CABLE_IMPEDANCE
         else:
             cause = G.GRID_OVERVOLTAGE if max_met >= GRID_METER_SOFT_V else G.LOCAL_EQUIPMENT_FAULT
+    elif not tele or len(day) < 30:
+        cause = G.NONE
     elif prod_ratio < PRODUCTION_RATIO_MIN or offline_day > 0:
         cause = G.LOCAL_EQUIPMENT_FAULT
     else:
@@ -172,7 +183,9 @@ def analyze_grid_fault(scenario: HouseholdScenario) -> GridFaultVerdict:
         pvgis_expected_today_kwh=_r(expected), actual_produced_today_kwh=_r(actual),
         lost_production_today_kwh=_r(lost_today), lost_production_month_est_kwh=lost_month,
         lost_value_customer_month_ron=lost_ron,
-        avoided_truck_roll_saving_ron=TRUCK_ROLL_RON if cause == G.GRID_OVERVOLTAGE else 0.0,
+        avoided_truck_roll_saving_ron=0.0,
+        avoided_visit_saving_ron=TRUCK_ROLL_RON if cause == G.GRID_OVERVOLTAGE else 0.0,
+        evidence_status="insufficient" if len(day) < 30 else "sufficient",
         requires_distributor_pdf_dossier=cause == G.GRID_OVERVOLTAGE,
         requires_technician_telegram_alert=cause not in (G.NONE, G.GRID_OVERVOLTAGE),
     )

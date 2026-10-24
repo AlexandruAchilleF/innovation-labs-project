@@ -82,9 +82,11 @@ def _classify(scenario: HouseholdScenario) -> BatteryVerdictStatus:
     cfg, intent = scenario.battery_config, scenario.battery_intent
     if not cfg.has_battery:
         return BatteryVerdictStatus.NO_BATTERY
-    if cfg.configured_mode == BatteryMode.BACKUP_RESERVE and intent.desired_mode == BatteryMode.MAX_SELF_CONSUMPTION:
+    if len(scenario.inverter_telemetry) < 60:
+        return BatteryVerdictStatus.INSUFFICIENT_DATA
+    if cfg.configured_mode != intent.desired_mode or not intent.evening_discharge_allowed:
         return BatteryVerdictStatus.MISCONFIGURED_MODE
-    if cfg.configured_min_soc_pct - intent.desired_min_soc_pct >= SOC_RESERVE_MISCONFIG_PP:
+    if cfg.configured_min_soc_pct > intent.desired_min_soc_pct:
         return BatteryVerdictStatus.MISCONFIGURED_SOC_RESERVE
     if cfg.state_of_health_pct < UNDERPERFORMING_SOH_PCT:
         return BatteryVerdictStatus.UNDERPERFORMING_CAPACITY
@@ -92,15 +94,16 @@ def _classify(scenario: HouseholdScenario) -> BatteryVerdictStatus:
 
 
 def _shiftable_kwh_per_day(scenario: HouseholdScenario, evening_discharge_now: float) -> float:
-    """Extra evening discharge if the battery ran with the customer's intended settings."""
-    from sunproof.scenarios import simulate_scenario_with_battery_override
-
-    intent = scenario.battery_intent
-    fixed = simulate_scenario_with_battery_override(
-        scenario.household_id, intent.desired_min_soc_pct, intent.desired_mode
-    )
-    _, _, evening_discharge_fixed = _energy_profile(fixed)
-    return max(0.0, evening_discharge_fixed - evening_discharge_now)
+    """Conservative telemetry-derived upper bound on additional evening delivery."""
+    cfg, intent = scenario.battery_config, scenario.battery_intent
+    if not intent.evening_discharge_allowed or cfg.usable_capacity_kwh <= 0:
+        return 0.0
+    midday_surplus = _window_kwh(scenario.inverter_telemetry, MIDDAY_MINUTES, "grid_export_kw")
+    reserved = max(0.0, intent.desired_min_soc_pct - 0.0) / 100.0 * cfg.usable_capacity_kwh
+    energy_ceiling = max(0.0, cfg.usable_capacity_kwh - reserved)
+    return min(midday_surplus, energy_ceiling, max(0.0, evening_discharge_now + _window_kwh(
+        scenario.inverter_telemetry, EVENING_MINUTES, "grid_import_kw")
+    ) - evening_discharge_now)
 
 
 def _texts(status: BatteryVerdictStatus, v: dict, scenario: HouseholdScenario) -> tuple[str, str, list[str]]:
@@ -143,6 +146,8 @@ def _texts(status: BatteryVerdictStatus, v: dict, scenario: HouseholdScenario) -
                 "Salvați și verificați a doua zi că bateria se descarcă la vârful de seară.",
             ],
         )
+    if status == BatteryVerdictStatus.INSUFFICIENT_DATA:
+        return ("Date insuficiente", "Nu există suficiente date pentru evaluarea funcționării bateriei.", [])
     if status == BatteryVerdictStatus.UNDERPERFORMING_CAPACITY:
         return (
             "Capacitatea bateriei este degradată",

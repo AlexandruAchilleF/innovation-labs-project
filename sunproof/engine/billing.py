@@ -27,6 +27,7 @@ from sunproof.models import (
     HouseholdScenario,
     ResponsibleParty,
     SeverityLevel,
+    SettlementRegime,
 )
 
 KWH_TOLERANCE = 1.0  # kWh: below this, invoice vs meter quantities are considered equal (index rounding)
@@ -61,6 +62,8 @@ def _exceeds(a: float, b: float) -> bool:
 
 def _classify(scenario: HouseholdScenario) -> BillingVerdictStatus:
     m, inv = scenario.monthly_summary, scenario.invoice
+    if inv.settlement_regime not in (SettlementRegime.QUANTITY_COMPENSATION_UNDER_200KW, SettlementRegime.QUANTITY_COMPENSATION_200_400KW):
+        return BillingVerdictStatus.UNSUPPORTED_SETTLEMENT
     if inv.is_export_index_missing_on_bill or (
         m.meter_verified_export_kwh > 0 and inv.billed_export_kwh == 0
     ) or inv.billed_export_kwh < m.meter_verified_export_kwh - KWH_TOLERANCE:
@@ -71,6 +74,8 @@ def _classify(scenario: HouseholdScenario) -> BillingVerdictStatus:
         m.inverter_reported_import_kwh, m.meter_verified_import_kwh
     ):
         return BillingVerdictStatus.METER_INVERTER_DISCREPANCY
+    if abs(inv.total_payable_ron - _payable(inv.billed_import_kwh, inv.billed_export_kwh, scenario)) > 1.0:
+        return BillingVerdictStatus.AMOUNT_MISMATCH
     return BillingVerdictStatus.INVOICE_VALID_EXPLAINED
 
 
@@ -84,6 +89,10 @@ def _texts(status: BillingVerdictStatus, n: dict[str, float]) -> dict[str, str]:
         + f". Doar surplusul de {f['inv_exp']} kWh a plecat în rețea; contorul inteligent "
         f"(registrul de export) a măsurat oficial {f['m_exp']} kWh injectați. "
     )
+    if status == BillingVerdictStatus.UNSUPPORTED_SETTLEMENT:
+        return {"headline": "Regimul de compensare necesită verificare", "script": "Nu putem confirma factura: regimul de decontare nu este acoperit de calculul automat.", "explanation": "Factura nu a fost declarată corectă deoarece regimul de decontare necesită verificare manuală.", "action": "Verificați contractul și regulile de decontare aplicabile înainte de recalculare."}
+    if status == BillingVerdictStatus.AMOUNT_MISMATCH:
+        return {"headline": f"Totalul facturii diferă de calculul liniilor: {f['billed']} RON", "script": f"Suma tipărită ({f['billed']} RON) nu corespunde liniilor de energie și tarife.", "explanation": walk + f"Totalul tipărit este {f['billed']} RON, iar valoarea calculată din liniile facturii este {f['correct']} RON.", "action": "Solicitați furnizorului detalierea și corectarea totalului facturii."}
     savings = (
         f"Energia consumată direct v-a economisit deja {f['savings']} RON, bani pe care nu îi mai "
         "vedeți pe factură tocmai pentru că nu ați cumpărat-o din rețea."
@@ -196,7 +205,7 @@ def analyze_billing_reconciliation(scenario: HouseholdScenario) -> BillingReconc
     n = {k: _r2(v) for k, v in n.items()}
     n["disc"] = _r2(n["billed"] - n["correct"])
 
-    if status in (BillingVerdictStatus.MISSING_EXPORT_INDEX, BillingVerdictStatus.ESTIMATED_INDEX_OVERCHARGE):
+    if status in (BillingVerdictStatus.MISSING_EXPORT_INDEX, BillingVerdictStatus.ESTIMATED_INDEX_OVERCHARGE, BillingVerdictStatus.AMOUNT_MISMATCH):
         # The supplier issues the invoice and is the customer's single contractual counterparty,
         # so it owns the correction even when the missing/estimated reading came from the distributor.
         severity = SeverityLevel.CRITICAL if abs(n["disc"]) >= CRITICAL_RON else SeverityLevel.WARNING
@@ -204,6 +213,8 @@ def analyze_billing_reconciliation(scenario: HouseholdScenario) -> BillingReconc
         anre_risk = abs(n["disc"]) >= MATERIAL_RON
     elif status == BillingVerdictStatus.METER_INVERTER_DISCREPANCY:
         severity, responsible, anre_risk = SeverityLevel.WARNING, ResponsibleParty.INSTALLER_TECHNICIAN, False
+    elif status == BillingVerdictStatus.UNSUPPORTED_SETTLEMENT:
+        severity, responsible, anre_risk = SeverityLevel.WARNING, ResponsibleParty.SUPPLIER_BILLING, False
     else:
         severity, responsible, anre_risk = SeverityLevel.INFO, ResponsibleParty.NONE, False
 
