@@ -75,10 +75,10 @@ def analyze_grid_fault(scenario: HouseholdScenario) -> GridFaultVerdict:
                      or cause == G.LOCAL_EQUIPMENT_FAULT)
     if uncertain: lost_today = 0
     ms = scenario.monthly_summary
-    days_eq = ms.pvgis_expected_production_kwh/expected if expected else 0
-    month_gap = ms.pvgis_expected_production_kwh-ms.inverter_total_production_kwh
-    lost_month = _r(min(lost_today*days_eq, month_gap) if month_gap > 0 else lost_today*days_eq)
-    lost_ron = _r(lost_month*scenario.invoice.total_retail_import_price_ron_kwh)
+    days_eq = ms.pvgis_expected_production_kwh / expected if expected > 0.01 else 0
+    month_gap = ms.pvgis_expected_production_kwh - ms.inverter_total_production_kwh
+    lost_month = _r(min(lost_today * days_eq, month_gap) if month_gap > 0 else lost_today * days_eq)
+    lost_ron = _r(lost_month * scenario.invoice.total_retail_import_price_ron_kwh)
     if uncertain:
         severity, party = SeverityLevel.INFO, ResponsibleParty.NONE
     elif cause == G.NONE:

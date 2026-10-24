@@ -1,8 +1,11 @@
 """Regression coverage for verified text and export review findings; no external sends."""
 import json
+import re
+import shutil
 import subprocess
 import sys
 import types
+import zlib
 
 import httpx
 import pytest
@@ -12,6 +15,24 @@ from sunproof.explainer import extract_numbers_ro, generate_verified_explanation
 from sunproof.pdf_dossier import build_distributor_dossier_pdf
 from sunproof.scenarios import get_scenario_by_id
 from sunproof.telegram_bot import format_technician_alert, send_technician_alert
+
+
+def _extract_pdf_text(data: bytes) -> str:
+    """Extract text from PDF using pdftotext CLI if installed, or via standard zlib streams."""
+    if shutil.which("pdftotext"):
+        return subprocess.run(["pdftotext", "-", "-"], input=data, capture_output=True, check=True).stdout.decode()
+    pages = []
+    for stream in re.findall(b"stream[\r\n]+(.*?)[\r\n]+endstream", data, re.DOTALL):
+        try:
+            decomp = zlib.decompress(stream)
+            chunks = []
+            for m in re.findall(rb"\((.*?)\)\s*T[jJ]", decomp):
+                chunks.append(m.decode("latin-1", errors="ignore").replace("\\(", "(").replace("\\)", ")"))
+            if chunks:
+                pages.append(" ".join(chunks))
+        except Exception:
+            pass
+    return "\f".join(pages)
 
 
 @pytest.fixture(scope="module")
@@ -78,7 +99,7 @@ def test_pdf_non_grid_never_requests_grid_work(pair, cause, label):
     g = a.grid_verdict.model_copy(update={"cause": types.SimpleNamespace(value=cause)})
     a = a.model_copy(update={"grid_verdict": g})
     pdf = build_distributor_dossier_pdf(s, a)
-    text = subprocess.run(["pdftotext", "-", "-"], input=pdf, capture_output=True, check=True).stdout.decode()
+    text = _extract_pdf_text(pdf)
     assert label in text
     assert "Verificarea si reglajul plotului" not in text
     assert "DEMO / DATE SIMULATE" in text
@@ -91,7 +112,7 @@ def test_pdf_grid_requests_and_watermark_each_page(pair):
     s, a = pair
     g = a.grid_verdict.model_copy(update={"cause": types.SimpleNamespace(value="GRID_OVERVOLTAGE")})
     pdf = build_distributor_dossier_pdf(s, a.model_copy(update={"grid_verdict": g}))
-    text = subprocess.run(["pdftotext", "-", "-"], input=pdf, capture_output=True, check=True).stdout.decode()
+    text = _extract_pdf_text(pdf)
     assert "Verificarea si reglajul plotului" in text
     assert all("DEMO / DATE SIMULATE" in page for page in text.split("\f") if page.strip())
 
@@ -182,7 +203,7 @@ def test_uncertain_pdf_does_not_present_missing_measurements_as_zero(pair):
     g = a.grid_verdict.model_copy(update={"cause": types.SimpleNamespace(value="INSUFFICIENT_DATA"),
         "max_inverter_voltage_v": 0, "max_meter_voltage_v": 0, "events": []})
     pdf = build_distributor_dossier_pdf(s, a.model_copy(update={"grid_verdict": g}))
-    text = subprocess.run(["pdftotext", "-", "-"], input=pdf, capture_output=True, check=True).stdout.decode()
+    text = _extract_pdf_text(pdf)
     assert "0.00 V" not in text
     assert "Nicio fereastra" not in text
 

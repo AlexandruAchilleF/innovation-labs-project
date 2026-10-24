@@ -6,12 +6,13 @@ Deterministic engines decide; texts are verified explanations. Analyses are cach
 
 from __future__ import annotations
 
+import logging
 from pathlib import Path
 from typing import Any, Dict, Optional
 
 from fastapi import Body, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -39,6 +40,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+logger = logging.getLogger("sunproof.app")
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Any, exc: Exception) -> JSONResponse:
+    """Any unexpected error becomes valid JSON (the UI never has to parse an HTML 500 page)."""
+    logger.error("Unhandled error on %s %s", request.method, request.url.path, exc_info=exc)
+    return JSONResponse(status_code=500, content={"status": "error", "detail": "Eroare internă de server"})
 
 
 # ---------------------------------------------------------------- request bodies
