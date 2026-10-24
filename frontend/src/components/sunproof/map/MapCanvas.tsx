@@ -105,11 +105,16 @@ export function MapCanvas({
         attributionControl: { compact: true },
       });
       map.touchZoomRotate.disableRotation();
-      map.addControl(new lib.ScaleControl({ unit: "metric", maxWidth: 90 }), "bottom-left");
+      // top-left sits in the empty slot beside the search bar; the bottom edge belongs to the time scrubber
+      map.addControl(new lib.ScaleControl({ unit: "metric", maxWidth: 90 }), "top-left");
       map.on("move", () => moveRef.current?.(map!));
       ro = new ResizeObserver(() => map?.resize());
       ro.observe(el.current);
       map.on("load", () => {
+        // compact attribution opens expanded on wide maps and slides under the scrubber; start collapsed (the ⓘ stays)
+        el.current
+          ?.querySelector(".maplibregl-ctrl-attrib")
+          ?.classList.remove("maplibregl-compact-show");
         if (!cancelled) setApi({ map: map!, lib });
         moveRef.current?.(map!);
       });

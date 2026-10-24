@@ -32,8 +32,10 @@ function Switch({
   );
 }
 
-function IntentCard() {
-  const [intent, setIntent] = useState<20 | 80>(20);
+function IntentCard({ d }: { d: HouseholdDetail }) {
+  const b = d.analysis.battery_verdict;
+  const configured = b.configured_min_soc_pct;
+  const [intent, setIntent] = useState<20 | 80>(b.desired_min_soc_pct >= 80 ? 80 : 20);
   const kwhMonth = EVENING_KWH_DAY * DAYS;
   const costRon = kwhMonth * EVENING_PRICE_RON_KWH;
   const bonusRon = kwhMonth * PILOT_BONUS_RON_KWH;
@@ -41,42 +43,54 @@ function IntentCard() {
     [20, "Vreau 20% (seara)"],
     [80, "Vreau 80% (backup)"],
   ];
+  const matches = configured === intent;
   return (
     <Panel title="Intenție vs. setare baterie">
-      <p className="text-[13px] text-bone">Rezerva a trecut de la 20% la 80% pe 3 iulie 2026.</p>
+      <p className="text-[13px] text-bone">
+        Invertorul păstrează acum o rezervă minimă de <span className="num">{configured}%</span>.
+      </p>
       <div className="mt-3 flex flex-wrap gap-2">
         {opts.map(([v, l]) => (
           <button
             key={v}
             type="button"
+            aria-pressed={intent === v}
             onClick={() => setIntent(v)}
             className={cn(
-              "rounded-[4px] border px-3 py-1.5 text-[12px]",
-              intent === v ? "border-voltage text-bone" : "border-border text-muted-foreground",
+              "rounded-[4px] border px-3 py-1.5 text-[12px] transition-colors",
+              intent === v
+                ? "border-voltage text-bone"
+                : "border-border text-muted-foreground hover:text-bone",
             )}
           >
             {l}
           </button>
         ))}
       </div>
-      {intent === 20 ? (
-        <div className="mt-4 space-y-1 text-[12.5px] text-bone">
-          <div className="text-critical">Setarea (80%) nu corespunde intenției (20%)</div>
-          <div
-            title={`${fmt(EVENING_KWH_DAY, 1)} kWh/zi × ${DAYS} zile × ${fmt(EVENING_PRICE_RON_KWH, 2)} RON/kWh`}
-          >
-            Import seara: <span className="num">{fmt(costRon)} RON/lună</span>
-          </div>
-          <div
-            title={`Bonus pilot tip Electrica, ${fmt(PILOT_BONUS_RON_KWH, 2)} RON/kWh livrat 19:00–21:00`}
-          >
-            Bonus ratat: <span className="num">{fmt(bonusRon)} RON/lună</span>
-          </div>
-        </div>
-      ) : (
+      {matches ? (
         <p className="mt-4 text-[12.5px] text-fog">
-          Setarea invertorului (80%) corespunde intenției tale (80%).
+          Setarea invertorului ({configured}%) corespunde intenției tale ({intent}%).
         </p>
+      ) : (
+        <div className="mt-4 space-y-1 text-[12.5px] text-bone">
+          <div className="text-critical">
+            Setarea ({configured}%) nu corespunde intenției ({intent}%)
+          </div>
+          {intent < configured && (
+            <>
+              <div
+                title={`${fmt(EVENING_KWH_DAY, 1)} kWh/zi × ${DAYS} zile × ${fmt(EVENING_PRICE_RON_KWH, 2)} RON/kWh`}
+              >
+                Import seara: <span className="num">{fmt(costRon)} RON/lună</span>
+              </div>
+              <div
+                title={`Bonus pilot tip Electrica, ${fmt(PILOT_BONUS_RON_KWH, 2)} RON/kWh livrat 19:00–21:00`}
+              >
+                Bonus ratat: <span className="num">{fmt(bonusRon)} RON/lună</span>
+              </div>
+            </>
+          )}
+        </div>
       )}
     </Panel>
   );
@@ -167,12 +181,25 @@ function AccessCard({ d }: { d: HouseholdDetail }) {
 }
 
 export function ProsumerDemoPanels({ d }: { d: HouseholdDetail }) {
+  // same 5/7 column split as the dashboard above; the intent card only exists when there is a battery to configure
+  if (!d.analysis.battery_verdict.battery_kwh) {
+    return (
+      <div className="mt-5 grid grid-cols-12 gap-5">
+        <div className="col-span-12 md:col-span-5">
+          <TicketCard d={d} />
+        </div>
+        <div className="col-span-12 md:col-span-7">
+          <AccessCard d={d} />
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="mt-5 grid grid-cols-12 gap-5">
-      <div className="col-span-12 md:col-span-6">
-        <IntentCard />
+      <div className="col-span-12 md:col-span-5">
+        <IntentCard d={d} />
       </div>
-      <div className="col-span-12 space-y-5 md:col-span-6">
+      <div className="col-span-12 space-y-5 md:col-span-7">
         <TicketCard d={d} />
         <AccessCard d={d} />
       </div>

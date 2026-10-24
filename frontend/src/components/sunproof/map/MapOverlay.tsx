@@ -11,6 +11,7 @@ import { fmt } from "@/lib/format";
 import type { FeederHouse, Neighborhood } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useMapApi } from "./MapCanvas";
+import { HousePin } from "./equipment";
 import { SolarRoof } from "./SolarRoof";
 
 export interface ActiveGrid {
@@ -23,8 +24,9 @@ export interface ActiveGrid {
   reverse: boolean;
 }
 
-// Roofs are drawn ~1.6x a real 15 m roof so the PV array stays legible; below ROOF_ZOOM houses become dots.
-const ROOF_M = 24;
+// 3/4-view houses are drawn ~2.4x a real 15 m house so the PV array and equipment stay legible;
+// below ROOF_ZOOM houses become pictograms.
+const ROOF_M = 36;
 export const ROOF_ZOOM = 16.5;
 
 /** HTML layer over the map: neighbourhood pins, the active transformer and one 2D solar roof per connection. */
@@ -111,7 +113,7 @@ export function MapOverlay({
           const selected = id === selectedId;
           const status = houseStatusAt(h, slot);
           const mpp = (156543.03392 * Math.cos((active.center[1] * Math.PI) / 180)) / 2 ** zoom;
-          const size = Math.max(18, Math.min(84, ROOF_M / mpp));
+          const size = Math.max(30, Math.min(150, ROOF_M / mpp));
           const v = houseVoltageAt(h, slot);
           return (
             <div
@@ -138,21 +140,19 @@ export function MapOverlay({
                     selected={selected}
                     monitored={!!h.household_id || h.monitored}
                     size={size}
-                    rotation={active.bearings.get(h.house_id) ?? 0}
                   />
                 ) : (
-                  <span
-                    className={cn(
-                      "block size-3 rounded-[2px] border",
-                      selected ? "border-voltage" : "border-obsidian",
-                      dotClass[status],
-                    )}
+                  <HousePin
+                    status={status}
+                    selected={selected}
+                    monitored={!!h.household_id || h.monitored}
+                    hasBattery={h.has_battery}
                   />
                 )}
               </button>
               {(selected || hover === h.house_id) && (
                 <div
-                  className="pointer-events-none absolute left-1/2 top-0 mt-[calc(var(--s)*0.5+6px)] -translate-x-1/2 whitespace-nowrap rounded-[4px] border border-iron bg-obsidian/90 px-2 py-1 shadow-overlay"
+                  className="pointer-events-none absolute left-1/2 top-0 mt-[calc(var(--s)*0.36+8px)] -translate-x-1/2 whitespace-nowrap rounded-[4px] border border-iron bg-obsidian/90 px-2 py-1 shadow-overlay"
                   style={{ ["--s" as string]: `${size}px` }}
                 >
                   <div className="text-[11px] font-medium text-bone">
@@ -181,13 +181,6 @@ export function MapOverlay({
     </div>
   );
 }
-
-const dotClass = {
-  night: "bg-iron",
-  normal: "bg-fog",
-  derating: "bg-warning",
-  trip: "bg-critical",
-} as const;
 
 function Transformer({ active, at }: { active: ActiveGrid; at: { x: number; y: number } }) {
   const pct = Math.min(130, active.loadingPct);

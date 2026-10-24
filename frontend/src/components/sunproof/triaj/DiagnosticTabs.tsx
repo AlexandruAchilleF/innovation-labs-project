@@ -10,7 +10,10 @@ import { OmTicketLifecycleCard, ProofBenchmarkPanel } from "./OmLifecycleAndProo
 type TabId = "grid" | "battery" | "billing" | "proof";
 
 export function DiagnosticTabs({ d }: { d: HouseholdDetail }) {
-  const [tab, setTab] = useState<TabId>("grid");
+  const party = d.analysis.primary_responsible_party;
+  const [tab, setTab] = useState<TabId>(
+    party === "CUSTOMER_SETTING" ? "battery" : party === "SUPPLIER_BILLING" ? "billing" : "grid",
+  );
   const b = d.analysis.battery_verdict;
   const tabs: { id: TabId; label: string }[] = [
     { id: "grid", label: "Rețea sau instalație" },

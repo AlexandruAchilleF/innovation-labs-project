@@ -3,6 +3,7 @@ import { Globe2, Layers, LocateFixed, Minus, Plus, ScanSearch, Search } from "lu
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { EquipmentIcon, type EquipmentKind } from "@/components/sunproof/map/equipment";
 import type { LayerToggles } from "@/components/sunproof/map/GridLayers";
 import { useMapApi, type Basemap } from "@/components/sunproof/map/MapCanvas";
 import { ROMANIA_CENTER, VOLTAGE_STOPS, housePlanXY, toLngLat, type LngLat } from "@/lib/geo";
@@ -78,10 +79,43 @@ export function LayersMenu({
             ))}
           </div>
         </div>
+        <div className="space-y-1.5 border-t border-iron pt-3">
+          <div className="text-[12px] text-fog">Echipament client</div>
+          <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[11px] text-fog">
+            {equipment.map(([k, l]) => (
+              <span key={k} className="flex items-center gap-1.5">
+                <EquipmentIcon kind={k} />
+                {l}
+              </span>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-fog">
+            {inverterStates.map(([c, l]) => (
+              <span key={l} className="flex items-center gap-1.5">
+                <span className="size-1.5 rounded-full" style={{ background: `var(${c})` }} />
+                {l}
+              </span>
+            ))}
+          </div>
+        </div>
       </PopoverContent>
     </Popover>
   );
 }
+
+const equipment: [EquipmentKind, string][] = [
+  ["pv", "Panouri PV"],
+  ["inverter", "Invertor"],
+  ["battery", "Baterie"],
+  ["meter", "Contor inteligent"],
+];
+
+const inverterStates: [string, string][] = [
+  ["--success", "Produce"],
+  ["--warning", "Derating"],
+  ["--critical", "Deconectat"],
+  ["--smoke", "Noapte"],
+];
 
 function RailButton({
   label,

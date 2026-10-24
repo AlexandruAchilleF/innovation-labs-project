@@ -75,7 +75,7 @@ export function NeighborStrip({
                   hasBattery={h.has_battery}
                   selected={me}
                   monitored={!!h.household_id}
-                  size={40}
+                  size={50}
                   title={`${me ? "Client" : "Vecin"} · ${statusRo[st]} · ${fmt(v, 1)} V · ${h.distance_m} m de PT`}
                 />
                 <span

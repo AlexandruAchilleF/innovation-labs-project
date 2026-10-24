@@ -11,12 +11,7 @@ export const sevText: Record<Severity, string> = {
 
 export function SeverityTag({ s }: { s: Severity }) {
   return (
-    <span
-      className={cn(
-        "eyebrow rounded-[4px] border border-iron px-1.5 py-0.5 !text-[10px]",
-        sevText[s],
-      )}
-    >
+    <span className={cn("eyebrow rounded-[4px] border border-iron px-1.5 py-0.5", sevText[s])}>
       {severityLabel[s]}
     </span>
   );

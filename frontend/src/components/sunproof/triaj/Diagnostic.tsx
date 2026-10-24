@@ -27,7 +27,7 @@ import { responsibleLabel } from "@/lib/i18n";
 import { plainText } from "@/lib/format";
 import type { HouseholdDetail, MinutePoint, Severity } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { Row, StatusBadge, axisProps, chartTooltipStyle } from "../primitives";
+import { DisclosureChevron, Row, StatusBadge, axisProps, chartTooltipStyle } from "../primitives";
 
 export function TriageHeader({ d }: { d: HouseholdDetail }) {
   const a = d.analysis;
@@ -58,9 +58,10 @@ export function TriageHeader({ d }: { d: HouseholdDetail }) {
           <p className="mt-2 max-w-[75ch] text-[14px] leading-relaxed text-bone">
             {a.one_line_triage_ro}
           </p>
-          <details className="mt-2 text-[12px] text-fog">
-            <summary className="cursor-pointer list-none hover:text-bone">
+          <details className="group mt-2 text-[12px] text-fog">
+            <summary className="flex w-fit cursor-pointer list-none items-center gap-1 hover:text-bone">
               Detalii instalație
+              <DisclosureChevron />
             </summary>
             <p className="mt-1.5 max-w-[75ch] font-display text-[13px] italic">
               „{d.scenario.customer_question_ro}”
@@ -74,18 +75,20 @@ export function TriageHeader({ d }: { d: HouseholdDetail }) {
             </p>
           </details>
         </div>
-        <div className="flex shrink-0 flex-col items-end gap-2.5 text-right">
+        <div className="flex shrink-0 flex-col items-start gap-2.5 sm:items-end sm:text-right">
           <dl className="num flex gap-5 text-[12px]">
             <div>
               <dt className="text-fog">Furnizor</dt>
               <dd className="text-[16px] text-bone">
                 +{fmt(a.total_supplier_monthly_benefit_ron)} RON
+                <span className="text-[11px] text-fog">/lună</span>
               </dd>
             </div>
             <div>
               <dt className="text-fog">Client</dt>
               <dd className="text-[16px] text-bone">
                 +{fmt(a.total_customer_monthly_benefit_ron)} RON
+                <span className="text-[11px] text-fog">/lună</span>
               </dd>
             </div>
           </dl>

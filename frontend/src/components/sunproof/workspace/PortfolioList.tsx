@@ -6,7 +6,6 @@ import { sevText } from "./SeverityTag";
 
 const FILTERS: [string, (h: HouseholdSummary) => boolean][] = [
   ["Toate", () => true],
-  ["Critice", (h) => h.overall_severity === "CRITICAL"],
   ["Rețea", (h) => h.scenario_code === "GRID_OVERVOLTAGE"],
   ["Local", (h) => h.scenario_code === "LOCAL_OVERVOLTAGE_SENSITIVITY"],
   ["Baterie", (h) => h.scenario_code === "MISCONFIGURED_MODE"],
@@ -40,19 +39,29 @@ export function PortfolioList({
   }, [households, filter, q]);
   return (
     <>
-      <div className="flex shrink-0 flex-wrap gap-1 border-b border-border px-4 py-2">
-        {FILTERS.map(([l], i) => (
-          <button
-            key={l}
-            onClick={() => setFilter(i)}
-            className={cn(
-              "rounded-[4px] border px-2 py-0.5 text-[11.5px]",
-              filter === i ? "border-voltage text-bone" : "border-iron text-fog hover:text-bone",
-            )}
-          >
-            {l}
-          </button>
-        ))}
+      <div className="shrink-0 space-y-2 border-b border-border px-4 py-3">
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          aria-label="Filtrează portofoliul"
+          placeholder="Filtrează după nume, ID sau oraș…"
+          className="h-9 w-full rounded-[4px] border border-iron bg-graphite px-3 text-[13px] text-bone outline-none placeholder:text-fog focus:border-voltage"
+        />
+        <div className="flex flex-wrap gap-1">
+          {FILTERS.map(([l], i) => (
+            <button
+              key={l}
+              onClick={() => setFilter(i)}
+              aria-pressed={filter === i}
+              className={cn(
+                "rounded-[4px] border px-2 py-1 text-[12px]",
+                filter === i ? "border-voltage text-bone" : "border-iron text-fog hover:text-bone",
+              )}
+            >
+              {l}
+            </button>
+          ))}
+        </div>
       </div>
       <div className="grid shrink-0 grid-cols-[1fr_auto] border-b border-border px-4 py-1.5">
         <span className="eyebrow">Client · {rows.length}</span>
@@ -78,14 +87,6 @@ export function PortfolioList({
             <span className="num text-[12px] text-bone">{fmt(h.monthly_impact_ron)}</span>
           </button>
         ))}
-      </div>
-      <div className="shrink-0 border-t border-border p-3">
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Filtrează după nume, ID sau oraș…"
-          className="h-9 w-full rounded-[4px] border border-iron bg-graphite px-3 text-[13px] text-bone outline-none placeholder:text-smoke focus:border-voltage"
-        />
       </div>
     </>
   );

@@ -10,6 +10,7 @@ import type { GridState, GridWhatIfParams, GridWhatIfResult, Neighborhood } from
 import { cn } from "@/lib/utils";
 import type { CompareView } from "@/routes/harta";
 import { Compare, Step } from "./WhatIfParts";
+import { DisclosureChevron } from "@/components/sunproof/primitives";
 
 type Params = Required<GridWhatIfParams>;
 const defaults = (nb: Neighborhood): Params => ({
@@ -52,7 +53,7 @@ export function NetworkPanel({
   );
   if (!nb || !grid || !c) {
     return (
-      <aside className="hidden w-[340px] shrink-0 space-y-3 border-l border-border bg-canvas p-4 xl:block">
+      <aside className="hidden w-[320px] shrink-0 space-y-3 border-l border-border bg-canvas p-4 xl:block">
         <Skeleton className="h-8 w-2/3" />
         <Skeleton className="h-40" />
       </aside>
@@ -143,8 +144,9 @@ export function NetworkPanel({
 
         {(nb.headline_ro || nb.recommended_distributor_action_ro) && (
           <details className="group text-[12.5px] leading-relaxed">
-            <summary className="cursor-pointer list-none text-fog hover:text-bone">
+            <summary className="flex w-fit cursor-pointer list-none items-center gap-1 text-fog hover:text-bone">
               Diagnostic și acțiune recomandată
+              <DisclosureChevron />
             </summary>
             <div className="mt-2 space-y-2 text-fog">
               {nb.headline_ro && <p className="text-bone">{nb.headline_ro}</p>}
@@ -186,8 +188,9 @@ export function NetworkPanel({
             />
           )}
           <details className="group">
-            <summary className="cursor-pointer list-none text-[12.5px] text-fog hover:text-bone">
+            <summary className="flex w-fit cursor-pointer list-none items-center gap-1 text-[12.5px] text-fog hover:text-bone">
               Ajustează manual
+              <DisclosureChevron />
             </summary>
             <div className="mt-3 space-y-4">
               <Step

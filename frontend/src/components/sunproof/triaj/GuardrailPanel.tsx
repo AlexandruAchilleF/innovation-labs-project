@@ -8,7 +8,7 @@ import { fmt } from "@/lib/format";
 import { extractNumbers, runGuardrail } from "@/lib/sim";
 import type { GuardrailDocType, GuardrailResult, HouseholdDetail } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { Panel } from "../primitives";
+import { DisclosureChevron, Panel } from "../primitives";
 
 type Tab = GuardrailDocType | "call_center";
 
@@ -111,9 +111,10 @@ export function GuardrailPanel({ d }: { d: HouseholdDetail }) {
         </p>
       </div>
 
-      <details className="mt-3">
-        <summary className="mb-1.5 cursor-pointer list-none text-[12px] text-fog hover:text-bone">
+      <details className="group mt-3">
+        <summary className="mb-1.5 flex w-fit cursor-pointer list-none items-center gap-1 text-[12px] text-fog hover:text-bone">
           Numere verificate ({nums.length})
+          <DisclosureChevron />
         </summary>
         <div className="flex flex-wrap gap-1">
           {nums.map((n) => {

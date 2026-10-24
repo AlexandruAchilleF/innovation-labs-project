@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { CasePanel } from "@/components/sunproof/workspace/CasePanel";
+import { CaseChip, CasePanel } from "@/components/sunproof/workspace/CasePanel";
 import { MapStage } from "@/components/sunproof/workspace/MapStage";
 import { NetworkPanel } from "@/components/sunproof/workspace/NetworkPanel";
 import { api } from "@/lib/api";
@@ -96,6 +96,7 @@ function HartaPage() {
         onPickNeighborhood={pickNeighborhood}
         simulating={!!sim}
         view={view}
+        caseChip={<CaseChip detail={detail.data} />}
       />
       <NetworkPanel
         nb={nb}

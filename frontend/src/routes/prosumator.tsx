@@ -135,12 +135,13 @@ function EnergyFlow({ d }: { d: HouseholdDetail }) {
     d.timeseries.minutes.find((m) => m.minute_of_day === (evening ? 20 * 60 : 13 * 60)) ??
     d.timeseries.minutes[0]!;
   const hasBatt = d.analysis.battery_verdict.battery_kwh > 0;
+  // inverter and house sit 150 apart so the horizontal flow label fits between the two cards
   const nodes = {
-    sun: { x: 160, y: 40 },
-    inv: { x: 160, y: 140 },
-    house: { x: 290, y: 140 },
-    batt: { x: 60, y: 240 },
-    grid: { x: 260, y: 240 },
+    sun: { x: 150, y: 40 },
+    inv: { x: 150, y: 140 },
+    house: { x: 296, y: 140 },
+    batt: { x: 54, y: 240 },
+    grid: { x: 246, y: 240 },
   };
   const flows: { from: keyof typeof nodes; to: keyof typeof nodes; kw: number; color: string }[] = [
     { from: "sun", to: "inv", kw: pt.pv_power_kw, color: "var(--sun)" },
@@ -171,7 +172,7 @@ function EnergyFlow({ d }: { d: HouseholdDetail }) {
   }) => (
     <foreignObject x={nodes[k].x - 44} y={nodes[k].y - 30} width={88} height={64}>
       <div className="flex h-full flex-col items-center justify-center rounded-lg border border-ink-line bg-ink-2 text-ink-foreground">
-        <span className="text-sun">{icon}</span>
+        <span className={k === "sun" ? "text-sun" : "text-ink-muted"}>{icon}</span>
         <span className="text-[9px] uppercase tracking-wider text-ink-muted">{label}</span>
         <span className="num text-[11.5px] font-semibold">{value}</span>
       </div>
@@ -200,7 +201,7 @@ function EnergyFlow({ d }: { d: HouseholdDetail }) {
         </div>
       </div>
       <svg
-        viewBox="0 -16 340 316"
+        viewBox="0 0 344 284"
         preserveAspectRatio="xMidYMid meet"
         className="min-h-0 w-full flex-1"
       >
@@ -226,7 +227,7 @@ function EnergyFlow({ d }: { d: HouseholdDetail }) {
               {active && (
                 <text
                   x={(a.x + b.x) / 2 + (a.y === b.y ? 0 : 8)}
-                  y={(a.y + b.y) / 2 - (a.y === b.y ? 36 : 4)}
+                  y={(a.y + b.y) / 2 - (a.y === b.y ? 7 : 4)}
                   textAnchor={a.y === b.y ? "middle" : "start"}
                   fontSize={10}
                   fontWeight={700}

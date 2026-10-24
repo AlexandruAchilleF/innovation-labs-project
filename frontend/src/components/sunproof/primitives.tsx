@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { severityLabel } from "@/lib/i18n";
 import type { Severity } from "@/lib/types";
@@ -37,6 +38,13 @@ export function StatusBadge({
       <span className={cn("size-1.5 rounded-full", dotClass[severity])} />
       {label ?? severityLabel[severity]}
     </span>
+  );
+}
+
+/** Disclosure affordance for `<details className="group">` summaries; rotates when open. */
+export function DisclosureChevron() {
+  return (
+    <ChevronRight className="size-3.5 shrink-0 text-smoke transition-transform group-open:rotate-90" />
   );
 }
 

@@ -191,6 +191,27 @@
     background: color-mix(in oklab, var(--voltage) 40%, transparent);
   }
 
+  :root {
+    accent-color: var(--voltage);
+    caret-color: var(--voltage);
+  }
+
+  /* keyboard focus for hand-rolled controls; ui/* components keep their own ring via outline-none + ring */
+  :focus-visible {
+    outline: 2px solid var(--voltage);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
   * {
     scrollbar-width: thin;
     scrollbar-color: var(--iron) transparent;
@@ -256,6 +277,12 @@
 }
 .maplibregl-ctrl-attrib a {
   color: var(--fog);
+}
+/* phones: the search bar takes the top-left slot, so the scale bar steps aside */
+@media (max-width: 639px) {
+  .maplibregl-ctrl-top-left .maplibregl-ctrl-scale {
+    display: none;
+  }
 }
 .maplibregl-ctrl-scale {
   background: color-mix(in oklab, var(--obsidian) 70%, transparent);

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { GridLayers, type LayerToggles } from "@/components/sunproof/map/GridLayers";
 import { MapCanvas, useMapApi, type Basemap } from "@/components/sunproof/map/MapCanvas";
 import { MapOverlay } from "@/components/sunproof/map/MapOverlay";
@@ -32,6 +32,7 @@ export function MapStage({
   onPickNeighborhood,
   simulating,
   view,
+  caseChip,
 }: {
   neighborhoods: Neighborhood[];
   households: HouseholdSummary[];
@@ -45,6 +46,8 @@ export function MapStage({
   onPickNeighborhood: (id: string) => void;
   simulating: boolean;
   view: CompareView;
+  /** compact case summary shown under the search bar when the side panel is hidden */
+  caseChip?: ReactNode;
 }) {
   const [basemap, setBasemap] = useState<Basemap>("satellite");
   const [toggles, setToggles] = useState<LayerToggles>({ feeders: true, heat: true, flow: true });
@@ -108,7 +111,7 @@ export function MapStage({
 
       <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-3 p-3">
         <div className="w-24" />
-        <div className="pointer-events-auto flex w-full max-w-[460px] flex-col items-center gap-2">
+        <div className="pointer-events-auto flex w-full min-w-0 max-w-[460px] flex-col items-center gap-2">
           <MapSearch
             households={households}
             neighborhoods={neighborhoods}
@@ -125,6 +128,8 @@ export function MapStage({
           />
         </div>
       </div>
+      {/* own full-width row under the search; z-[9] keeps the search results dropdown above it */}
+      {caseChip && <div className="absolute inset-x-3 top-[60px] z-[9] lg:hidden">{caseChip}</div>}
 
       {grid && congestion && (
         <TimeScrubber
@@ -147,7 +152,7 @@ export function MapStage({
 }
 
 /**
- * Frames the client's stretch of street (client +/- 3 neighbours on its feeder, plus the PT when close) so the
+ * Frames the client's stretch of street (client +/- 2 neighbours on its feeder, plus the PT when close) so the
  * 2D roofs are readable on arrival; falls back to the whole neighbourhood when the client is not on this PT.
  */
 function Camera({
@@ -165,21 +170,31 @@ function Camera({
     if (!api || !nb || !center) return;
     const client = nb.houses.find((h) => (h.household_id ?? h.house_id) === selectedId);
     let focus = nb.houses;
+    let withPt = false;
     if (client) {
       const run = feederRuns(nb, nb.houses).find((r) => r.houses.includes(client));
       const i = run ? run.houses.indexOf(client) : -1;
-      if (run && i >= 0) focus = run.houses.slice(Math.max(0, i - 3), i + 4);
+      if (run && i >= 0) {
+        focus = run.houses.slice(Math.max(0, i - 2), i + 3);
+        withPt = i <= 2;
+      }
     }
     const pts = focus.map((h) => housePlanXY(h)).map((p) => toLngLat(center, p.x, p.y));
+    if (withPt) pts.push(center);
     const lons = pts.map((p) => p[0]);
     const lats = pts.map((p) => p[1]);
+    // side padding clears the tool/zoom rails plus half of a roof label, so the client never lands under chrome
+    // (less on the left when the PT anchors the frame: its ring is narrower than a centred label)
+    const narrow = api.map.getContainer().clientWidth < 640;
     api.map.fitBounds(
       [
         [Math.min(...lons), Math.min(...lats)],
         [Math.max(...lons), Math.max(...lats)],
       ],
       {
-        padding: { top: 140, bottom: 190, left: 80, right: 80 },
+        padding: narrow
+          ? { top: 120, bottom: 240, left: 120, right: 72 }
+          : { top: 140, bottom: 200, left: withPt ? 110 : 170, right: 130 },
         maxZoom: 18,
         duration: 2400,
         essential: true,
