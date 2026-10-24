@@ -8,6 +8,7 @@ as HouseholdScenario (5 curated stories first, then the generated fleet). Result
 
 from __future__ import annotations
 
+import threading
 from typing import Dict, List, Optional
 
 from sunproof.data.archetypes import STORY_HOUSEHOLD_IDS
@@ -31,6 +32,7 @@ __all__ = [
     "get_all_neighborhood_analyses", "simulate_neighborhood_what_if", "simulate_scenario_with_battery_override",
 ]
 
+_LOCK = threading.RLock()
 _SIMULATIONS: Optional[Dict[str, NeighborhoodSimulation]] = None
 _SCENARIO_CACHE: Optional[Dict[str, HouseholdScenario]] = None
 _ANALYSIS_CACHE: Dict[str, NeighborhoodGridAnalysis] = {}
@@ -38,17 +40,19 @@ _ANALYSIS_CACHE: Dict[str, NeighborhoodGridAnalysis] = {}
 
 def _simulations() -> Dict[str, NeighborhoodSimulation]:
     global _SIMULATIONS
-    if _SIMULATIONS is None:
-        _SIMULATIONS = {nb_id: simulate_neighborhood(nb) for nb_id, nb in get_neighborhood_specs().items()}
-    return _SIMULATIONS
+    with _LOCK:
+        if _SIMULATIONS is None:
+            _SIMULATIONS = {nb_id: simulate_neighborhood(nb) for nb_id, nb in get_neighborhood_specs().items()}
+        return _SIMULATIONS
 
 
 def get_scenarios_dict() -> Dict[str, HouseholdScenario]:
     """All monitored households, the 5 curated stories first, then the rest of the fleet by neighborhood."""
     global _SCENARIO_CACHE
-    if _SCENARIO_CACHE is None:
-        _SCENARIO_CACHE = build_scenarios_dict(get_neighborhood_specs(), _simulations())
-    return _SCENARIO_CACHE
+    with _LOCK:
+        if _SCENARIO_CACHE is None:
+            _SCENARIO_CACHE = build_scenarios_dict(get_neighborhood_specs(), _simulations())
+        return _SCENARIO_CACHE
 
 
 def get_all_scenarios() -> List[HouseholdScenario]:
@@ -66,27 +70,31 @@ def get_scenario_by_id(household_id: str) -> HouseholdScenario:
 
 def get_ground_truth(household_id: str) -> HouseholdGroundTruth:
     """What was injected in the simulation for this household (for engine tests only)."""
-    nb_id = get_scenario_by_id(household_id).neighborhood_id
-    return build_ground_truth(household_id, nb_id, _simulations()[nb_id])
+    with _LOCK:
+        nb_id = get_scenario_by_id(household_id).neighborhood_id
+        return build_ground_truth(household_id, nb_id, _simulations()[nb_id])
 
 
 def get_neighborhoods() -> List[Neighborhood]:
     """Topology of every simulated LV network (transformer, feeders, houses)."""
-    return list(get_neighborhood_specs().values())
+    with _LOCK:
+        return list(get_neighborhood_specs().values())
 
 
 def get_neighborhood_analysis(neighborhood_id: str) -> NeighborhoodGridAnalysis:
     """Day simulation of one LV network with the distributor-facing diagnosis (cached)."""
-    specs = get_neighborhood_specs()
-    if neighborhood_id not in specs:
-        raise KeyError(f"Unknown neighborhood_id '{neighborhood_id}'. Available IDs: {list(specs.keys())}")
-    if neighborhood_id not in _ANALYSIS_CACHE:
-        _ANALYSIS_CACHE[neighborhood_id] = analyze_neighborhood(specs[neighborhood_id], _simulations()[neighborhood_id])
-    return _ANALYSIS_CACHE[neighborhood_id]
+    with _LOCK:
+        specs = get_neighborhood_specs()
+        if neighborhood_id not in specs:
+            raise KeyError(f"Unknown neighborhood_id '{neighborhood_id}'. Available IDs: {list(specs.keys())}")
+        if neighborhood_id not in _ANALYSIS_CACHE:
+            _ANALYSIS_CACHE[neighborhood_id] = analyze_neighborhood(specs[neighborhood_id], _simulations()[neighborhood_id])
+        return _ANALYSIS_CACHE[neighborhood_id]
 
 
 def get_all_neighborhood_analyses() -> List[NeighborhoodGridAnalysis]:
-    return [get_neighborhood_analysis(nb_id) for nb_id in get_neighborhood_specs()]
+    with _LOCK:
+        return [get_neighborhood_analysis(nb_id) for nb_id in get_neighborhood_specs()]
 
 
 def simulate_neighborhood_what_if(
@@ -99,8 +107,9 @@ def simulate_neighborhood_what_if(
     fix_all_batteries: bool = False,
 ) -> NeighborhoodGridAnalysis:
     """Re-simulates a street with a distributor fix (tap, transformer, conductor, phases) or corrected batteries."""
-    return run_what_if(get_neighborhood_specs()[neighborhood_id], tap_setting_pct, transformer_kva,
-                       feeder_cable_upgrades, rebalance_phases, enable_volt_watt_all, fix_all_batteries)
+    with _LOCK:
+        return run_what_if(get_neighborhood_specs()[neighborhood_id], tap_setting_pct, transformer_kva,
+                           feeder_cable_upgrades, rebalance_phases, enable_volt_watt_all, fix_all_batteries)
 
 
 def simulate_scenario_with_battery_override(
@@ -109,12 +118,13 @@ def simulate_scenario_with_battery_override(
     new_mode: Optional[BatteryMode] = None,
 ) -> HouseholdScenario:
     """Re-runs the household's whole neighborhood with a new battery SoC reserve / mode (street is coupled)."""
-    base = get_scenario_by_id(household_id)
-    if not base.battery_config.has_battery:
-        return base.model_copy(deep=True)
-    nb = get_neighborhood_specs()[base.neighborhood_id]
-    alt = build_what_if_neighborhood(nb, battery_overrides={household_id: (new_min_soc_pct, new_mode)})
-    for s in _scenarios_for_neighborhood(alt, simulate_neighborhood(alt)):
-        if s.household_id == household_id:
-            return s
-    raise KeyError(household_id)
+    with _LOCK:
+        base = get_scenario_by_id(household_id)
+        if not base.battery_config.has_battery:
+            return base.model_copy(deep=True)
+        nb = get_neighborhood_specs()[base.neighborhood_id]
+        alt = build_what_if_neighborhood(nb, battery_overrides={household_id: (new_min_soc_pct, new_mode)})
+        for s in _scenarios_for_neighborhood(alt, simulate_neighborhood(alt)):
+            if s.household_id == household_id:
+                return s
+        raise KeyError(household_id)

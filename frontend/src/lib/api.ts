@@ -55,7 +55,7 @@ export async function withFallback<T>(path: string, init: RequestInit | undefine
   if (!backendDown) {
     try {
       const ctrl = new AbortController();
-      const t = setTimeout(() => ctrl.abort(), 1500);
+      const t = setTimeout(() => ctrl.abort(), 15000);
       const res = await fetcher(`${API_BASE}${path}`, {
         ...init,
         headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },

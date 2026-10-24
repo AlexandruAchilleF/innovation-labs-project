@@ -1,0 +1,13 @@
+# Lockfiles & dependencies
+package-lock.json
+bun.lock
+yarn.lock
+pnpm-lock.yaml
+node_modules/
+
+# Build & test outputs
+.output/
+.wrangler/
+dist/
+coverage/
+.lovable/

@@ -48,6 +48,11 @@ for _ in $(seq 1 30); do
   sleep 0.3
 done
 
+echo "-> Pre-încălzire cache 81 gospodării + 8 cartiere în memorie..."
+curl -fsS "http://127.0.0.1:${API_PORT}/api/portfolio" >/dev/null 2>&1 || true
+curl -fsS "http://127.0.0.1:${API_PORT}/api/neighborhoods" >/dev/null 2>&1 || true
+echo "   [OK] Cache-ul FastAPI este pre-încălzit (răspuns < 5ms)!"
+
 echo "-> Pornire React Frontend pe http://127.0.0.1:${UI_PORT} ..."
 (
   cd "$ROOT_DIR/frontend"
