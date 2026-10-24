@@ -12,7 +12,10 @@ export type Basemap = "satellite" | "dark";
 const MapCtx = createContext<MapApi | null>(null);
 export const useMapApi = () => useContext(MapCtx);
 
-// Raster basemaps only (no API key, no glyph server): Esri imagery for real roofs, CARTO dark for a calm canvas.
+// Raster basemaps only (no API key, no glyph server): Esri imagery for real roofs, Esri dark canvas for a clean dark background.
+// Note: Esri World_Dark_Gray_Base tile pyramid in Europe is rendered up to zoom 16.
+// Setting maxzoom: 16 on the dark raster source instructs MapLibre to overscale (zoom in without re-requesting missing higher-level tiles),
+// preventing the "Map data not yet available" placeholder tile from appearing at street/roof level zoom (17-20).
 const style: StyleSpecification = {
   version: 8,
   sources: {
@@ -35,12 +38,20 @@ const style: StyleSpecification = {
     },
     dark: {
       type: "raster",
-      tiles: ["a", "b", "c"].map(
-        (s) => `https://${s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png`,
-      ),
+      tiles: [
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+      ],
       tileSize: 256,
-      maxzoom: 20,
-      attribution: "© OpenStreetMap contributors © CARTO",
+      maxzoom: 16,
+      attribution: "© Esri, HERE, Garmin, © OpenStreetMap contributors",
+    },
+    darkLabels: {
+      type: "raster",
+      tiles: [
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}",
+      ],
+      tileSize: 256,
+      maxzoom: 16,
     },
   },
   layers: [
@@ -53,6 +64,13 @@ const style: StyleSpecification = {
     },
     { id: "base-labels", type: "raster", source: "labels", paint: { "raster-opacity": 0.85 } },
     { id: "base-dark", type: "raster", source: "dark", layout: { visibility: "none" } },
+    {
+      id: "base-dark-labels",
+      type: "raster",
+      source: "darkLabels",
+      layout: { visibility: "none" },
+      paint: { "raster-opacity": 0.85 },
+    },
   ],
 };
 
@@ -106,9 +124,11 @@ export function MapCanvas({
   useEffect(() => {
     if (!api) return;
     const sat = basemap === "satellite" ? "visible" : "none";
+    const dark = basemap === "dark" ? "visible" : "none";
     api.map.setLayoutProperty("base-satellite", "visibility", sat);
     api.map.setLayoutProperty("base-labels", "visibility", sat);
-    api.map.setLayoutProperty("base-dark", "visibility", basemap === "dark" ? "visible" : "none");
+    api.map.setLayoutProperty("base-dark", "visibility", dark);
+    api.map.setLayoutProperty("base-dark-labels", "visibility", dark);
   }, [api, basemap]);
 
   return (

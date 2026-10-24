@@ -13,13 +13,9 @@ dependencies = [
     "uvicorn>=0.29.0",
     "pandas>=2.2",
     "numpy>=1.26",
-    "streamlit>=1.38",
-    "pydeck>=0.9",
-    "matplotlib>=3.8",
     "fpdf2>=2.7.8",
     "httpx>=0.27.0",
     "anthropic>=0.25.0",
-    "pytest>=8.0.0",
 ]
 
 [project.optional-dependencies]

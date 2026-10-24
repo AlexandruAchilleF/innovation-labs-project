@@ -13,6 +13,16 @@ data/raw/*
 !data/raw/.gitkeep
 *.db
 out/
+build/
+.python-version
+
+# Agent / Tooling configs
+.claude/
+.agents/
+.codex/
+.cursor/
+.gemini/
+.github/hooks/
 
 # Frontend
 frontend/node_modules/
@@ -23,3 +33,5 @@ frontend/.vinxi/
 frontend/.tanstack/
 frontend/.nitro/
 frontend/.wrangler/
+.vercel
+.env*
