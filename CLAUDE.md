@@ -5,10 +5,10 @@ local installation? (2) is the battery locked out of the expensive evening peak?
 Deterministic engines decide; text (LLM or template) only explains numbers the engines already computed.
 
 ## Commands
-- Python: `.venv/bin/python` (3.14). Tests: `.venv/bin/python -m pytest -q --tb=short --ignore=tests/test_config.py` (~20 s;
-  `test_config.py` needs pandas, legacy module).
+- Python: `.venv/bin/python` (3.14). Tests: `.venv/bin/python -m pytest -q --tb=short` (~19 s; 823 passed).
 - Run API + UI: `.venv/bin/uvicorn sunproof.app:app --reload` (env: `SUNPROOF_USE_LLM=1` + `ANTHROPIC_API_KEY` for LLM
   texts, `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID` for real alerts; otherwise templates / simulated alerts).
+- Run full demo: `./scripts/run_demo.sh` (FastAPI backend :8000 + React 19 Frontend :3000).
 
 ## GOLDEN RULE: CONTEXT BUDGET (read this before opening any file)
 1. FIRST read `.claude/context/contracts_cheatsheet.md`: exact fields of every input/output model,
@@ -50,7 +50,7 @@ sunproof/
     neighborhood_analysis.py     73   neighborhood diagnosis + what-if runner/labels
   grid.py                       838   coupled LV power-flow simulation (DO NOT READ)
   neighborhoods.py             1130   8 neighborhood specs + descriptions + what-if builders (DO NOT READ)
-  engine/                             grid_fault.py, battery.py, billing.py, pipeline.py (step 2)
+  engine/                             grid_fault.py, battery.py, billing.py, pipeline.py
   explainer.py                  186   numeric guardrail (verify_text_against_facts) + LLM/template texts
   text_templates.py             140   deterministic RO templates, fmt_ro, analysis_facts (guardrail fact set)
   pdf_dossier.py                172   fpdf2 distributor dossier (ASCII transliteration, core fonts)
@@ -58,8 +58,8 @@ sunproof/
   app.py                        204   FastAPI routes
   api_support.py                213   caches, summaries, 5-min downsampling, what-if deltas
 static/index.html               183   single-file RO UI (vanilla JS, no CDN)
-tests/  test_step1_models_and_scenarios.py (185)  test_neighborhoods.py (241)  test_step2_engines.py
-        test_step3_modules.py (196)  test_step3_and_api.py (163)
+tests/  test_step1_models_and_scenarios.py (185)  test_neighborhoods.py (241)  test_step2_engines.py (180)
+        test_step3_modules.py (196)  test_step3_and_api.py (163)  test_engine_*.py
 ```
 
 ## Domain conventions
