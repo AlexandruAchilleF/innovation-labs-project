@@ -8,6 +8,7 @@ import {
   type LngLat,
 } from "./geo";
 import type { FeederHouse, TransformerPoint } from "./types";
+import type { MapPlacement } from "./map-geography";
 
 type Props = Record<string, string | number | boolean>;
 export interface Feature {
@@ -32,6 +33,7 @@ export function feederFeatures(
   runs: FeederRun[],
   day: TransformerPoint[],
   slot: number,
+  placements?: Record<string, MapPlacement>,
 ): FeatureCollection {
   const reverse = (day[slot]?.active_power_kw ?? 0) < 0;
   const features: Feature[] = [];
@@ -39,17 +41,25 @@ export function feederFeatures(
     const load = feederLoadingAt(run, day, slot);
     const pts = run.trunk.map((p) => toLngLat(center, p.x, p.y));
     run.houses.forEach((h, i) => {
+      const placed = placements?.[h.house_id];
+      if (placements && !placed) return;
       const v = houseVoltageAt(h, slot);
       const [a, b] = [pts[i]!, pts[i + 1]!];
+      const path = placed?.path ?? [a, b];
       features.push({
         type: "Feature",
-        geometry: { type: "LineString", coordinates: reverse ? [b, a] : [a, b] },
+        geometry: { type: "LineString", coordinates: reverse ? [...path].reverse() : path },
         properties: { kind: "trunk", feeder: run.key, v, load },
       });
       const hp = housePlanXY(h);
       features.push({
         type: "Feature",
-        geometry: { type: "LineString", coordinates: [pts[i + 1]!, toLngLat(center, hp.x, hp.y)] },
+        geometry: {
+          type: "LineString",
+          coordinates: placed
+            ? [path[path.length - 1]!, placed.at]
+            : [pts[i + 1]!, toLngLat(center, hp.x, hp.y)],
+        },
         properties: { kind: "drop", feeder: run.key, v, load: 0 },
       });
     });

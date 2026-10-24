@@ -19,14 +19,15 @@ export interface ActiveGrid {
   nb: Neighborhood;
   center: LngLat;
   houses: FeederHouse[];
+  roofSizes?: Map<string, number>;
   bearings: Map<string, number>;
   kva: number;
   loadingPct: number;
   reverse: boolean;
 }
 
-// 3/4-view houses are drawn ~2.4x a real 15 m house so the PV array and equipment stay legible;
-// below ROOF_ZOOM houses become pictograms.
+// Mapped roofs use their footprint size; standalone schematic callers keep a legible fallback.
+// Below ROOF_ZOOM houses become compact pictograms.
 const ROOF_M = 36;
 export const ROOF_ZOOM = 16.5;
 
@@ -113,7 +114,8 @@ export function MapOverlay({
           const selected = id === selectedId;
           const status = houseStatusAt(h, slot);
           const mpp = (156543.03392 * Math.cos((active.center[1] * Math.PI) / 180)) / 2 ** zoom;
-          const size = Math.max(30, Math.min(150, ROOF_M / mpp));
+          const roofM = active.roofSizes?.get(h.house_id) ?? ROOF_M;
+          const size = Math.max(8, Math.min(150, roofM / mpp));
           const v = houseVoltageAt(h, slot);
           return (
             <div

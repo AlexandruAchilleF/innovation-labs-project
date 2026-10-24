@@ -3,6 +3,7 @@ import type { ExpressionSpecification, GeoJSONSource } from "maplibre-gl";
 import { VOLTAGE_STOPS, type FeederRun, type LngLat } from "@/lib/geo";
 import { feederFeatures, heatFeatures } from "@/lib/geo-features";
 import type { FeederHouse, TransformerPoint } from "@/lib/types";
+import type { MapPlacement } from "@/lib/map-geography";
 import { useMapApi } from "./MapCanvas";
 
 export interface LayerToggles {
@@ -41,6 +42,7 @@ export function GridLayers({
   day,
   slot,
   toggles,
+  placements,
 }: {
   center: LngLat;
   runs: FeederRun[];
@@ -48,9 +50,13 @@ export function GridLayers({
   day: TransformerPoint[];
   slot: number;
   toggles: LayerToggles;
+  placements?: Record<string, MapPlacement>;
 }) {
   const api = useMapApi();
-  const feeders = useMemo(() => feederFeatures(center, runs, day, slot), [center, runs, day, slot]);
+  const feeders = useMemo(
+    () => feederFeatures(center, runs, day, slot, placements),
+    [center, runs, day, slot, placements],
+  );
   const heat = useMemo(() => heatFeatures(center, houses, slot), [center, houses, slot]);
 
   // one-time source + layer setup

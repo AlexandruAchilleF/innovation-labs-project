@@ -6,13 +6,13 @@ import {
   congestionAt,
   feederRuns,
   housePlanXY,
-  nbCenter,
   nbStressIndex,
   toLngLat,
   transformerDay,
   type LngLat,
 } from "@/lib/geo";
 import { houseBearings } from "@/lib/geo-features";
+import { resolveMapGeometry } from "@/lib/map-geography";
 import type { GridState, HouseholdSummary, Neighborhood } from "@/lib/types";
 import type { CompareView } from "@/routes/harta";
 import { LayersMenu, ToolRail, ZoomRail } from "./MapChrome";
@@ -52,8 +52,13 @@ export function MapStage({
   const [basemap, setBasemap] = useState<Basemap>("satellite");
   const [toggles, setToggles] = useState<LayerToggles>({ feeders: true, heat: true, flow: true });
 
-  const center = useMemo<LngLat | null>(() => (nb ? nbCenter(nb) : null), [nb]);
   const houses = useMemo(() => grid?.houses ?? [], [grid]);
+  const geography = useMemo(() => (nb ? resolveMapGeometry(nb, houses) : null), [nb, houses]);
+  const center = geography?.center ?? null;
+  const mapNb = useMemo(
+    () => (nb && geography ? { ...nb, houses: geography.houses } : undefined),
+    [nb, geography],
+  );
   const runs = useMemo(() => (grid ? feederRuns(grid, houses) : []), [grid, houses]);
   const day = useMemo(() => (grid ? transformerDay(grid, kva) : []), [grid, kva]);
   const bearings = useMemo(() => houseBearings(runs), [runs]);
@@ -62,19 +67,25 @@ export function MapStage({
     [grid, houses, kva, slot, day],
   );
   const pins = useMemo(
-    () => neighborhoods.map((x) => ({ nb: x, center: nbCenter(x), index: nbStressIndex(x) })),
+    () =>
+      neighborhoods.map((x) => ({
+        nb: x,
+        center: resolveMapGeometry(x, []).center,
+        index: nbStressIndex(x),
+      })),
     [neighborhoods],
   );
 
   return (
     <section className="relative min-w-0 flex-1 overflow-hidden bg-obsidian">
       <MapCanvas basemap={basemap}>
-        <Camera nb={nb} center={center} selectedId={selectedId} />
-        {grid && center && (
+        <Camera nb={mapNb} center={center} selectedId={selectedId} />
+        {grid && center && geography && (
           <GridLayers
             center={center}
             runs={runs}
-            houses={houses}
+            houses={geography.houses}
+            placements={geography.placements}
             day={day}
             slot={slot}
             toggles={toggles}
@@ -83,11 +94,12 @@ export function MapStage({
         <MapOverlay
           pins={pins}
           active={
-            grid && center && nb && congestion
+            grid && center && nb && congestion && geography?.houses.length
               ? {
                   nb,
                   center,
-                  houses,
+                  houses: geography.houses,
+                  roofSizes: geography.roofSizes,
                   bearings,
                   kva,
                   loadingPct: congestion.transformerLoadingPct,
@@ -104,10 +116,33 @@ export function MapStage({
           nb={nb}
           center={center}
           fleet={pins.map((p) => p.center)}
-          selectedHouse={houses.find((h) => (h.household_id ?? h.house_id) === selectedId)}
+          selectedHouse={geography?.houses.find(
+            (h) => (h.household_id ?? h.house_id) === selectedId,
+          )}
         />
         <ZoomRail />
       </MapCanvas>
+
+      {nb && geography && (
+        <div className="absolute bottom-[190px] left-3 z-10 max-w-[min(360px,calc(100%-24px))] rounded border border-iron bg-obsidian/90 px-2 py-1 text-[10px] text-fog">
+          {geography.available
+            ? "Amplasare demo pe clădiri OSM · conexiuni electrice ilustrative"
+            : "Geometrie stradală indisponibilă pentru acest cartier"}
+          {geography.missing.length > 0 && (
+            <span className="block">
+              {geography.missing.length} conexiuni fără amplasare verificabilă pe hartă
+            </span>
+          )}
+          <a
+            href="https://www.openstreetmap.org/copyright"
+            target="_blank"
+            rel="noreferrer"
+            className="ml-1 underline"
+          >
+            © OpenStreetMap contributors
+          </a>
+        </div>
+      )}
 
       <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-3 p-3">
         <div className="w-24" />
@@ -155,7 +190,7 @@ export function MapStage({
  * Frames the client's stretch of street (client +/- 2 neighbours on its feeder, plus the PT when close) so the
  * 2D roofs are readable on arrival; falls back to the whole neighbourhood when the client is not on this PT.
  */
-function Camera({
+export function Camera({
   nb,
   center,
   selectedId,
@@ -166,8 +201,9 @@ function Camera({
 }) {
   const api = useMapApi();
   const id = nb?.neighborhood_id;
+  const geometryReady = !!nb?.houses.length;
   useEffect(() => {
-    if (!api || !nb || !center) return;
+    if (!api || !nb || !center || !geometryReady) return;
     const client = nb.houses.find((h) => (h.household_id ?? h.house_id) === selectedId);
     let focus = nb.houses;
     let withPt = false;
@@ -201,6 +237,6 @@ function Camera({
       },
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [api, id, selectedId]);
+  }, [api, id, selectedId, geometryReady]);
   return null;
 }
