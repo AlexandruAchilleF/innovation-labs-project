@@ -33,20 +33,27 @@ _LOCAL_CAUSES = {
     GridFaultCause.LOCAL_CABLE_IMPEDANCE,
     GridFaultCause.LOCAL_EQUIPMENT_FAULT,
 }
-_MISCONFIGURED = {BatteryVerdictStatus.MISCONFIGURED_MODE, BatteryVerdictStatus.MISCONFIGURED_SOC_RESERVE}
+_MISCONFIGURED = {BatteryVerdictStatus.MISCONFIGURED_MODE, BatteryVerdictStatus.MISCONFIGURED_SOC_RESERVE,
+                  BatteryVerdictStatus.MISCONFIGURED_DISCHARGE_POLICY}
 
 _GRID_TRIAGE_RO = {
+    GridFaultCause.INSUFFICIENT_DATA: "date insuficiente pentru diagnostic",
+    GridFaultCause.MONITORING_UNCERTAIN: "monitorizare sau oprire neconfirmată",
     GridFaultCause.GRID_OVERVOLTAGE: "supratensiune în rețea (dosar către distribuitor)",
     GridFaultCause.LOCAL_OVERVOLTAGE_SENSITIVITY: "prag de declanșare greșit la invertor (tehnician)",
     GridFaultCause.LOCAL_CABLE_IMPEDANCE: "cablu AC intern subdimensionat (tehnician)",
     GridFaultCause.LOCAL_EQUIPMENT_FAULT: "producție căzută, defect local (tehnician)",
 }
 _BATTERY_TRIAGE_RO = {
+    BatteryVerdictStatus.INSUFFICIENT_DATA: "date insuficiente pentru evaluarea bateriei",
+    BatteryVerdictStatus.MISCONFIGURED_DISCHARGE_POLICY: "descărcarea bateriei contrazice intenția clientului",
     BatteryVerdictStatus.MISCONFIGURED_MODE: "baterie în mod rezervă, blocată la vârful de seară",
     BatteryVerdictStatus.MISCONFIGURED_SOC_RESERVE: "rezervă SoC prea mare, baterie blocată seara",
     BatteryVerdictStatus.UNDERPERFORMING_CAPACITY: "baterie cu capacitate degradată",
 }
 _BILLING_TRIAGE_RO = {
+    BillingVerdictStatus.AMOUNT_MISMATCH: "linii sau total facturat neconcordant",
+    BillingVerdictStatus.UNSUPPORTED_SETTLEMENT: "regim de decontare neacoperit, verificare manuală",
     BillingVerdictStatus.MISSING_EXPORT_INDEX: "index de export lipsă pe factură",
     BillingVerdictStatus.ESTIMATED_INDEX_OVERCHARGE: "factură pe index estimat, supraîncărcată",
     BillingVerdictStatus.METER_INVERTER_DISCREPANCY: "discrepanță contor vs. invertor",
@@ -65,6 +72,8 @@ def _flatten(prefix: str, model: BaseModel, facts: Dict[str, Fact]) -> None:
             facts[key] = int(value)
         elif isinstance(value, Enum):
             facts[key] = value.value
+        elif isinstance(value, str) and not name.endswith("_ro"):
+            facts[key] = value
         elif isinstance(value, int):
             facts[key] = value
         elif isinstance(value, float):
@@ -112,12 +121,12 @@ def analyze_household(scenario: HouseholdScenario) -> HouseholdCompleteAnalysis:
     if _SEVERITY_RANK[overall_severity] <= _SEVERITY_RANK[SeverityLevel.INFO] and ranked[0][1] == ResponsibleParty.NONE:
         primary_party = ResponsibleParty.NONE
 
-    supplier_benefit = _r2(grid.avoided_truck_roll_saving_ron + battery.supplier_monthly_pzu_loss_ron)
+    supplier_benefit = _r2(battery.supplier_monthly_pzu_loss_ron)
+    supplier_one_off = grid.avoided_visit_saving_ron
+    customer_one_off = max(0.0, billing.financial_discrepancy_ron or 0.0)
     customer_benefit = _r2(
         grid.lost_value_customer_month_ron
         + battery.customer_monthly_grid_tax_loss_ron
-        + (battery.supplier_battery_bonus_monthly_ron if battery.status in _MISCONFIGURED else 0.0)
-        + max(0.0, billing.financial_discrepancy_ron)
     )
 
     issues = [
@@ -134,8 +143,12 @@ def analyze_household(scenario: HouseholdScenario) -> HouseholdCompleteAnalysis:
 
     facts = _build_facts(scenario, {"grid": grid, "battery": battery, "billing": billing})
     facts.update(
+        valuation_basis="recurring_energy_only; invoice_corrections_and_avoided_visits_one_off",
+        battery_shiftability_basis="telemetry_bound_90pct_efficiency_not_counterfactual",
         overall_severity=overall_severity.value,
         primary_responsible_party=primary_party.value,
+        total_supplier_one_off_benefit_ron=supplier_one_off,
+        total_customer_one_off_benefit_ron=customer_one_off,
         total_supplier_monthly_benefit_ron=supplier_benefit,
         total_customer_monthly_benefit_ron=customer_benefit,
     )
@@ -159,6 +172,8 @@ def analyze_household(scenario: HouseholdScenario) -> HouseholdCompleteAnalysis:
         overall_severity=overall_severity,
         primary_responsible_party=primary_party,
         one_line_triage_ro=triage,
+        total_supplier_one_off_benefit_ron=supplier_one_off,
+        total_customer_one_off_benefit_ron=customer_one_off,
         total_supplier_monthly_benefit_ron=supplier_benefit,
         total_customer_monthly_benefit_ron=customer_benefit,
         deterministic_facts=facts,
@@ -179,7 +194,8 @@ def compute_portfolio_metrics(analyses: List[HouseholdCompleteAnalysis]) -> Port
         invoice_issues_count=sum(
             a.billing_verdict.status != BillingVerdictStatus.INVOICE_VALID_EXPLAINED for a in analyses
         ),
-        fleet_avoided_truck_rolls_ron=_r2(sum(a.grid_verdict.avoided_truck_roll_saving_ron for a in analyses)),
+        fleet_invoice_corrections_ron=_r2(sum(a.total_customer_one_off_benefit_ron for a in analyses)),
+        fleet_avoided_truck_rolls_ron=_r2(sum(a.total_supplier_one_off_benefit_ron for a in analyses)),
         fleet_monthly_pzu_savings_ron=_r2(sum(a.battery_verdict.supplier_monthly_pzu_loss_ron for a in analyses)),
         fleet_total_supplier_monthly_value_ron=_r2(supplier_month),
         fleet_total_customer_monthly_value_ron=_r2(sum(a.total_customer_monthly_benefit_ron for a in analyses)),

@@ -32,6 +32,7 @@ class OvervoltageEventWindow(BaseModel):
     """A continuous midday window where the inverter suffered derating or overvoltage shutdown."""
     model_config = ConfigDict(extra="forbid")
 
+    evidence_start_time: Optional[str] = Field(default=None, description="HH:MM including at most 3 minutes of pre-trip evidence")
     start_time: str = Field(..., description="HH:MM when the anomaly began")
     end_time: str = Field(..., description="HH:MM when normal generation resumed")
     duration_minutes: int = Field(..., ge=1)
@@ -96,6 +97,7 @@ class GridFaultVerdict(BaseModel):
     requires_distributor_pdf_dossier: bool = Field(default=False)
     requires_technician_telegram_alert: bool = Field(default=False)
     evidence_status: str = "sufficient"
+    evidence_reason: str = ""
     avoided_visit_saving_ron: float = Field(default=0.0, ge=0.0)
 
 
@@ -194,8 +196,8 @@ class BillingReconciliationVerdict(BaseModel):
 
     # Financial Reconciliation
     billed_payable_ron: float
-    correct_payable_ron: float
-    financial_discrepancy_ron: float = Field(
+    correct_payable_ron: Optional[float]
+    financial_discrepancy_ron: Optional[float] = Field(
         ...,
         description="Difference between billed amount and mathematically verified amount (RON)"
     )
@@ -204,6 +206,7 @@ class BillingReconciliationVerdict(BaseModel):
         ge=0.0,
         description="Money the customer already saved this month by consuming solar energy directly in the house"
     )
+    reconciliation_supported: bool = True
     anre_complaint_risk_high: bool = Field(default=False)
     evidence_status: str = "sufficient"
 
@@ -326,15 +329,17 @@ class HouseholdCompleteAnalysis(BaseModel):
     one_line_triage_ro: str
 
     # Combined financial value
+    total_supplier_one_off_benefit_ron: float = Field(default=0.0, ge=0.0)
+    total_customer_one_off_benefit_ron: float = Field(default=0.0, ge=0.0)
     total_supplier_monthly_benefit_ron: float = Field(
         ...,
         ge=0.0,
-        description="Sum of avoided truck rolls + monthly PZU evening peak savings for the supplier"
+        description="Recurring monthly PZU energy opportunity; excludes avoided visits"
     )
     total_customer_monthly_benefit_ron: float = Field(
         ...,
         ge=0.0,
-        description="Sum of recovered solar production + avoided evening grid taxes + storage bonus + invoice correction"
+        description="Recurring recovered production and avoided grid taxes; excludes invoice corrections and unverified bonuses"
     )
 
     # Deterministic fact dictionary for AI Guardrail verification
@@ -362,7 +367,8 @@ class PortfolioSummaryMetrics(BaseModel):
     )
     invoice_issues_count: int
 
-    # Sample fleet totals (RON/month)
+    # Recurring monthly values and separate one-off invoice/avoided-visit amounts
+    fleet_invoice_corrections_ron: float = Field(default=0.0, ge=0.0)
     fleet_avoided_truck_rolls_ron: float
     fleet_monthly_pzu_savings_ron: float
     fleet_total_supplier_monthly_value_ron: float

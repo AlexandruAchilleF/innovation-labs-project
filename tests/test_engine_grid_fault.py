@@ -37,7 +37,8 @@ def test_invariants(verdicts, hid):
     assert v.voltage_rise_internal_cable_v >= 0.0
     if v.cause == GridFaultCause.NONE:
         assert v.severity == SeverityLevel.OK and v.responsible_party == ResponsibleParty.NONE
-        assert v.lost_value_customer_month_ron == 0.0
+        # Protective derating still loses production without constituting a defect.
+        assert v.lost_production_today_kwh == pytest.approx(sum(e.lost_energy_kwh for e in v.events), abs=.03)
     elif v.cause == GridFaultCause.GRID_OVERVOLTAGE:
         assert v.responsible_party == ResponsibleParty.DISTRIBUTOR
         assert v.avoided_truck_roll_saving_ron == 450.0

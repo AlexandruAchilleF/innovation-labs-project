@@ -68,11 +68,16 @@ def test_status_matches_ground_truth(verdicts, household_id):
 def test_story_numbers(verdicts):
     _, tm = verdicts["RO-TM-001"]  # SoC reserve 80% instead of 20% on a 10 kWh battery
     assert tm.locked_capacity_kwh == 6.0
-    assert tm.shiftable_evening_energy_kwh_per_day == pytest.approx(5.41, abs=0.05)
+    # Conservative telemetry bound replaces the demo simulator counterfactual (5.41).
+    assert 0 < tm.shiftable_evening_energy_kwh_per_day <= min(
+        tm.locked_capacity_kwh*.9, tm.midday_grid_export_kwh_today*.9,
+        tm.evening_peak_grid_import_kwh_today) + .01
     _, cj = verdicts["RO-CJ-003"]  # 15 kWh battery stuck in backup mode
     assert cj.status == BatteryVerdictStatus.MISCONFIGURED_MODE
     assert cj.evening_battery_discharge_kwh_today == 0
-    assert cj.shiftable_evening_energy_kwh_per_day == pytest.approx(9.15, abs=0.05)
+    assert 0 < cj.shiftable_evening_energy_kwh_per_day <= min(
+        cj.usable_capacity_kwh*(1-cj.desired_min_soc_pct/100)*.9,
+        cj.midday_grid_export_kwh_today*.9, cj.evening_peak_grid_import_kwh_today) + .01
     assert cj.supplier_monthly_pzu_loss_ron > tm.supplier_monthly_pzu_loss_ron
 
 
