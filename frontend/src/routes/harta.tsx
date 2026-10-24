@@ -80,7 +80,14 @@ function HartaPage() {
         detail={detail.data}
         nb={nb}
         grid={grid}
+        kva={kva}
         slot={slot}
+        params={params}
+        onParams={setParams}
+        sim={sim}
+        loading={whatIf.isFetching}
+        view={view}
+        onView={setView}
         onSelect={select}
       />
       <MapStage
@@ -96,7 +103,7 @@ function HartaPage() {
         onPickNeighborhood={pickNeighborhood}
         simulating={!!sim}
         view={view}
-        caseChip={<CaseChip detail={detail.data} />}
+        caseChip={<CaseChip detail={detail.data} nb={nb} grid={grid} slot={slot} />}
       />
       <NetworkPanel
         nb={nb}
