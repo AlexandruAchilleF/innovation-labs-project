@@ -4,6 +4,14 @@ import { mockHouseholdDetail, mockPortfolio } from "./mock/households";
 import { neighborhoods } from "./mock/neighborhoods";
 import { HALLUCINATION_SUFFIX, batteryKpis, gridState, runGuardrail, simulateDay } from "./sim";
 import { householdSpecs } from "./mock/households";
+import {
+  normalizeGridState,
+  normalizeGuardrail,
+  normalizeHouseholdDetail,
+  normalizeNeighborhood,
+  normalizePortfolio,
+  normalizeWhatIfBattery,
+} from "./adapters";
 import type {
   GridWhatIfParams,
   GridWhatIfResult,
@@ -74,27 +82,42 @@ export function __resetApiState() {
 
 const post = (body: unknown): RequestInit => ({ method: "POST", body: JSON.stringify(body) });
 
+const fetchNeighborhood = async (nid: string) =>
+  normalizeNeighborhood(
+    await withFallback<Neighborhood>(`/api/neighborhoods/${nid}`, undefined, () => neighborhoods.find((n) => n.neighborhood_id === nid) ?? neighborhoods[0]!),
+  );
+
 export const api = {
-  portfolio: () => withFallback<Portfolio>("/api/portfolio", undefined, mockPortfolio),
+  portfolio: async () => normalizePortfolio(await withFallback<Portfolio>("/api/portfolio", undefined, mockPortfolio)),
 
-  household: (id: string) => withFallback<HouseholdDetail>(`/api/households/${id}`, undefined, () => mockHouseholdDetail(id)),
+  household: async (id: string) =>
+    normalizeHouseholdDetail(await withFallback<HouseholdDetail>(`/api/households/${id}`, undefined, () => mockHouseholdDetail(id)), id),
 
-  whatIfBattery: (id: string, min_soc_pct: number, modeName?: string) =>
-    withFallback<WhatIfBatteryResult>(`/api/households/${id}/what-if-battery`, post({ min_soc_pct, mode: modeName }), () => mockWhatIfBattery(id, min_soc_pct)),
+  whatIfBattery: async (id: string, min_soc_pct: number, modeName?: string) =>
+    normalizeWhatIfBattery(
+      await withFallback<WhatIfBatteryResult>(`/api/households/${id}/what-if-battery`, post({ min_soc_pct, mode: modeName }), () => mockWhatIfBattery(id, min_soc_pct)),
+    ),
 
   telegram: (id: string) =>
     withFallback<TelegramResult>(`/api/households/${id}/telegram-alert`, post({}), () => mockTelegram(id)),
 
-  guardrail: (id: string, doc_type: GuardrailDocType, text_ro?: string) =>
-    withFallback<GuardrailResult>(`/api/households/${id}/test-guardrail`, post({ doc_type, text_ro }), () => mockGuardrail(id, doc_type, text_ro)),
+  guardrail: async (id: string, doc_type: GuardrailDocType, text_ro?: string) =>
+    normalizeGuardrail(
+      await withFallback<GuardrailResult>(`/api/households/${id}/test-guardrail`, post({ doc_type, text_ro }), () => mockGuardrail(id, doc_type, text_ro)),
+    ),
 
-  neighborhoods: () => withFallback<Neighborhood[]>("/api/neighborhoods", undefined, () => neighborhoods),
+  // the list endpoint omits `houses`; fill them from the per-neighborhood detail endpoint
+  neighborhoods: async () => {
+    const list = await withFallback<Neighborhood[]>("/api/neighborhoods", undefined, () => neighborhoods);
+    return Promise.all(list.map((n) => (n.houses ? normalizeNeighborhood(n) : fetchNeighborhood(n.neighborhood_id))));
+  },
 
-  neighborhood: (nid: string) =>
-    withFallback<Neighborhood>(`/api/neighborhoods/${nid}`, undefined, () => neighborhoods.find((n) => n.neighborhood_id === nid) ?? neighborhoods[0]!),
+  neighborhood: fetchNeighborhood,
 
-  neighborhoodWhatIf: (nid: string, params: GridWhatIfParams) =>
-    withFallback<GridWhatIfResult>(`/api/neighborhoods/${nid}/what-if`, post(params), () => mockGridWhatIf(nid, params)),
+  neighborhoodWhatIf: async (nid: string, params: GridWhatIfParams) => {
+    const res = await withFallback<GridWhatIfResult>(`/api/neighborhoods/${nid}/what-if`, post(params), () => mockGridWhatIf(nid, params));
+    return { ...res, before: normalizeGridState(res.before), after: normalizeGridState(res.after) };
+  },
 
   openPdfDossier: (id: string) => {
     if (mode === "live") {

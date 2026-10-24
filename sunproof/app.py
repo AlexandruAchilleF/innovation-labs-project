@@ -209,4 +209,4 @@ def neighborhood_what_if(neighborhood_id: str, body: NeighborhoodWhatIfBody) -> 
     except (ValueError, KeyError) as exc:
         raise HTTPException(status_code=400, detail=f"Scenariu what-if invalid: {exc}")
     return {"neighborhood_id": neighborhood_id, "what_if": body.model_dump(),
-            "before": sup.neighborhood_summary(before), "after": sup.neighborhood_summary(after)}
+            "before": sup.neighborhood_detail(before), "after": sup.neighborhood_detail(after)}
