@@ -1,23 +1,52 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronRight, FileDown, ReceiptText, Send, Smartphone } from "lucide-react";
+import {
+  BatteryWarning,
+  Building2,
+  Cable,
+  CircleCheck,
+  ChevronRight,
+  FileDown,
+  ReceiptText,
+  Send,
+  Smartphone,
+  Wrench,
+  Zap,
+} from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
-import { supplierCase } from "@/lib/case-summary";
+import { supplierCase, type CaseKind } from "@/lib/case-summary";
 import { fmt } from "@/lib/format";
 import { responsibleLabel } from "@/lib/i18n";
 import { resolveOpenTicketsFor } from "@/lib/tickets";
-import type { GridState, HouseholdDetail, Neighborhood } from "@/lib/types";
+import type { GridState, HouseholdDetail, Neighborhood, ResponsibleParty } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { AlertConfirm } from "../AlertConfirm";
 import { ActionButton, type Action } from "./CaseActions";
+import { CaseProof } from "./CaseProof";
 import { CaseVerdicts } from "./CaseVerdicts";
 import { ClientTicketBox } from "./ClientTicketBox";
 import { NeighborStrip } from "./NeighborStrip";
-import { SeverityTag } from "./SeverityTag";
+import { SeverityTag, sevText } from "./SeverityTag";
+
+const KIND_ICON: Record<CaseKind, ReactNode> = {
+  grid: <Zap />,
+  local: <Cable />,
+  battery: <BatteryWarning />,
+  billing: <ReceiptText />,
+  billing_ok: <CircleCheck />,
+  healthy: <CircleCheck />,
+};
+const PARTY_ICON: Record<ResponsibleParty, ReactNode> = {
+  DISTRIBUTION_OPERATOR: <Building2 />,
+  INSTALLER: <Wrench />,
+  CUSTOMER_SETTING: <Smartphone />,
+  SUPPLIER_BILLING: <ReceiptText />,
+  NONE: <CircleCheck />,
+};
 
 /**
- * Selected client, conclusion first: the main problem and who acts, its proof in three engine
+ * Selected client, conclusion first: the main problem and who acts, its proof drawn from the engine
  * numbers, then one primary action chosen by who must act. Everything else is folded away.
  */
 export function CaseFile({
@@ -92,50 +121,41 @@ export function CaseFile({
         aria-labelledby="main-problem"
         className="space-y-4 rounded-lg border border-iron bg-graphite p-4"
       >
-        <div>
-          <h2 id="main-problem" className="eyebrow text-fog">
-            Problema principală & cine acționează
-          </h2>
-          <p className="mt-2 text-[16px] font-medium leading-snug text-bone">
-            {sc.title}
-            {sc.lossRon !== null && (
-              <span className="text-fog">
-                {" "}
-                · Pierdere <span className="num text-bone">{fmt(sc.lossRon)} RON/lună</span>
-              </span>
-            )}
-          </p>
-          <p
+        <div className="flex items-start gap-3">
+          <span
             className={cn(
-              "mt-2 inline-flex rounded-[4px] border px-2 py-0.5 text-[12px]",
-              party === "NONE" ? "border-iron text-fog" : "border-bone text-bone",
+              "flex size-9 shrink-0 items-center justify-center rounded-[4px] border border-iron [&_svg]:size-4",
+              sevText[a.overall_severity],
             )}
           >
-            Acționează: {responsibleLabel[party] ?? party}
-          </p>
-        </div>
-
-        <div>
-          <h3 className="eyebrow text-fog">Dovada în 3 cifre</h3>
-          <dl className="mt-2 divide-y divide-border">
-            {sc.proof.map((p) => (
-              <div key={p.label} className="flex items-baseline justify-between gap-3 py-2">
-                <dt className="min-w-0">
-                  <span className="block text-[13px] text-bone">{p.label}</span>
-                  <span className="block text-[11.5px] text-fog">{p.note}</span>
-                </dt>
-                <dd className="num shrink-0 text-[16px] text-bone">{p.value}</dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-
-        {primary && (
-          <div className="space-y-2">
-            <h3 className="eyebrow text-fog">Acțiunea recomandată</h3>
-            <ActionButton a={primary} household={a.household_id} primary />
+            {KIND_ICON[sc.kind]}
+          </span>
+          <div className="min-w-0">
+            <h2 id="main-problem" className="text-[15px] font-medium leading-snug text-bone">
+              {sc.title}
+            </h2>
+            <p className="mt-1.5 flex items-center gap-1.5 text-[12px] text-fog [&_svg]:size-3.5">
+              {PARTY_ICON[party]}
+              <span className={party === "NONE" ? "text-fog" : "text-bone"}>
+                {party === "NONE" ? "Nicio acțiune necesară" : responsibleLabel[party]}
+              </span>
+            </p>
           </div>
+        </div>
+
+        {sc.lossRon !== null && (
+          <p className="flex items-baseline justify-between gap-3 border-y border-border py-2.5">
+            <span className="text-[12px] text-fog">Pierdere</span>
+            <span className={cn("num text-[22px] leading-none", sevText[a.overall_severity])}>
+              {fmt(sc.lossRon)}
+              <span className="text-[12px] text-fog"> RON/lună</span>
+            </span>
+          </p>
         )}
+
+        <CaseProof d={d} kind={sc.kind} />
+
+        {primary && <ActionButton a={primary} household={a.household_id} primary />}
       </section>
 
       {secondary.length > 0 && (
@@ -146,11 +166,11 @@ export function CaseFile({
         </div>
       )}
 
+      <CaseVerdicts d={d} />
+
       {showStreet && grid && (
         <NeighborStrip houses={grid.houses} clientId={a.household_id} slot={slot} />
       )}
-
-      <CaseVerdicts d={d} />
 
       <Link
         to="/triaj"

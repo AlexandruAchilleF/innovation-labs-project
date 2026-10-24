@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import {
+  Area,
   CartesianGrid,
-  Legend,
+  ComposedChart,
   Line,
-  LineChart,
+  ReferenceArea,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -16,7 +18,8 @@ import { api } from "@/lib/api";
 import { fmt } from "@/lib/format";
 import type { HouseholdDetail } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { Panel, axisProps, chartTooltipStyle } from "../primitives";
+import { Panel } from "../primitives";
+import { AXIS, ChartFrame, ChartTip, xMinutes } from "./chart-kit";
 
 function useDebounced<T>(v: T, ms = 200) {
   const [d, setD] = useState(v);
@@ -52,34 +55,35 @@ export function BatterySimulator({ d }: { d: HouseholdDetail }) {
   const r = q.data;
   const chart = r
     ? r.timeseries.before
-        .filter((_, i) => i % 3 === 0)
         .map((m, i) => ({
-          time: m.time,
-          inainte: m.battery_soc_pct,
-          dupa: r.timeseries.after[i * 3]?.battery_soc_pct,
+          m: m.minute_of_day,
+          before: m.battery_soc_pct,
+          after: r.timeseries.after[i]?.battery_soc_pct,
         }))
+        .filter((x) => x.m % 5 === 0)
     : [];
+  const peakH = d.timeseries.pzu.filter((p) => p.zone === "EVENING_PEAK").map((p) => p.hour);
+  const prices = d.timeseries.pzu.map((p) => p.pzu_price_ron_mwh);
+  const pMin = Math.min(...prices);
+  const pMax = Math.max(...prices);
   const cards = r
     ? [
         {
-          l: "kWh livrați seara / zi",
-          b: r.before.evening_kwh_delivered_day,
+          l: "Livrat seara",
           a: r.after.evening_kwh_delivered_day,
           d: r.delta.evening_kwh_delivered_day,
-          u: "kWh",
+          u: "kWh/zi",
           dec: 1,
         },
         {
           l: "Economie PZU furnizor",
-          b: r.before.supplier_pzu_savings_month_ron,
           a: r.after.supplier_pzu_savings_month_ron,
           d: r.delta.supplier_pzu_savings_month_ron,
           u: "RON/lună",
           dec: 0,
         },
         {
-          l: "Economie taxe rețea client",
-          b: r.before.customer_grid_tax_savings_month_ron,
+          l: "Economie client",
           a: r.after.customer_grid_tax_savings_month_ron,
           d: r.delta.customer_grid_tax_savings_month_ron,
           u: "RON/lună",
@@ -87,78 +91,148 @@ export function BatterySimulator({ d }: { d: HouseholdDetail }) {
         },
       ]
     : [];
+  const changed = soc !== b.configured_min_soc_pct;
   return (
-    <Panel title="Simulator rezervă baterie (SoC)">
-      <div className="flex items-center gap-4">
-        <div className="flex-1">
-          <div className="mb-2 flex items-baseline justify-between text-[12px] text-muted-foreground">
-            <span>SoC minim descărcare</span>
-            <span className="num text-lg text-bone">{soc}%</span>
-          </div>
+    <ChartFrame
+      eyebrow="Baterie · simulator rezervă"
+      takeaway={
+        r ? (
+          changed ? (
+            <>
+              Cu rezervă <span className="num">{soc}%</span>, bateria livrează seara{" "}
+              <span className="num">{fmt(r.after.evening_kwh_delivered_day, 1)} kWh/zi</span>
+              <span className="text-fog">
+                {" "}
+                (acum <span className="num">{fmt(r.before.evening_kwh_delivered_day, 1)}</span>)
+              </span>
+            </>
+          ) : (
+            <>
+              Rezerva de <span className="num">{soc}%</span> ține{" "}
+              <span className="num">{fmt(b.locked_kwh, 1)} kWh</span> departe de vârful de seară
+            </>
+          )
+        ) : (
+          "Se calculează…"
+        )
+      }
+      tone={changed || b.locked_kwh <= 0 ? "text-bone" : "text-warning"}
+      legend={[
+        { color: "var(--info)", label: changed ? "După" : "Încărcare %" },
+        ...(changed ? [{ color: "var(--fog)", label: "Acum", kind: "dash" as const }] : []),
+        { color: "var(--warning)", label: "Rezervă", kind: "dash" },
+        { color: "var(--sun-soft)", label: "Vârf PZU seară", kind: "area" },
+      ]}
+    >
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+        <div className="min-w-[220px] flex-1">
           <Slider
             min={5}
             max={100}
             step={1}
             value={[soc]}
             onValueChange={(v) => setSoc(v[0] ?? 5)}
-            aria-label="SoC minim"
+            aria-label="Rezervă minimă baterie"
           />
-          <div className="num mt-1 flex justify-between text-[10px] text-muted-foreground">
+          <div className="num mt-1.5 flex justify-between text-[10.5px] text-smoke">
             <span>5%</span>
-            <span>actual: {b.configured_min_soc_pct}%</span>
+            <span>
+              setat acum {b.configured_min_soc_pct}% · dorit {b.desired_min_soc_pct}%
+            </span>
             <span>100%</span>
           </div>
         </div>
         <Button size="sm" variant="outline" onClick={() => setSoc(b.desired_min_soc_pct)}>
-          Aplică ce a cerut clientul ({b.desired_min_soc_pct}%)
+          Aplică ce vrea clientul ({b.desired_min_soc_pct}%)
         </Button>
       </div>
-      <dl className="mt-4 grid grid-cols-3 gap-4 border-t border-border pt-3">
+      <dl className="mt-4 grid grid-cols-3 gap-4 border-y border-border py-3">
         {cards.map((c) => (
           <div key={c.l}>
-            <dt className="text-[12px] leading-tight text-fog">{c.l}</dt>
-            <dd className="num mt-1 text-[12px] text-fog">
-              {fmt(c.b, c.dec)} → <span className="text-[15px] text-bone">{fmt(c.a, c.dec)}</span>
+            <dt className="text-[11.5px] text-fog">{c.l}</dt>
+            <dd className="num mt-0.5 text-[17px] text-bone">
+              {fmt(c.a, c.dec)} <span className="text-[11px] text-fog">{c.u}</span>
             </dd>
-            <dd
-              className={cn(
-                "num mt-0.5 text-[11.5px]",
-                c.d > 0 ? "text-success" : c.d < 0 ? "text-critical" : "text-fog",
-              )}
-            >
-              {c.d > 0 ? "+" : ""}
-              {fmt(c.d, c.dec)} {c.u}
-            </dd>
+            {Math.abs(c.d) >= 0.05 && (
+              <dd className={cn("num text-[11.5px]", c.d > 0 ? "text-success" : "text-critical")}>
+                {c.d > 0 ? "+" : ""}
+                {fmt(c.d, c.dec)}
+              </dd>
+            )}
           </div>
         ))}
       </dl>
-      <div className="mt-3 h-36">
+      <div className="mt-3 h-[180px]">
         <ResponsiveContainer>
-          <LineChart data={chart} margin={{ top: 5, right: 8, left: -18, bottom: 0 }}>
+          <ComposedChart data={chart} margin={{ top: 8, right: 8, left: -8, bottom: 0 }}>
             <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
-            <XAxis dataKey="time" {...axisProps} interval={15} />
-            <YAxis domain={[0, 100]} {...axisProps} unit="%" width={50} />
-            <Tooltip {...chartTooltipStyle} />
-            <Legend wrapperStyle={{ fontSize: 11 }} iconType="plainline" />
-            <Line
-              type="monotone"
-              dataKey="inainte"
-              name="SoC înainte"
-              stroke="var(--muted-foreground)"
-              strokeDasharray="4 3"
-              dot={false}
+            <XAxis {...xMinutes(0, 1440, 3)} />
+            <YAxis domain={[0, 100]} {...AXIS} width={48} tickFormatter={(v) => `${v}%`} />
+            <Tooltip
+              cursor={{ stroke: "var(--pewter)" }}
+              content={
+                <ChartTip
+                  rows={(x) => [
+                    [changed ? "După" : "Baterie", `${fmt(x["after"] as number)}%`],
+                    ["Acum", changed ? `${fmt(x["before"] as number)}%` : null],
+                  ]}
+                />
+              }
             />
-            <Line
+            {peakH.length > 0 && (
+              <ReferenceArea
+                x1={Math.min(...peakH) * 60}
+                x2={(Math.max(...peakH) + 1) * 60}
+                fill="var(--sun)"
+                fillOpacity={0.14}
+                stroke="none"
+              />
+            )}
+            <ReferenceLine y={soc} stroke="var(--warning)" strokeDasharray="4 4" />
+            <Area
+              dataKey="after"
               type="monotone"
-              dataKey="dupa"
-              name="SoC după"
-              stroke="var(--success)"
-              strokeWidth={2}
-              dot={false}
+              stroke="var(--info)"
+              strokeWidth={1.75}
+              fill="var(--info)"
+              fillOpacity={0.05}
+              isAnimationActive={false}
             />
-          </LineChart>
+            {changed && (
+              <Line
+                dataKey="before"
+                type="monotone"
+                stroke="var(--fog)"
+                strokeDasharray="4 3"
+                strokeWidth={1}
+                dot={false}
+                isAnimationActive={false}
+              />
+            )}
+          </ComposedChart>
         </ResponsiveContainer>
       </div>
-    </Panel>
+      {/* PZU price per hour, aligned with the plot area above (left = margin + Y-axis width) */}
+      <div className="ml-[40px] mr-[8px] mt-1">
+        <div className="flex h-2.5 overflow-hidden rounded-[2px]" aria-hidden>
+          {d.timeseries.pzu.map((p) => (
+            <span
+              key={p.hour}
+              className="flex-1 bg-sun"
+              style={{
+                opacity: 0.1 + 0.9 * ((p.pzu_price_ron_mwh - pMin) / Math.max(1, pMax - pMin)),
+              }}
+              title={`${p.interval_label} · ${fmt(p.pzu_price_ron_mwh)} RON/MWh`}
+            />
+          ))}
+        </div>
+        <p className="num mt-1 flex justify-between text-[10.5px] text-smoke">
+          <span>Preț PZU pe ore</span>
+          <span>
+            {fmt(pMin)} – {fmt(pMax)} RON/MWh
+          </span>
+        </p>
+      </div>
+    </ChartFrame>
   );
 }

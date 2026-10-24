@@ -11,6 +11,8 @@ import { cn } from "@/lib/utils";
 import type { CompareView } from "@/routes/harta";
 import { Compare, Step } from "./WhatIfParts";
 import { DisclosureChevron } from "@/components/sunproof/primitives";
+import { ScaleBar, toneBg, type Tone } from "../viz";
+import { Gauge } from "../viz-marks";
 
 export type NetworkParams = Required<GridWhatIfParams>;
 
@@ -34,6 +36,7 @@ const defaults = (nb: Neighborhood): NetworkParams => ({
   enable_volt_watt_all: false,
   fix_all_batteries: false,
 });
+const loadTone = (pct: number): Tone => (pct >= 100 ? "critical" : pct >= 80 ? "warning" : "fog");
 const vTone = (v: number) =>
   v >= LEGAL_LIMIT_V ? "text-critical" : v >= DERATING_START_V ? "text-warning" : "text-bone";
 
@@ -64,12 +67,14 @@ export function NetworkContent({
   }
   const p = params ?? defaults(nb);
   const tripped = grid.houses_tripped;
+  // name the binding constraint: voltage trips houses long before the transformer runs hot
+  const overV = c.maxVoltageV >= LEGAL_LIMIT_V;
   const state =
     tripped > 0
-      ? { label: `Supraîncărcat la prânz (${tripped} case deconectate)`, tone: "text-critical" }
+      ? { label: `Supratensiune · ${tripped} case deconectate azi`, tone: "text-critical" }
       : c.index >= 100
         ? {
-            label: `Supraîncărcat la ${slotLabel(slot)} (fără case deconectate)`,
+            label: overV ? "Tensiune peste limită, fără case deconectate" : "Supraîncărcat termic",
             tone: "text-warning",
           }
         : c.index >= 80
@@ -104,60 +109,74 @@ export function NetworkContent({
 
       <section aria-label="Stare transformator" className="space-y-2">
         <h3 className="eyebrow text-fog">
-          Stare transformator{sim && view === "after" ? " · după soluție" : ""}
+          Transformator la {slotLabel(slot)}
+          {sim && view === "after" ? " · după soluție" : ""}
         </h3>
-        <p className={cn("text-[16px] font-medium leading-snug", state.tone)}>{state.label}</p>
-        <p
-          className="num text-[12px] text-fog"
-          title={`Indice de congestie la ${slotLabel(slot)}: ${c.index} (maximul dintre încărcarea termică și marja 230 → 253 V consumată)`}
-        >
-          Tensiune maximă {fmt(grid.peak_voltage_v, 1)} V · limita {fmt(LEGAL_LIMIT_V)} V
-        </p>
-      </section>
-
-      <details className="group">
-        <summary className="flex w-fit cursor-pointer list-none items-center gap-1 text-[12.5px] text-fog hover:text-bone">
-          Detalii pe plecări (străzi)
-          <DisclosureChevron />
-        </summary>
-        <div className="mt-2">
-          <table className="w-full text-[12.5px]">
-            <thead>
-              <tr className="text-left text-[11px] text-fog">
-                <th className="pb-1.5 font-normal">Plecare</th>
-                <th className="pb-1.5 text-right font-normal">Umax</th>
-                <th className="pb-1.5 text-right font-normal">Încărcare</th>
-              </tr>
-            </thead>
-            <tbody>
-              {runs.map((r) => {
-                const f = c.feeders.find((x) => x.key === r.key)!;
-                return (
-                  <tr
-                    key={r.key}
-                    className="border-t border-border"
-                    title={`${r.key} · ${r.houses.length} case · vârf ${fmt(r.peakLoadingPct, 1)}% din ampacitate`}
-                  >
-                    <td className="max-w-0 truncate py-1.5 pr-2 text-bone">{r.street}</td>
-                    <td className={cn("num py-1.5 text-right", vTone(f.maxVoltageV))}>
-                      {fmt(f.maxVoltageV, 1)}
-                    </td>
-                    <td
-                      className={cn(
-                        "num py-1.5 pl-3 text-right",
-                        f.loadingPct >= 100 ? "text-critical" : "text-bone",
-                      )}
-                    >
-                      {fmt(f.loadingPct, 0)}%
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div className="grid grid-cols-[minmax(0,120px)_1fr] items-center gap-4">
+          <div className="text-center">
+            <Gauge
+              value={c.transformerLoadingPct}
+              tone={loadTone(c.transformerLoadingPct)}
+              caption={`Încărcare transformator ${fmt(c.transformerLoadingPct)}%`}
+            />
+            <span className="block text-[11px] text-fog">
+              încărcare{c.reverseFlow ? " · flux invers" : ""}
+            </span>
+          </div>
+          <p className={cn("text-[14px] font-medium leading-snug", state.tone)}>{state.label}</p>
         </div>
-      </details>
-
+        <ScaleBar
+          label={`Tensiune maximă ${fmt(c.maxVoltageV, 1)} V, limita ${fmt(LEGAL_LIMIT_V)} V`}
+          min={230}
+          max={Math.max(LEGAL_LIMIT_V + 5, Math.ceil(c.maxVoltageV) + 2)}
+          zones={[
+            { from: DERATING_START_V, to: LEGAL_LIMIT_V, tone: "warning" },
+            { from: LEGAL_LIMIT_V, to: 300, tone: "critical" },
+          ]}
+          limit={{ value: LEGAL_LIMIT_V, label: `limită ${fmt(LEGAL_LIMIT_V)} V` }}
+          markers={[
+            {
+              value: c.maxVoltageV,
+              label: `tensiune max ${fmt(c.maxVoltageV, 1)} V`,
+              tone: c.maxVoltageV >= LEGAL_LIMIT_V ? "critical" : "bone",
+            },
+          ]}
+        />
+      </section>
+      <section aria-label="Plecări (străzi)" className="space-y-2">
+        <div className="flex items-baseline justify-between gap-3">
+          <h3 className="eyebrow text-fog">Străzi · încărcare</h3>
+          <span className="num text-[10.5px] text-smoke">Umax</span>
+        </div>
+        <ul className="space-y-1.5">
+          {runs.map((r) => {
+            const f = c.feeders.find((x) => x.key === r.key)!;
+            return (
+              <li
+                key={r.key}
+                className="grid grid-cols-[minmax(0,6.5rem)_1fr_3rem] items-center gap-2 text-[12px]"
+                title={`${r.key} · ${r.houses.length} case · vârf ${fmt(r.peakLoadingPct, 1)}% din ampacitate`}
+              >
+                <span className="truncate text-bone">{r.street}</span>
+                <span className="relative h-1.5 rounded-[2px] bg-slate">
+                  <span
+                    className={cn(
+                      "absolute inset-y-0 left-0 rounded-[2px]",
+                      toneBg[loadTone(f.loadingPct)],
+                    )}
+                    style={{ width: `${Math.min(100, (f.loadingPct / 150) * 100)}%` }}
+                  />
+                  <span className="absolute -inset-y-1 left-2/3 w-px bg-fog/60" />
+                </span>
+                <span className={cn("num text-right", vTone(f.maxVoltageV))}>
+                  {fmt(f.maxVoltageV, 1)}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+        <p className="num text-[10.5px] text-smoke">linia = 100% din capacitate</p>
+      </section>
       {(nb.headline_ro || nb.recommended_distributor_action_ro) && (
         <details className="group text-[12.5px] leading-relaxed">
           <summary className="flex w-fit cursor-pointer list-none items-center gap-1 text-fog hover:text-bone">
@@ -192,12 +211,6 @@ export function NetworkContent({
         >
           Simulează soluția tehnică (What-If)
         </button>
-        {!sim && (
-          <p className="text-[11.5px] leading-snug text-fog">
-            Plot trafo, putere mărită, reechilibrare faze, Volt-Watt și baterii încărcate la prânz —
-            arată înainte și după.
-          </p>
-        )}
         {sim && (
           <Compare
             sim={sim}

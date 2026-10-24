@@ -298,6 +298,15 @@
   letter-spacing: -0.025em;
 }
 
+/* diagonal hairlines for energy locked away (battery reserve) */
+@utility hatch {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--warning-border) 0 1px,
+    transparent 1px 4px
+  );
+}
+
 /* 11px uppercase label with +0.05em tracking (table headers, badges) */
 @utility eyebrow {
   font-size: 11px;
