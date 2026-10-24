@@ -41,8 +41,8 @@ export function Compare({
   const peak = (s: GridState, kva: number) =>
     Math.max(...transformerDay(s, kva).map((x) => x.loading_pct));
   const rows: [string, number, number, number, string][] = [
-    ["Case oprite (≥253 V)", sim.before.houses_tripped, sim.after.houses_tripped, 0, ""],
     ["Tensiune maximă", sim.before.peak_voltage_v, sim.after.peak_voltage_v, 1, " V"],
+    ["Case deconectate", sim.before.houses_tripped, sim.after.houses_tripped, 0, ""],
     ["Vârf încărcare trafo", peak(sim.before, kvaBefore), peak(sim.after, kvaAfter), 0, "%"],
   ];
   return (
@@ -62,6 +62,10 @@ export function Compare({
         ))}
       </div>
       <dl className="space-y-1 text-[12.5px]">
+        <div className="flex justify-between gap-3 text-[11px] text-fog">
+          <dt>Rezultat simulare</dt>
+          <dd>înainte → după</dd>
+        </div>
         {rows.map(([k, b, a, dec, u]) => (
           <div key={k} className="flex items-baseline justify-between gap-3">
             <dt className="text-fog">{k}</dt>

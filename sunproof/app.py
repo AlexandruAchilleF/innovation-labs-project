@@ -28,6 +28,7 @@ from sunproof.scenarios import (
     simulate_scenario_with_battery_override,
 )
 from sunproof.telegram_bot import send_technician_alert
+from sunproof.tickets import router as tickets_router
 
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
 
@@ -40,6 +41,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+app.include_router(tickets_router)
 
 logger = logging.getLogger("sunproof.app")
 

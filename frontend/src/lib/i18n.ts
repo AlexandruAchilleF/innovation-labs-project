@@ -23,3 +23,12 @@ export const scenarioLabel: Record<ScenarioCode, string> = {
   INVOICE_VALID_EXPLAINED: "Factură corectă — explicată",
   HEALTHY: "Funcționare optimă",
 };
+
+/** Who acts, phrased for the homeowner (prosumer app). */
+export const prosumerResponsibleLabel: Record<ResponsibleParty, string> = {
+  DISTRIBUTION_OPERATOR: "Operatorul de Distribuție",
+  INSTALLER: "Instalatorul tău",
+  CUSTOMER_SETTING: "Tu (din aplicația invertorului)",
+  SUPPLIER_BILLING: "Furnizorul (Facturare)",
+  NONE: "Nicio acțiune necesară",
+};

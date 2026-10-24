@@ -3,7 +3,7 @@ import { LocateFixed, Search } from "lucide-react";
 import { useMapApi } from "@/components/sunproof/map/MapCanvas";
 import type { HouseholdSummary, Neighborhood } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { glass } from "./MapChrome";
+import { glass, prefersReducedMotion } from "./MapChrome";
 
 const COORDS = /^\s*(-?\d+(?:[.,]\d+)?)\s*[,;\s]\s*(-?\d+(?:[.,]\d+)?)\s*$/;
 
@@ -50,7 +50,7 @@ export function MapSearch({
       parseFloat(coords[1]!.replace(",", ".")),
       parseFloat(coords[2]!.replace(",", ".")),
     ];
-    api.map.flyTo({ center: [b, a], zoom: 15, essential: true });
+    api.map.flyTo({ center: [b, a], zoom: 15, duration: prefersReducedMotion() ? 0 : 1600 });
     done();
   };
   const any = results.hh.length + results.nb.length > 0 || !!coords;

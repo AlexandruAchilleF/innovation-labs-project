@@ -22,8 +22,8 @@ function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-canvas px-4">
       <div className="max-w-md text-center">
-        <h1 className="font-display text-7xl text-bone">404</h1>
-        <h2 className="mt-4 font-display text-xl text-bone">Pagina nu a fost găsită</h2>
+        <h1 className="font-display text-7xl font-normal text-bone">404</h1>
+        <h2 className="mt-4 font-display text-xl font-normal text-bone">Pagina nu a fost găsită</h2>
         <p className="mt-2 text-[14px] text-fog">Pagina căutată nu există sau a fost mutată.</p>
         <div className="mt-6">
           <Link to="/" className={ghostBtn}>
@@ -45,7 +45,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-canvas px-4">
       <div className="max-w-md text-center">
-        <h2 className="font-display text-2xl text-bone">Pagina nu s-a încărcat</h2>
+        <h2 className="font-display text-2xl font-normal text-bone">Pagina nu s-a încărcat</h2>
         <p className="mt-2 text-[14px] text-fog">
           A apărut o eroare la noi. Reîncearcă sau întoarce-te la hartă.
         </p>

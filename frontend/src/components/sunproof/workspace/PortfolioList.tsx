@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { fmt } from "@/lib/format";
+import { useOpenTickets } from "@/lib/tickets";
 import type { HouseholdSummary, Severity } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { sevText } from "./SeverityTag";
@@ -24,6 +25,8 @@ export function PortfolioList({
 }) {
   const [filter, setFilter] = useState(0);
   const [q, setQ] = useState("");
+  const openTickets = useOpenTickets();
+  const ticketed = useMemo(() => new Set(openTickets.map((t) => t.household_id)), [openTickets]);
   const nameCounts = useMemo(() => {
     const counts = new Map<string, number>();
     for (const h of households ?? []) {
@@ -94,6 +97,11 @@ export function PortfolioList({
               <span className="min-w-0">
                 <span className="flex items-baseline gap-1.5 truncate text-[13px] text-bone">
                   <span className="truncate">{h.customer_name}</span>
+                  {ticketed.has(h.household_id) && (
+                    <span className="eyebrow shrink-0 rounded-[4px] border border-voltage/70 px-1.5 py-0.5 text-[10px] text-bone">
+                      Tichet activ
+                    </span>
+                  )}
                   {dup && (
                     <span className="num shrink-0 rounded-[4px] border border-iron bg-obsidian px-1.5 py-0.5 text-[11px] font-medium text-bone">
                       {h.household_id}

@@ -63,6 +63,18 @@ export function NetworkContent({
     );
   }
   const p = params ?? defaults(nb);
+  const tripped = grid.houses_tripped;
+  const state =
+    tripped > 0
+      ? { label: `Supraîncărcat la prânz (${tripped} case deconectate)`, tone: "text-critical" }
+      : c.index >= 100
+        ? {
+            label: `Supraîncărcat la ${slotLabel(slot)} (fără case deconectate)`,
+            tone: "text-warning",
+          }
+        : c.index >= 80
+          ? { label: "Aproape de limită", tone: "text-warning" }
+          : { label: "În parametri normali", tone: "text-bone" };
   const set = (patch: Partial<NetworkParams>) => onParams({ ...p, ...patch });
   const recommend = () =>
     onParams({
@@ -90,55 +102,61 @@ export function NetworkContent({
         </p>
       </header>
 
-      <div
-        className="flex items-baseline justify-between"
-        title="Maximul dintre încărcarea termică (trafo, plecări) și cât din marja 230 → 253 V a fost consumată."
-      >
-        <span className="text-[13px] text-fog">Congestie la {slotLabel(slot)}</span>
-        <span
-          className={cn(
-            "num text-[24px] leading-none",
-            c.index >= 100 ? "text-critical" : c.index >= 80 ? "text-warning" : "text-bone",
-          )}
+      <section aria-label="Stare transformator" className="space-y-2">
+        <h3 className="eyebrow text-fog">
+          Stare transformator{sim && view === "after" ? " · după soluție" : ""}
+        </h3>
+        <p className={cn("text-[16px] font-medium leading-snug", state.tone)}>{state.label}</p>
+        <p
+          className="num text-[12px] text-fog"
+          title={`Indice de congestie la ${slotLabel(slot)}: ${c.index} (maximul dintre încărcarea termică și marja 230 → 253 V consumată)`}
         >
-          {c.index}
-        </span>
-      </div>
+          Tensiune maximă {fmt(grid.peak_voltage_v, 1)} V · limita {fmt(LEGAL_LIMIT_V)} V
+        </p>
+      </section>
 
-      <table className="w-full text-[12.5px]">
-        <thead>
-          <tr className="text-left text-[11px] text-fog">
-            <th className="pb-1.5 font-normal">Plecare</th>
-            <th className="pb-1.5 text-right font-normal">Umax</th>
-            <th className="pb-1.5 text-right font-normal">Încărcare</th>
-          </tr>
-        </thead>
-        <tbody>
-          {runs.map((r) => {
-            const f = c.feeders.find((x) => x.key === r.key)!;
-            return (
-              <tr
-                key={r.key}
-                className="border-t border-border"
-                title={`${r.key} · ${r.houses.length} case · vârf ${fmt(r.peakLoadingPct, 1)}% din ampacitate`}
-              >
-                <td className="max-w-0 truncate py-1.5 pr-2 text-bone">{r.street}</td>
-                <td className={cn("num py-1.5 text-right", vTone(f.maxVoltageV))}>
-                  {fmt(f.maxVoltageV, 1)}
-                </td>
-                <td
-                  className={cn(
-                    "num py-1.5 pl-3 text-right",
-                    f.loadingPct >= 100 ? "text-critical" : "text-bone",
-                  )}
-                >
-                  {fmt(f.loadingPct, 0)}%
-                </td>
+      <details className="group">
+        <summary className="flex w-fit cursor-pointer list-none items-center gap-1 text-[12.5px] text-fog hover:text-bone">
+          Detalii pe plecări (străzi)
+          <DisclosureChevron />
+        </summary>
+        <div className="mt-2">
+          <table className="w-full text-[12.5px]">
+            <thead>
+              <tr className="text-left text-[11px] text-fog">
+                <th className="pb-1.5 font-normal">Plecare</th>
+                <th className="pb-1.5 text-right font-normal">Umax</th>
+                <th className="pb-1.5 text-right font-normal">Încărcare</th>
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+              {runs.map((r) => {
+                const f = c.feeders.find((x) => x.key === r.key)!;
+                return (
+                  <tr
+                    key={r.key}
+                    className="border-t border-border"
+                    title={`${r.key} · ${r.houses.length} case · vârf ${fmt(r.peakLoadingPct, 1)}% din ampacitate`}
+                  >
+                    <td className="max-w-0 truncate py-1.5 pr-2 text-bone">{r.street}</td>
+                    <td className={cn("num py-1.5 text-right", vTone(f.maxVoltageV))}>
+                      {fmt(f.maxVoltageV, 1)}
+                    </td>
+                    <td
+                      className={cn(
+                        "num py-1.5 pl-3 text-right",
+                        f.loadingPct >= 100 ? "text-critical" : "text-bone",
+                      )}
+                    >
+                      {fmt(f.loadingPct, 0)}%
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </details>
 
       {(nb.headline_ro || nb.recommended_distributor_action_ro) && (
         <details className="group text-[12.5px] leading-relaxed">
@@ -148,9 +166,7 @@ export function NetworkContent({
           </summary>
           <div className="mt-2 space-y-2 text-fog">
             {nb.headline_ro && <p className="text-bone">{nb.headline_ro}</p>}
-            {nb.recommended_distributor_action_ro && (
-              <p>{nb.recommended_distributor_action_ro}</p>
-            )}
+            {nb.recommended_distributor_action_ro && <p>{nb.recommended_distributor_action_ro}</p>}
           </div>
         </details>
       )}
@@ -158,7 +174,7 @@ export function NetworkContent({
       <section className="space-y-3 border-t border-border pt-4">
         <div className="flex items-center justify-between">
           <h3 className="flex items-center gap-2 text-[13px] font-medium text-bone">
-            Simulator distribuitor
+            Soluția tehnică pentru distribuitor
             {loading && <Loader2 className="size-3 animate-spin text-fog" />}
           </h3>
           {params && (
@@ -174,8 +190,14 @@ export function NetworkContent({
           onClick={recommend}
           className="w-full rounded-[4px] border border-bone px-4 py-2 text-[13px] font-medium text-bone transition-colors hover:bg-slate"
         >
-          Aplică pachetul recomandat
+          Simulează soluția tehnică (What-If)
         </button>
+        {!sim && (
+          <p className="text-[11.5px] leading-snug text-fog">
+            Plot trafo, putere mărită, reechilibrare faze, Volt-Watt și baterii încărcate la prânz —
+            arată înainte și după.
+          </p>
+        )}
         {sim && (
           <Compare
             sim={sim}

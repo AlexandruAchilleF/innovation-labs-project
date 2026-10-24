@@ -1,15 +1,25 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { Landing } from "@/components/sunproof/landing/Landing";
 
 export const Route = createFileRoute("/")({
-  beforeLoad: () => {
-    throw redirect({ to: "/harta", search: { household: "RO-TM-001" } });
-  },
   head: () => ({
     meta: [
-      { title: "SunProof — Energy & Grid Intelligence" },
-      { name: "description", content: "Platformă de diagnostic pentru furnizori de energie și prosumatori din România." },
-      { property: "og:title", content: "SunProof — Energy & Grid Intelligence" },
-      { property: "og:description", content: "Platformă de diagnostic pentru furnizori de energie și prosumatori din România." },
+      { title: "SunProof — Diagnostic determinist pentru furnizori și prosumatori" },
+      {
+        name: "description",
+        content:
+          "Rețea sau instalație locală, baterii blocate în vârful de seară, facturi reconciliate (Legea 160/2026). Diagnostic pentru furnizori de energie și prosumatori din România.",
+      },
+      {
+        property: "og:title",
+        content: "SunProof — Diagnostic determinist pentru furnizori și prosumatori",
+      },
+      {
+        property: "og:description",
+        content:
+          "Rețea sau instalație locală, baterii blocate în vârful de seară, facturi reconciliate (Legea 160/2026).",
+      },
     ],
   }),
+  component: Landing,
 });

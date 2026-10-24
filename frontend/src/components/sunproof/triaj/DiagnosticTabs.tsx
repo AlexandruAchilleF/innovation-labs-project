@@ -4,10 +4,11 @@ import { cn } from "@/lib/utils";
 import { EngineeringCharts, VerdictCards } from "./Diagnostic";
 import { BatterySimulator } from "./BatterySimulator";
 import { GuardrailPanel } from "./GuardrailPanel";
+import { DisclosureChevron } from "../primitives";
 
 import { OmTicketLifecycleCard, ProofBenchmarkPanel } from "./OmLifecycleAndProof";
 
-type TabId = "grid" | "battery" | "billing" | "proof";
+type TabId = "grid" | "battery" | "billing";
 
 export function DiagnosticTabs({ d }: { d: HouseholdDetail }) {
   const party = d.analysis.primary_responsible_party;
@@ -15,16 +16,25 @@ export function DiagnosticTabs({ d }: { d: HouseholdDetail }) {
     party === "CUSTOMER_SETTING" ? "battery" : party === "SUPPLIER_BILLING" ? "billing" : "grid",
   );
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const b = d.analysis.battery_verdict;
-  const tabs: { id: TabId; label: string }[] = [
-    { id: "grid", label: "Rețea sau instalație" },
+  const [showAll, setShowAll] = useState(false);
+  const { grid_verdict: g, battery_verdict: b, billing_verdict: f } = d.analysis;
+  const allTabs: { id: TabId; label: string; relevant: boolean }[] = [
+    {
+      id: "grid",
+      label: "Rețea sau instalație",
+      relevant: g.status !== "OK" || g.trip_minutes > 0,
+    },
     {
       id: "battery",
       label: `Baterie${b.battery_kwh ? ` ${b.configured_min_soc_pct}% → ${b.desired_min_soc_pct}%` : ""}`,
+      relevant: b.battery_kwh > 0 && b.status !== "OK",
     },
-    { id: "billing", label: "Factură și verificare text" },
-    { id: "proof", label: "Acuratețe 81/81" },
+    { id: "billing", label: "Factură și verificare text", relevant: f.status !== "OK" },
   ];
+  // only the checks that found something (plus the one the case opens on); the rest on demand
+  const relevant = allTabs.filter((t) => t.relevant || t.id === tab);
+  const tabs = showAll || relevant.length === allTabs.length ? allTabs : relevant;
+  const hidden = allTabs.length - tabs.length;
 
   const onKeyDown = (e: KeyboardEvent<HTMLButtonElement>, idx: number) => {
     let nextIdx = -1;
@@ -71,6 +81,14 @@ export function DiagnosticTabs({ d }: { d: HouseholdDetail }) {
             </button>
           );
         })}
+        {hidden > 0 && (
+          <button
+            onClick={() => setShowAll(true)}
+            className="-mb-px shrink-0 py-2.5 text-[12.5px] text-fog hover:text-bone"
+          >
+            + {hidden} {hidden === 1 ? "verificare fără probleme" : "verificări fără probleme"}
+          </button>
+        )}
       </div>
       {tab === "grid" && (
         <div
@@ -82,11 +100,6 @@ export function DiagnosticTabs({ d }: { d: HouseholdDetail }) {
           <EngineeringCharts d={d} />
           <VerdictCards d={d} only="grid" />
           <OmTicketLifecycleCard d={d} />
-        </div>
-      )}
-      {tab === "proof" && (
-        <div id="diag-panel-proof" role="tabpanel" aria-labelledby="diag-tab-proof">
-          <ProofBenchmarkPanel />
         </div>
       )}
       {tab === "battery" && (
@@ -111,6 +124,15 @@ export function DiagnosticTabs({ d }: { d: HouseholdDetail }) {
           <GuardrailPanel d={d} />
         </div>
       )}
+      <details className="group border-t border-border pt-3">
+        <summary className="flex w-fit cursor-pointer list-none items-center gap-1 text-[12.5px] text-fog hover:text-bone">
+          Acuratețea motoarelor pe toate scenariile
+          <DisclosureChevron />
+        </summary>
+        <div className="mt-3">
+          <ProofBenchmarkPanel />
+        </div>
+      </details>
     </div>
   );
 }
