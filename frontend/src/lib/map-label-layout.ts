@@ -18,6 +18,8 @@ export function layoutMapLabels(
 ): MapLabelPosition[] {
   const placed: MapLabelPosition[] = [];
   const gap = 6;
+  const maxOffset = 64;
+  const step = 8;
   const left = 8;
   const right = Math.max(left, width - MAP_LABEL_WIDTH - 8);
   const top = Math.min(80, Math.max(8, height - MAP_LABEL_HEIGHT - 8));
@@ -27,22 +29,13 @@ export function layoutMapLabels(
   );
   for (const anchor of ordered) {
     const candidates: { x: number; y: number; distance: number }[] = [];
-    for (let row = -anchors.length; row <= anchors.length; row++) {
-      for (let col = -anchors.length; col <= anchors.length; col++) {
-        const x = Math.max(
-          left,
-          Math.min(right, anchor.x - MAP_LABEL_WIDTH / 2 + col * (MAP_LABEL_WIDTH + gap)),
-        );
-        const y = Math.max(
-          top,
-          Math.min(bottom, anchor.y - MAP_LABEL_HEIGHT / 2 + row * (MAP_LABEL_HEIGHT + gap)),
-        );
-        candidates.push({
-          x,
-          y,
-          distance:
-            (x + MAP_LABEL_WIDTH / 2 - anchor.x) ** 2 + (y + MAP_LABEL_HEIGHT / 2 - anchor.y) ** 2,
-        });
+    for (let row = -maxOffset / step; row <= maxOffset / step; row++) {
+      for (let col = -maxOffset / step; col <= maxOffset / step; col++) {
+        const x = Math.max(left, Math.min(right, anchor.x - MAP_LABEL_WIDTH / 2 + col * step));
+        const y = Math.max(top, Math.min(bottom, anchor.y - MAP_LABEL_HEIGHT / 2 + row * step));
+        const distance =
+          (x + MAP_LABEL_WIDTH / 2 - anchor.x) ** 2 + (y + MAP_LABEL_HEIGHT / 2 - anchor.y) ** 2;
+        if (distance <= maxOffset ** 2) candidates.push({ x, y, distance });
       }
     }
     candidates.sort((a, b) => a.distance - b.distance);
@@ -59,7 +52,7 @@ export function layoutMapLabels(
             ),
           )
         : undefined;
-    // Very small viewports retain a clickable location dot instead of overlapping text.
+    // Crowded areas retain a clickable location dot instead of distant or overlapping text.
     placed.push(
       candidate
         ? { id: anchor.id, x: candidate.x, y: candidate.y, compact: false }
