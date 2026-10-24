@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 import type { Map as MlMap, StyleSpecification } from "maplibre-gl";
 import { ROMANIA_CENTER } from "@/lib/geo";
 import { COUNTRY_MASK_LAYER_ID, OUTSIDE_ROMANIA, ROMANIA_BOUNDARY } from "@/lib/romania-map";
+import { SolarMaskPattern } from "./SolarMaskPattern";
 
 type MapLib = typeof import("maplibre-gl");
 export interface MapApi {
@@ -157,7 +158,12 @@ export function MapCanvas({
     <div className="absolute inset-0">
       {/* maplibre forces position:relative on its container, so it fills a sized wrapper instead */}
       <div ref={el} className="h-full w-full" />
-      {api && <MapCtx.Provider value={api}>{children}</MapCtx.Provider>}
+      {api && (
+        <MapCtx.Provider value={api}>
+          <SolarMaskPattern />
+          {children}
+        </MapCtx.Provider>
+      )}
     </div>
   );
 }

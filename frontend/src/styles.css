@@ -5,6 +5,24 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Sparse, nearly tone-on-tone decoration outside Romania. No map repaint loop. */
+.solar-mask-pattern {
+  opacity: 0.18;
+  animation: solar-mask-tint 12s ease-in-out infinite;
+}
+
+@keyframes solar-mask-tint {
+  0%, 100% { opacity: 0.14; }
+  50% { opacity: 0.25; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .solar-mask-pattern {
+    animation: none;
+    opacity: 0.18;
+  }
+}
+
 /*
  * Altitude design system (see .claude/skills/altitude-design/DESIGN.md).
  *
