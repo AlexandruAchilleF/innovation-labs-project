@@ -1,6 +1,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.egg-info/
 .venv/
 venv/
 .pytest_cache/
@@ -8,3 +9,7 @@ venv/
 *.pdf
 .DS_Store
 .env
+data/raw/*
+!data/raw/.gitkeep
+*.db
+out/
