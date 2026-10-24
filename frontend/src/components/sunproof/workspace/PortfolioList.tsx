@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { fmt } from "@/lib/format";
-import { useOpenTickets } from "@/lib/tickets";
 import type { HouseholdSummary, PortfolioSummaryMetrics, Severity } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { sevText } from "./SeverityTag";
@@ -38,15 +37,6 @@ export function PortfolioList({
 }) {
   const [filter, setFilter] = useState<number | null>(null);
   const [q, setQ] = useState("");
-  const openTickets = useOpenTickets();
-  const ticketed = useMemo(() => new Set(openTickets.map((t) => t.household_id)), [openTickets]);
-  const nameCounts = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const h of households ?? []) {
-      counts.set(h.customer_name, (counts.get(h.customer_name) ?? 0) + 1);
-    }
-    return counts;
-  }, [households]);
   const rows = useMemo(() => {
     const t = q.trim().toLowerCase();
     return (households ?? [])
@@ -64,15 +54,11 @@ export function PortfolioList({
     <>
       <div className="shrink-0 space-y-3 border-b border-border px-4 py-3">
         {metrics && (
-          <p className="flex items-baseline justify-between gap-3 text-[12px]">
-            <span className="text-fog">Valoare recuperabilă / lună</span>
-            <span className="num text-bone">
+          <p className="num text-[12px] text-fog">
+            <span className="text-[15px] text-bone">
               {fmt(metrics.fleet_total_supplier_monthly_value_ron)}
-              <span className="text-[11px] text-fog"> RON furnizor</span>
-              {" · "}
-              {fmt(metrics.fleet_total_customer_monthly_value_ron)}
-              <span className="text-[11px] text-fog"> RON clienți</span>
-            </span>
+            </span>{" "}
+            RON/lună recuperabili
           </p>
         )}
         <div role="group" aria-label="Probleme în portofoliu" className="grid grid-cols-3 gap-1.5">
@@ -111,58 +97,25 @@ export function PortfolioList({
           className="h-8 w-full rounded-[4px] border border-iron bg-graphite px-3 text-[12.5px] text-bone outline-none placeholder:text-fog focus:border-voltage"
         />
       </div>
-      <div className="grid shrink-0 grid-cols-[1fr_auto] border-b border-border px-4 py-1.5">
-        <span className="eyebrow">
-          {filter === null ? "Toți clienții" : TILES[filter]!.label} · {rows.length}
-        </span>
-        <span
-          className="eyebrow"
-          title="Suma dintre beneficiul lunar furnizor și beneficiul lunar client"
-        >
-          Impact RON/lună
-        </span>
-      </div>
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        {rows.map((h) => {
-          const dup = (nameCounts.get(h.customer_name) ?? 0) > 1;
-          return (
+      <ul className="min-h-0 flex-1 divide-y divide-border overflow-y-auto">
+        {rows.map((h) => (
+          <li key={h.household_id}>
             <button
-              key={h.household_id}
               onClick={() => onSelect(h.household_id)}
               className={cn(
-                "grid w-full grid-cols-[1fr_auto] items-center gap-2 border-b border-border px-4 py-2.5 text-left transition-colors odd:bg-transparent even:bg-graphite hover:bg-slate",
-                h.household_id === selected && "!bg-iron",
+                "w-full px-4 py-2.5 text-left transition-colors hover:bg-slate",
+                h.household_id === selected && "bg-iron hover:bg-iron",
               )}
             >
-              <span className="min-w-0">
-                <span className="flex items-baseline gap-1.5 truncate text-[13px] text-bone">
-                  <span className="truncate">{h.customer_name}</span>
-                  {ticketed.has(h.household_id) && (
-                    <span className="eyebrow shrink-0 rounded-[4px] border border-voltage/70 px-1.5 py-0.5 text-[10px] text-bone">
-                      Tichet activ
-                    </span>
-                  )}
-                  {dup && (
-                    <span className="num shrink-0 rounded-[4px] border border-iron bg-obsidian px-1.5 py-0.5 text-[11px] font-medium text-bone">
-                      {h.household_id}
-                    </span>
-                  )}
-                </span>
-                <span className="block truncate text-[11px] text-fog">
-                  {!dup && (
-                    <>
-                      <span className="num">{h.household_id}</span> ·{" "}
-                    </>
-                  )}
-                  {h.city} ·{" "}
-                  <span className={sevText[h.overall_severity]}>{h.scenario_badge_ro}</span>
-                </span>
+              <span className="block truncate text-[13px] text-bone">{h.customer_name}</span>
+              <span className="mt-0.5 block truncate text-[11.5px] text-fog">
+                {h.city} ·{" "}
+                <span className={sevText[h.overall_severity]}>{h.scenario_badge_ro}</span>
               </span>
-              <span className="num text-[12px] text-bone">{fmt(h.monthly_impact_ron)}</span>
             </button>
-          );
-        })}
-      </div>
+          </li>
+        ))}
+      </ul>
     </>
   );
 }

@@ -10,22 +10,8 @@ export function BillingPanel({ d }: { d: HouseholdDetail }) {
   const off = Math.abs(f.delta_ron) >= 0.01;
   return (
     <ChartFrame
-      eyebrow="Factură · reconciliere 1.8.0 / 2.8.0"
-      takeaway={
-        off ? (
-          <>
-            Factura diferă cu <span className="num">{fmt(Math.abs(f.delta_ron), 2)} RON</span>
-            {short > 0 && (
-              <span className="text-fog">
-                {" "}
-                · lipsesc <span className="num">{fmt(short)} kWh</span> exportați
-              </span>
-            )}
-          </>
-        ) : (
-          "Factura este corectă · exportul e compensat 1:1"
-        )
-      }
+      eyebrow="Factură"
+      takeaway={off ? `Diferență ${fmt(Math.abs(f.delta_ron), 2)} RON` : "Corectă"}
       tone={off ? "text-critical" : "text-bone"}
       legend={[]}
     >
@@ -34,7 +20,7 @@ export function BillingPanel({ d }: { d: HouseholdDetail }) {
           <h3 className="mb-2 text-[12px] text-fog">Energie lunară · kWh</h3>
           <CompareBars
             rows={[
-              { label: "Produs (invertor)", value: f.produced_kwh, tone: "fog" },
+              { label: "Produs", value: f.produced_kwh, tone: "fog" },
               { label: "Autoconsum", value: f.self_consumed_kwh, tone: "fog" },
               { label: "Export contor", value: f.meter_export_kwh },
               {
@@ -49,7 +35,7 @@ export function BillingPanel({ d }: { d: HouseholdDetail }) {
           <h3 className="mb-2 text-[12px] text-fog">Valoare factură · RON</h3>
           <CompareBars
             rows={[
-              { label: "Corect (verificat)", value: f.verified_ron, decimals: 2 },
+              { label: "Corect", value: f.verified_ron, decimals: 2 },
               {
                 label: "Facturat",
                 value: f.billed_ron,

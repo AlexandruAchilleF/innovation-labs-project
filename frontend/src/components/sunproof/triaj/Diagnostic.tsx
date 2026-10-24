@@ -27,15 +27,9 @@ export function TriageHeader({ d }: { d: HouseholdDetail }) {
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
             <h1 className="font-display text-[24px] leading-tight text-bone">{a.customer_name}</h1>
-            <span className="num text-[12px] text-fog">
-              {a.household_id} · {a.city}
-            </span>
-            <StatusBadge severity={a.overall_severity} />
+            <span className="text-[12px] text-fog">{a.city}</span>
           </div>
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
-            <p className="max-w-[70ch] text-[14px] leading-relaxed text-bone">
-              {a.one_line_triage_ro}
-            </p>
             {a.grid_verdict.trip_minutes > 0 && (
               <div className="flex flex-wrap items-center gap-2">
                 <Button
@@ -47,7 +41,7 @@ export function TriageHeader({ d }: { d: HouseholdDetail }) {
                     toast(`Dosar generat · ${a.transformer_id}`);
                   }}
                 >
-                  <FileDown /> Dosar PDF pentru distribuitor
+                  <FileDown /> Dosar PDF
                 </Button>
                 <Button
                   size="sm"
@@ -55,7 +49,7 @@ export function TriageHeader({ d }: { d: HouseholdDetail }) {
                   className="border-iron bg-transparent text-bone hover:bg-slate"
                   onClick={() => setAlertOpen(true)}
                 >
-                  <Send /> Alertă tehnician O&M
+                  <Send /> Tehnician O&M
                 </Button>
               </div>
             )}
@@ -80,14 +74,13 @@ export function TriageHeader({ d }: { d: HouseholdDetail }) {
         <dl className="flex shrink-0 gap-6 sm:text-right">
           {(
             [
-              ["Câștig furnizor", a.total_supplier_monthly_benefit_ron],
-              ["Câștig client", a.total_customer_monthly_benefit_ron],
+              ["Furnizor", a.total_supplier_monthly_benefit_ron],
+              ["Client", a.total_customer_monthly_benefit_ron],
             ] as const
           ).map(([k, v]) => (
             <div key={k}>
               <dt className="text-[11.5px] text-fog">{k}</dt>
               <dd className="num mt-0.5 text-[22px] leading-none text-bone">
-                {v > 0 ? "+" : ""}
                 {fmt(v)}
                 <span className="text-[11px] text-fog"> RON/lună</span>
               </dd>

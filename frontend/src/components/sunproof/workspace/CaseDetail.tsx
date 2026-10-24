@@ -1,7 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { answers, QUESTION_IDS, type QuestionId } from "@/lib/case-questions";
 import { severityLabel } from "@/lib/i18n";
-import type { GridState, HouseholdDetail, Neighborhood } from "@/lib/types";
+import type { HouseholdDetail } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useCaseActions } from "./CaseActions";
 import { ClientTicketBox } from "./ClientTicketBox";
@@ -19,15 +19,11 @@ export function CaseDetail({
   d,
   tab,
   onTab,
-  grid,
-  slot,
   network,
 }: {
   d: HouseholdDetail | undefined;
   tab: QuestionId;
   onTab: (t: QuestionId) => void;
-  grid: Neighborhood | GridState | undefined;
-  slot: number;
   network?: NetworkPanelProps | undefined;
 }) {
   if (!d) {
@@ -39,22 +35,18 @@ export function CaseDetail({
       </div>
     );
   }
-  return <CaseDetailBody d={d} tab={tab} onTab={onTab} grid={grid} slot={slot} network={network} />;
+  return <CaseDetailBody d={d} tab={tab} onTab={onTab} network={network} />;
 }
 
 function CaseDetailBody({
   d,
   tab,
   onTab,
-  grid,
-  slot,
   network,
 }: {
   d: HouseholdDetail;
   tab: QuestionId;
   onTab: (t: QuestionId) => void;
-  grid: Neighborhood | GridState | undefined;
-  slot: number;
   network?: NetworkPanelProps | undefined;
 }) {
   const qs = answers(d);
@@ -95,12 +87,10 @@ function CaseDetailBody({
         })}
       </div>
       <div role="tabpanel" className="min-h-0 flex-1 overflow-y-auto px-4 pb-8 pt-4">
-        <div className="mb-4 empty:hidden">
+        <div className="mb-6 empty:hidden">
           <ClientTicketBox householdId={d.analysis.household_id} />
         </div>
-        {tab === "grid" && (
-          <DetailGrid d={d} q={qs.grid} grid={grid} slot={slot} network={network} actions={acts} />
-        )}
+        {tab === "grid" && <DetailGrid d={d} q={qs.grid} network={network} actions={acts} />}
         {tab === "battery" && <DetailBattery d={d} q={qs.battery} guide={acts.guide} />}
         {tab === "billing" && <DetailBilling d={d} q={qs.billing} bill={acts.bill} />}
       </div>

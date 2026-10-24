@@ -1,10 +1,8 @@
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { fmt } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { HouseholdSummary, Severity } from "@/lib/types";
-import { StatusBadge } from "../primitives";
 
 const RANK: Record<Severity, number> = { CRITICAL: 0, WARNING: 1, INFO: 2, OK: 3 };
 
@@ -73,24 +71,11 @@ export function HouseholdList({
               onClick={() => onSelect(h.household_id)}
               title={h.scenario_badge_ro}
               className={cn(
-                "w-full px-3 py-2.5 text-left transition-colors",
+                "w-full px-4 py-3 text-left transition-colors",
                 selected === h.household_id ? "bg-slate" : "hover:bg-slate/50",
               )}
             >
-              <div className="flex items-center justify-between gap-2">
-                <span className="truncate text-[13px] text-bone">{h.customer_name}</span>
-                <StatusBadge severity={h.overall_severity} />
-              </div>
-              <div className="num mt-0.5 flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
-                <span className="truncate">
-                  {h.city} · {fmt(h.installed_pv_kw ?? 0, 1)} kWp
-                </span>
-                {h.monthly_impact_ron > 0 ? (
-                  <span className="shrink-0 text-bone">+{fmt(h.monthly_impact_ron)} RON</span>
-                ) : (
-                  <span className="shrink-0">—</span>
-                )}
-              </div>
+              <span className="block truncate text-[13px] text-bone">{h.customer_name}</span>
             </button>
           </li>
         ))}

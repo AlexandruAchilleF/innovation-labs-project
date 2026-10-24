@@ -177,6 +177,16 @@ Background #111111, 64px vertical padding. Wordmark, nav links, and legal in Int
 
 16px radius, 1px #262626 border, #1f1f1f fallback background behind image. Mountain landscape photography (painterly, blue-gray, atmospheric) is the primary visual — no abstract gradients, no 3D renders.
 
+## Text Budget (SunProof, non-negotiable)
+- Minimal text. A screen shows numbers, names and marks — not sentences explaining them.
+- No explanatory captions ("Cum citești…", "Bara arată…"), no helper paragraphs, no legends that need reading.
+- Charts explain themselves: label marks directly (value on the peak, limit line named "253 V", band named "seară").
+  If a chart still needs a sentence, switch to a simpler form (sparkline, house icons, split bar) or drop it.
+- Conclusions are 2–4 words or a small visual (a rising sparkline for a voltage rise, a short red bar for missing kWh).
+- No repeated status: a red value doesn't also get a CRITIC tag; no "+val" sub-lines under a value (use a trend icon).
+- List rows carry only the essentials (portfolio: name · area · problem; ticket lists: name).
+- No stacks of bordered cards: separate with whitespace and hairlines; one card at most per view.
+
 ## Do's and Don'ts
 
 ### Do

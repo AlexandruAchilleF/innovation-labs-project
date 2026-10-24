@@ -132,8 +132,6 @@ export function CaseChip({
           d={detail}
           tab={tab ?? mainQuestion(detail)}
           onTab={setTab}
-          grid={grid}
-          slot={slot}
         />
       </SheetContent>
     </Sheet>

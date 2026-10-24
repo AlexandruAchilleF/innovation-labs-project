@@ -12,6 +12,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { TrendingDown, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { api } from "@/lib/api";
@@ -46,9 +47,7 @@ export function BatterySimulator({ d }: { d: HouseholdDetail }) {
   if (b.battery_kwh === 0) {
     return (
       <Panel title="Simulator rezervă baterie (SoC)">
-        <p className="text-[13px] text-fog">
-          Această gospodărie nu are baterie. Alegeți un caz cu baterie (ex. RO-CJ-003).
-        </p>
+        <p className="text-[13px] text-fog">Fără baterie.</p>
       </Panel>
     );
   }
@@ -94,34 +93,20 @@ export function BatterySimulator({ d }: { d: HouseholdDetail }) {
   const changed = soc !== b.configured_min_soc_pct;
   return (
     <ChartFrame
-      eyebrow="Baterie · simulator rezervă"
+      eyebrow="Rezervă baterie"
       takeaway={
-        r ? (
-          changed ? (
-            <>
-              Cu rezervă <span className="num">{soc}%</span>, bateria livrează seara{" "}
-              <span className="num">{fmt(r.after.evening_kwh_delivered_day, 1)} kWh/zi</span>
-              <span className="text-fog">
-                {" "}
-                (acum <span className="num">{fmt(r.before.evening_kwh_delivered_day, 1)}</span>)
-              </span>
-            </>
-          ) : (
-            <>
-              Rezerva de <span className="num">{soc}%</span> ține{" "}
-              <span className="num">{fmt(b.locked_kwh, 1)} kWh</span> departe de vârful de seară
-            </>
-          )
-        ) : (
-          "Se calculează…"
-        )
+        r
+          ? changed
+            ? `${fmt(r.before.evening_kwh_delivered_day, 1)} → ${fmt(r.after.evening_kwh_delivered_day, 1)} kWh seara`
+            : `${fmt(b.locked_kwh, 1)} kWh blocați`
+          : "…"
       }
       tone={changed || b.locked_kwh <= 0 ? "text-bone" : "text-warning"}
       legend={[
-        { color: "var(--info)", label: changed ? "După" : "Încărcare %" },
+        { color: "var(--info)", label: changed ? "După" : "Încărcare" },
         ...(changed ? [{ color: "var(--fog)", label: "Acum", kind: "dash" as const }] : []),
         { color: "var(--warning)", label: "Rezervă", kind: "dash" },
-        { color: "var(--sun-soft)", label: "Vârf PZU seară", kind: "area" },
+        { color: "var(--sun-soft)", label: "Seară", kind: "area" },
       ]}
     >
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
@@ -143,22 +128,22 @@ export function BatterySimulator({ d }: { d: HouseholdDetail }) {
           </div>
         </div>
         <Button size="sm" variant="outline" onClick={() => setSoc(b.desired_min_soc_pct)}>
-          Aplică ce vrea clientul ({b.desired_min_soc_pct}%)
+          Aplică {b.desired_min_soc_pct}%
         </Button>
       </div>
       <dl className="mt-4 grid grid-cols-3 gap-4 border-y border-border py-3">
         {cards.map((c) => (
           <div key={c.l}>
             <dt className="text-[11.5px] text-fog">{c.l}</dt>
-            <dd className="num mt-0.5 text-[17px] text-bone">
+            <dd className="num mt-0.5 flex items-center gap-1 text-[17px] text-bone">
               {fmt(c.a, c.dec)} <span className="text-[11px] text-fog">{c.u}</span>
+              {Math.abs(c.d) >= 0.05 &&
+                (c.d > 0 ? (
+                  <TrendingUp className="size-3.5 text-success" aria-label="crește" />
+                ) : (
+                  <TrendingDown className="size-3.5 text-critical" aria-label="scade" />
+                ))}
             </dd>
-            {Math.abs(c.d) >= 0.05 && (
-              <dd className={cn("num text-[11.5px]", c.d > 0 ? "text-success" : "text-critical")}>
-                {c.d > 0 ? "+" : ""}
-                {fmt(c.d, c.dec)}
-              </dd>
-            )}
           </div>
         ))}
       </dl>

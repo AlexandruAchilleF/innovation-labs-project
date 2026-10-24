@@ -142,12 +142,6 @@ export function NetworkContent({
             },
           ]}
         />
-        <p className="text-[11.5px] leading-relaxed text-smoke">
-          <span className="text-fog">Cum citești: </span>
-          cadranul arată cât din puterea transformatorului e folosită la ora aleasă (100% = plin;
-          «flux invers» = cartierul trimite energie înapoi în rețea). Bara de jos e cea mai mare
-          tensiune din cartier față de limita legală.
-        </p>
       </section>
       <section aria-label="Plecări (străzi)" className="space-y-2">
         <div className="flex items-baseline justify-between gap-3">
@@ -181,29 +175,11 @@ export function NetworkContent({
             );
           })}
         </ul>
-        <p className="text-[11.5px] leading-relaxed text-smoke">
-          <span className="text-fog">Cum citești: </span>
-          bara = cât de încărcat e cablul străzii (linia verticală = 100% din capacitate), cifra =
-          tensiunea maximă pe stradă, în volți.
-        </p>
       </section>
-      {(nb.headline_ro || nb.recommended_distributor_action_ro) && (
-        <details className="group text-[12.5px] leading-relaxed">
-          <summary className="flex w-fit cursor-pointer list-none items-center gap-1 text-fog hover:text-bone">
-            Diagnostic și acțiune recomandată
-            <DisclosureChevron />
-          </summary>
-          <div className="mt-2 space-y-2 text-fog">
-            {nb.headline_ro && <p className="text-bone">{nb.headline_ro}</p>}
-            {nb.recommended_distributor_action_ro && <p>{nb.recommended_distributor_action_ro}</p>}
-          </div>
-        </details>
-      )}
-
       <section className="space-y-3 border-t border-border pt-4">
         <div className="flex items-center justify-between">
           <h3 className="flex items-center gap-2 text-[13px] font-medium text-bone">
-            Soluția tehnică pentru distribuitor
+            Soluție distribuitor
             {loading && <Loader2 className="size-3 animate-spin text-fog" />}
           </h3>
           {params && (
@@ -219,7 +195,7 @@ export function NetworkContent({
           onClick={recommend}
           className="w-full rounded-[4px] border border-bone px-4 py-2 text-[13px] font-medium text-bone transition-colors hover:bg-slate"
         >
-          Simulează soluția tehnică (What-If)
+          Simulează soluția
         </button>
         {sim && (
           <Compare

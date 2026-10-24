@@ -147,8 +147,6 @@ function HartaPage() {
           d={detail.data}
           tab={activeTab}
           onTab={setTab}
-          grid={grid}
-          slot={slot}
           network={{
             nb,
             grid,

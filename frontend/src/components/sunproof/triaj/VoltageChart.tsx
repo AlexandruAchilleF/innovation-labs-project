@@ -69,40 +69,24 @@ export function VoltageChart({ d }: { d: HouseholdDetail }) {
   const lim = fmt(g.legal_limit_v);
   const [takeaway, tone] =
     kind === "grid"
-      ? [
-          `Rețeaua urcă: contorul ajunge la ${fmt(g.max_meter_voltage_v, 1)} V și ${g.neighbors_affected_simultaneously} vecini cad în aceleași minute`,
-          "text-critical",
-        ]
+      ? [`Rețeaua · ${fmt(g.max_meter_voltage_v, 1)} V la contor`, "text-critical"]
       : kind === "local"
-        ? [
-            `Rețeaua e sub limită (${fmt(g.max_meter_voltage_v, 1)} V la contor); cablul intern adaugă +${fmt(g.voltage_rise_internal_cable_v, 1)} V până la invertor`,
-            "text-warning",
-          ]
+        ? [`Cablul intern · ${fmt(g.voltage_rise_internal_cable_v, 1)} V în plus`, "text-warning"]
         : g.max_inverter_voltage_v >= g.legal_limit_v
-          ? [
-              `Invertorul atinge ${fmt(g.max_inverter_voltage_v, 1)} V, peste limita de ${lim} V`,
-              "text-warning",
-            ]
-          : [`Tensiunea rămâne sub limita legală de ${lim} V toată ziua`, "text-bone"];
+          ? [`${fmt(g.max_inverter_voltage_v, 1)} V la invertor`, "text-warning"]
+          : [`Sub ${lim} V`, "text-bone"];
 
   const legend: LegendItem[] = [
     { color: "var(--bone)", label: "Invertor" },
-    { color: "var(--info)", label: "Contor (stradă)" },
-    ...(hasNb
-      ? [{ color: "var(--pewter)", label: "Vecini (min–max)", kind: "area" as const }]
-      : []),
+    { color: "var(--info)", label: "Contor" },
+    ...(hasNb ? [{ color: "var(--pewter)", label: "Vecini", kind: "area" as const }] : []),
     ...(trips.length
-      ? [{ color: "var(--critical-border)", label: "Invertor oprit", kind: "area" as const }]
+      ? [{ color: "var(--critical-border)", label: "Oprit", kind: "area" as const }]
       : []),
   ];
 
   return (
-    <ChartFrame
-      eyebrow="Rețea sau instalație · tensiune"
-      takeaway={takeaway}
-      tone={tone}
-      legend={legend}
-    >
+    <ChartFrame eyebrow="Tensiune" takeaway={takeaway} tone={tone} legend={legend}>
       <div className="h-[260px]">
         <ResponsiveContainer>
           <ComposedChart data={rows} margin={{ top: 14, right: 44, left: -8, bottom: 0 }}>

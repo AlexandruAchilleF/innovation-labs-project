@@ -14,6 +14,8 @@ Read only the section you need: `grep -n '^## ' DESIGN.md`, then `sed -n` that r
 - One chromatic accent: Voltage Blue `#2b7fff` (links, selection, active state). Any other colour must mean something (e.g. severity status), never decoration.
 - Fonts: Libre Baskerville for display headlines only (400/500, never bold, -0.025em); Inter for all functional UI; Fira Code for IDs and numbers shown as data.
 - Tight rectangular components (4–8px radii), content-first, dense data tables.
+- Text budget: almost no prose. No explanatory captions or helper paragraphs, no repeated status tags; charts must
+  read without explanation (see "Text Budget" in DESIGN.md).
 
 ## In this repo
 - Map tokens to CSS variables / the Tailwind theme once; never hard-code hex values in components.

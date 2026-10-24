@@ -37,10 +37,9 @@ export function TicketsPopover() {
           {open.length}
         </span>
       </PopoverTrigger>
-      <PopoverContent align="end" className="w-[360px] border-iron bg-slate p-0">
+      <PopoverContent align="end" className="w-[280px] border-iron bg-slate p-0">
         <div className="border-b border-iron px-4 py-3">
-          <div className="text-[13px] font-medium text-bone">Tichete deschise de clienți</div>
-          <p className="mt-0.5 text-[12px] text-fog">Trimise din aplicația prosumatorului.</p>
+          <div className="text-[13px] font-medium text-bone">Tichete deschise</div>
         </div>
         {open.length === 0 ? (
           <p className="px-4 py-6 text-center text-[13px] text-fog">Niciun tichet deschis.</p>
@@ -52,18 +51,7 @@ export function TicketsPopover() {
                   onClick={() => go(t)}
                   className="w-full px-4 py-3 text-left transition-colors hover:bg-iron"
                 >
-                  <div className="flex items-baseline justify-between gap-3">
-                    <span className="truncate text-[13px] text-bone">
-                      {t.customer_name} · {t.city}
-                    </span>
-                    <span className="num shrink-0 text-[11px] text-fog">{t.ticket_id}</span>
-                  </div>
-                  <div className="mt-0.5 text-[12px] text-fog">
-                    {t.topic_ro} · {ticketDate(t.created_at)}
-                  </div>
-                  <p className="mt-1 line-clamp-2 text-[12px] leading-snug text-bone/85">
-                    „{t.message_ro}”
-                  </p>
+                  <span className="block truncate text-[13px] text-bone">{t.customer_name}</span>
                 </button>
               </li>
             ))}

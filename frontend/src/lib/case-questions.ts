@@ -13,7 +13,7 @@ export interface QuestionAnswer {
   /** short tab label */
   label: string;
   question: string;
-  /** one-line answer, conclusion first */
+  /** the conclusion in a few words */
   answer: string;
   /** compact value for small chips */
   short: string;
@@ -52,10 +52,10 @@ export function answers(d: HouseholdDetail): Record<QuestionId, QuestionAnswer> 
       question: "Invertorul s-a oprit la prânz: din cauza rețelei sau a instalației din casă?",
       answer:
         cause === "grid"
-          ? `Rețeaua de distribuție: tensiunea e prea mare pe toată strada (${g.trip_minutes} min oprit azi)`
+          ? "Cauza: rețeaua"
           : cause === "local"
-            ? `Instalația din casă: cablul intern ridică tensiunea cu ${fmt(g.voltage_rise_internal_cable_v, 1)} V`
-            : "Nicio oprire azi: tensiunea a rămas în limite",
+            ? "Cauza: instalația din casă"
+            : "Fără opriri",
       short: cause === "grid" ? "rețea" : cause === "local" ? "instalație" : "fără opriri",
       s: cause === "none" ? "OK" : g.status,
       party: cause === "grid" ? "DISTRIBUTION_OPERATOR" : cause === "local" ? "INSTALLER" : "NONE",
@@ -65,10 +65,10 @@ export function answers(d: HouseholdDetail): Record<QuestionId, QuestionAnswer> 
       label: "Baterie seara",
       question: "Este bateria blocată și nu livrează energie în vârful scump de seară?",
       answer: !b.battery_kwh
-        ? "Clientul nu are baterie instalată"
+        ? "Fără baterie"
         : locked
-          ? `Da: rezerva e setată la ${b.configured_min_soc_pct}% în loc de ${b.desired_min_soc_pct}%, ${fmt(b.locked_kwh, 1)} kWh/zi rămân blocați`
-          : "Nu: setarea bateriei corespunde dorinței clientului",
+          ? `Rezervă ${b.configured_min_soc_pct}% în loc de ${b.desired_min_soc_pct}%`
+          : "Setare corectă",
       short: !b.battery_kwh
         ? "fără baterie"
         : locked
@@ -81,9 +81,7 @@ export function answers(d: HouseholdDetail): Record<QuestionId, QuestionAnswer> 
       id: "billing",
       label: "Factură",
       question: "Este corectă factura de prosumator?",
-      answer: billWrong
-        ? `Nu: diferență de ${fmt(Math.abs(f.delta_ron), 2)} RON față de calculul verificat`
-        : "Da: factura corespunde măsurătorilor contorului",
+      answer: billWrong ? `Diferență ${fmt(Math.abs(f.delta_ron), 2)} RON` : "Factură corectă",
       short: billWrong ? `${fmt(Math.abs(f.delta_ron), 2)} RON` : "corectă",
       s: billWrong ? f.status : "OK",
       party: billWrong ? "SUPPLIER_BILLING" : "NONE",

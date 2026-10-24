@@ -12,6 +12,7 @@ import { DisclosureChevron } from "../primitives";
 import { OmTicketLifecycleCard, ProofBenchmarkPanel } from "./OmLifecycleAndProof";
 import { ProductionChart } from "./ProductionChart";
 import { VoltageChart } from "./VoltageChart";
+import { Spark } from "../spark";
 
 type TabId = "grid" | "battery" | "billing";
 
@@ -21,7 +22,7 @@ interface Tile {
   label: string;
   s: Severity;
   value: string;
-  caption: string;
+  visual: ReactNode;
 }
 
 const dot: Record<Severity, string> = {
@@ -31,7 +32,7 @@ const dot: Record<Severity, string> = {
   INFO: "bg-info",
 };
 
-/** The three checks as tiles that double as tabs: status, the deciding number, one caption. */
+/** The three checks as tiles that double as tabs: status dot, the deciding number, a mini chart. */
 export function DiagnosticTabs({ d }: { d: HouseholdDetail }) {
   const party = d.analysis.primary_responsible_party;
   const [tab, setTab] = useState<TabId>(
@@ -40,6 +41,9 @@ export function DiagnosticTabs({ d }: { d: HouseholdDetail }) {
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const { grid_verdict: g, battery_verdict: b, billing_verdict: f } = d.analysis;
   const misset = b.battery_kwh > 0 && b.configured_min_soc_pct !== b.desired_min_soc_pct;
+  const day = d.timeseries.minutes.filter((m) => m.minute_of_day % 20 === 0);
+  const midday = day.filter((m) => m.minute_of_day >= 360 && m.minute_of_day <= 1200);
+  const volts = midday.map((m) => m.ac_voltage_v);
   const tiles: Tile[] = [
     {
       id: "grid",
@@ -48,10 +52,15 @@ export function DiagnosticTabs({ d }: { d: HouseholdDetail }) {
       s: g.status,
       value:
         g.trip_minutes > 0 ? `${g.trip_minutes} min oprit` : `${fmt(g.max_meter_voltage_v, 1)} V`,
-      caption:
-        g.trip_minutes > 0
-          ? `${g.neighbors_affected_simultaneously} din ${g.neighbors_total} vecini cad simultan`
-          : "fără opriri azi",
+      visual: (
+        <Spark
+          values={volts}
+          limit={g.legal_limit_v}
+          min={Math.min(225, ...volts)}
+          max={Math.max(g.legal_limit_v + 3, ...volts)}
+          tone={g.trip_minutes > 0 ? "critical" : "fog"}
+        />
+      ),
     },
     {
       id: "battery",
@@ -63,11 +72,15 @@ export function DiagnosticTabs({ d }: { d: HouseholdDetail }) {
         : misset
           ? `${b.configured_min_soc_pct}% → ${b.desired_min_soc_pct}%`
           : "corectă",
-      caption: !b.battery_kwh
-        ? "fără baterie instalată"
-        : misset
-          ? `${fmt(b.locked_kwh, 1)} kWh/zi blocați`
-          : `${fmt(b.battery_kwh, 1)} kWh · rezervă ${b.configured_min_soc_pct}%`,
+      visual: b.battery_kwh ? (
+        <Spark
+          values={day.map((m) => m.battery_soc_pct)}
+          limit={b.configured_min_soc_pct}
+          min={0}
+          max={100}
+          tone={misset ? "warning" : "fog"}
+        />
+      ) : null,
     },
     {
       id: "billing",
@@ -75,7 +88,7 @@ export function DiagnosticTabs({ d }: { d: HouseholdDetail }) {
       label: "Factură",
       s: f.status,
       value: Math.abs(f.delta_ron) >= 0.01 ? `${fmt(Math.abs(f.delta_ron), 2)} RON` : "corectă",
-      caption: Math.abs(f.delta_ron) >= 0.01 ? "diferență față de contor" : "export compensat 1:1",
+      visual: <MiniPair a={f.meter_export_kwh} b={f.billed_export_kwh} />,
     },
   ];
 
@@ -125,21 +138,23 @@ export function DiagnosticTabs({ d }: { d: HouseholdDetail }) {
                   {t.icon}
                   {t.label}
                 </span>
-                <span className="flex items-center gap-1.5 text-[11px] text-fog">
-                  <span className={cn("size-1.5 rounded-full", dot[t.s])} />
-                  {severityLabel[t.s]}
+                <span
+                  className={cn("size-1.5 rounded-full", dot[t.s])}
+                  aria-label={severityLabel[t.s]}
+                />
+              </span>
+              <span className="mt-3 flex items-end justify-between gap-3">
+                <span
+                  className={cn(
+                    "text-[22px] leading-none",
+                    /\d/.test(t.value) && "num",
+                    t.s === "OK" ? "text-bone" : sevText[t.s],
+                  )}
+                >
+                  {t.value}
                 </span>
+                {t.visual}
               </span>
-              <span
-                className={cn(
-                  "mt-2 block text-[22px] leading-none",
-                  /\d/.test(t.value) && "num",
-                  t.s === "OK" ? "text-bone" : sevText[t.s],
-                )}
-              >
-                {t.value}
-              </span>
-              <span className="mt-1.5 block truncate text-[12px] text-fog">{t.caption}</span>
             </button>
           );
         })}
@@ -198,5 +213,19 @@ function Fold({
       </summary>
       <div className="mt-3">{children}</div>
     </details>
+  );
+}
+
+/** Meter export vs billed export as two stacked hairline bars: a short lower bar is missing kWh. */
+function MiniPair({ a, b }: { a: number; b: number }) {
+  const top = Math.max(a, b, 1);
+  return (
+    <span className="flex w-20 flex-col gap-1" aria-hidden>
+      <span className="h-1.5 rounded-[1px] bg-bone" style={{ width: `${(a / top) * 100}%` }} />
+      <span
+        className={cn("h-1.5 rounded-[1px]", b < a - 0.5 ? "bg-critical" : "bg-success")}
+        style={{ width: `${(b / top) * 100}%` }}
+      />
+    </span>
   );
 }

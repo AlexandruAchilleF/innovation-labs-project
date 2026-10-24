@@ -40,26 +40,12 @@ export function ProductionChart({ d }: { d: HouseholdDetail }) {
 
   return (
     <ChartFrame
-      eyebrow="Producție · real vs. PVGIS"
-      takeaway={
-        tripped ? (
-          <>
-            Pierdut azi prin opriri: <span className="num">{fmt(lostKwh, 1)} kWh</span>
-            {g.lost_ron_month > 0 && (
-              <span className="text-fog">
-                {" "}
-                · <span className="num">{fmt(g.lost_ron_month)} RON/lună</span>
-              </span>
-            )}
-          </>
-        ) : (
-          "Producția urmează estimarea PVGIS, fără pierderi prin opriri"
-        )
-      }
+      eyebrow="Producție"
+      takeaway={tripped ? `${fmt(lostKwh, 1)} kWh pierduți azi` : "Fără pierderi"}
       tone={tripped ? "text-critical" : "text-bone"}
       legend={[
-        { color: "var(--sun)", label: "Producție reală" },
-        { color: "var(--fog)", label: "Estimare PVGIS", kind: "dash" },
+        { color: "var(--sun)", label: "Reală" },
+        { color: "var(--fog)", label: "PVGIS", kind: "dash" },
         ...(tripped
           ? [{ color: "var(--critical-border)", label: "Pierdut", kind: "area" as const }]
           : []),
