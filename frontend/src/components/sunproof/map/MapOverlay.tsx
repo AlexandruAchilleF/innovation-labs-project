@@ -117,7 +117,7 @@ export function MapOverlay({
           const mpp = (156543.03392 * Math.cos((active.center[1] * Math.PI) / 180)) / 2 ** zoom;
           const roofM = active.roofSizes?.get(h.house_id) ?? ROOF_M;
           const roofScale = zoom >= ROOF_ZOOM ? 1.25 : 1;
-          // Detailed houses start larger than the 24 px pin, then keep growing with zoom.
+          // Detailed houses start larger than the 30 px pin, then keep growing with zoom.
           const minSize = zoom >= ROOF_ZOOM ? 48 * 2 ** ((zoom - ROOF_ZOOM) / 2) : 8;
           const size = Math.min(150, Math.max(minSize, (roofM * roofScale) / mpp));
           const v = houseVoltageAt(h, slot);

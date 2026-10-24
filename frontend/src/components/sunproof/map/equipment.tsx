@@ -203,7 +203,7 @@ export function HousePin({
 }) {
   const edge = selected ? "var(--voltage)" : monitored ? "var(--bone)" : "var(--obsidian)";
   return (
-    <svg width={24} height={22} viewBox="0 0 24 22" className="block" aria-hidden>
+    <svg width={30} height={27.5} viewBox="0 0 24 22" className="block" aria-hidden>
       <path d="M3 20.5h16l4 -3H7z" fill="var(--obsidian)" opacity={0.5} />
       <path d="M17 20V12.5l4 -3V17z" fill="var(--graphite)" stroke={edge} strokeWidth={0.8} />
       <path d="M17 12.5l4 -3l-1 -5z" fill="var(--slate)" stroke={edge} strokeWidth={0.8} />
