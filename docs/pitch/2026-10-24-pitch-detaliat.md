@@ -10,7 +10,7 @@
 
 **Ce se întâmplă:** e iulie, ora 12:40, cer senin. Toate casele de pe stradă trimit energie în rețea în același timp, iar tensiunea trece de 253 V. Invertoarele de la capătul străzii, cele mai departe de transformator, se opresc automat, fiecare pentru cel puțin 15 minute. Proprietarul nu primește nicio explicație: în aplicația invertorului vede doar o gaură în grafic, la prânz.
 
-**Ce pierde:** la prânz, un sistem obișnuit de 6 kWp produce în jur de 4,8 kW. O oră de opriri înseamnă aproape 5 kWh pierduți, chiar energia cea mai bună a zilei. *[De completat din interviuri: câte opriri pe lună au avut oamenii și câți nu știau de ele.]*
+**Ce pierde:** la prânz, un sistem obișnuit de 6 kWp produce în jur de 4,8 kW. O oră de opriri înseamnă aproape 5 kWh pierduți, chiar energia cea mai bună a zilei. Din interviuri: un prosumator și un furnizor ne-au indicat, separat și fără să le sugerăm, opririle de la prânz ca problemă. Numărul de opriri pe lună: *[de confirmat din notițe]*.
 
 **De ce nu se rezolvă:** nimeni nu poate dovedi a cui e vina. Instalatorul spune că e rețeaua, distribuitorul spune că e echipamentul. Fără date, o sesizare nu duce nicăieri, iar tehnicienii fac deplasări degeaba: un prosumator povestește de 15–20 de vizite fără diagnostic. Când chiar e un defect de echipament, echipa O&M află abia când sună clientul. Cu bateria e la fel: dacă e setată altfel decât a vrut omul, nu apare nicio alarmă, dar seara el plătește curent din rețea.
 
@@ -25,7 +25,11 @@
 **Dovezi:**
 - Asociația Prosumatorilor (APCE) spune public: „Când tensiunea din rețea depășește 253 V, echipamentele prosumatorilor se opresc automat” ([Economica.net, aprilie 2025](https://www.economica.net/apce-indeamna-prosumatorii-sa-opreasca-invertoarele-daca-pleaca-de-acasa-de-paste_829117.html)).
 - În România sunt **385.791 de prosumatori, iar 151.040 (circa 39%) au baterie** (ANRE, 31 august 2026, prin Cotidianul). La sfârșitul lui iunie erau 127.084 de baterii ([StartupCafe](https://startupcafe.ro/romani-panouri-solare-cati-prosumatori-racordare-retelele-electrice-romania-105065)), deci au apărut aproximativ 24.000 de baterii noi în două luni. Cu cât sunt mai mulți prosumatori pe aceeași stradă, cu atât problema e mai mare.
-- *[De completat din interviuri: „X din Y prosumatori cu care am vorbit au avut opriri, iar Z nu știau de ele.”]*
+- Din interviurile noastre: **2 din 2** interlocutori (un prosumator, un furnizor) au indicat spontan opririle de la prânz. Câți nu știau de ele: *[de confirmat]*.
+- Un distribuitor a găsit **60% din invertoarele verificate** setate greșit (în brief: 60% din 460; cifra 460 *[de confirmat sursa]*).
+- Citat reprezentativ 1 (APCE, public): „Când tensiunea din rețea depășește 253 V, echipamentele prosumatorilor se opresc automat.”
+- Citat reprezentativ 2 (Softpedia, caz documentat): un prosumator povestește **15–20 vizite fără diagnostic**. Citatul exact din interviuri: *[de confirmat din notițe]*.
+- Toate cele 8 conversații și cazurile documentate sunt în `docs/interviews/2026-10-24-sinteza-dovezi-interviuri.md`.
 
 ### Problema 2: „Nimeni nu-și asumă vina”
 
@@ -87,7 +91,19 @@ Patru grafice, fiecare cu o singură concluzie scrisă deasupra și cu mențiune
 3. **„Capătul străzii se oprește primul, deși panourile sunt bune.”** Tensiunea maximă casă cu casă pe strada demo. Simulat.
 4. **„Ce pierde omul.”** kWh și lei pierduți pe zi, plus bateria setată greșit. Simulat, cu formula la vedere.
 
-Înaintea lor vine slide-ul cu cifrele din interviuri („X din Y prosumatori au avut opriri, Z nu știau”) și două citate exacte.
+Înaintea lor vine slide-ul cu cifrele din interviuri („2 din 2 interlocutori au indicat spontan opririle de la prânz”, 15–20 vizite fără diagnostic, 60% invertoare setate greșit) și două citate: cel al APCE despre 253 V și cazul Softpedia (citat din interviuri: *[de confirmat]*).
+
+### Dovada că funcționează (evaluare pe 81 de scenarii)
+
+Rulăm motoarele deterministe pe toate cele 81 de gospodării și comparăm cu adevărul de referință:
+
+- **Rețea vs. echipament:** **81/81 (100%)** la date la 1 minut și **81/81 (100%)** la 5 minute (cloud polling, fără hardware dedicat).
+- **Alarme false:** **0/60 (0%)** pe casele sănătoase, inclusiv cele în regim normal Volt-Watt, la 1 și la 5 minute.
+- **Deplasări inutile evitate:** 15 cazuri de rețea × 450 RON = **6.750 RON/lună** pe eșantion.
+- **Baterii setate greșit:** 7 baterii pierd **1.054,20 RON/lună** din arbitrajul PZU pe eșantion, adică **5,66 milioane EUR/an** extrapolat la 25.000 de prosumatori.
+- Auditul bateriei și reconcilierea facturii (Legea 160/2026): 81/81 (100%) fiecare.
+
+Precizare: datele sunt simulate (producția solară e reală, din PVGIS), deci cifrele arată corectitudinea logicii, nu performanța pe case reale. Raport complet: `docs/pitch/2026-10-24-dovada-evaluare-81-scenarii.md`.
 
 ## 6. De ce noi, și nu o aplicație care există deja
 
@@ -118,7 +134,7 @@ Pentru că nu ne bazăm doar pe simulator. Testul de robustețe arată că detec
 Pentru că n-avem defecte reale etichetate, iar un model antrenat pe simularea noastră ar învăța doar regulile simulatorului. În plus, distribuitorul trebuie să afle *de ce*: „254 V și 2 vecini opriți în același minut” convinge, „modelul a zis 0,87” nu. Compararea fiecărei case cu vecinii e chiar detecție de anomalii fără etichete. Peste ea putem pune un strat statistic pentru derive lente (murdărie, un string care cedează), dar verdictul rețea/echipament rămâne pe reguli citibile.
 
 **„Ce câștigă omul din sesizare?”**
-Nu promitem despăgubiri. Distribuitorul e obligat să verifice și să remedieze calitatea tensiunii, iar un dosar cu date, ore și grafice e mult mai greu de ignorat decât un telefon. *[De completat din interviuri: ce au primit cei care au făcut deja sesizare.]*
+Nu promitem despăgubiri. Distribuitorul e obligat să verifice și să remedieze calitatea tensiunii, iar un dosar cu date, ore și grafice e mult mai greu de ignorat decât un telefon. Ce au primit cei care au făcut deja sesizare: *[de confirmat; nu avem încă un caz documentat]*.
 
 ## 9. Ce construim acum și cum creștem
 
@@ -237,4 +253,4 @@ Un adaptor e cod, nu hardware: estimăm 1–3 zile pentru un prototip și 1–2 
 - **Cheile API** (Claude, Telegram) stau în variabile de mediu, nu în cod și nu pe GitHub.
 
 ---
-*De completat înainte de pitch:* cifrele și citatele din interviuri (secțiunea 2) și acuratețea din evaluare (secțiunea 5, pasul 6).
+*De confirmat înainte de pitch:* citatele exacte din interviurile 1 și 2, numărul de opriri pe lună și sursa cifrei 460 (vezi `docs/interviews/2026-10-24-sinteza-dovezi-interviuri.md`). Acuratețea din evaluare e integrată în secțiunea 5.

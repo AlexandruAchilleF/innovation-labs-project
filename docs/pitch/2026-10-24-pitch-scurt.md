@@ -20,6 +20,8 @@
 
 **Ce câștigă furnizorul.** Mai multă energie livrată seara, apeluri mai scurte, mai puține reclamații și un motiv în plus pentru clientul cu baterie, cel mai valoros, să nu plece la cel mai ieftin furnizor. Peste 500.000 de oameni au schimbat furnizorul în 2025.
 
+**Dovada că funcționează.** Pe 81 de scenarii simulate: **81/81 (100%)** acuratețe la separarea Rețea vs. Echipament, la 1 minut și la 5 minute (cloud polling); **0/60 (0%)** alarme false pe case sănătoase / Volt-Watt; **6.750 RON/lună** deplasări inutile evitate pe eșantion (15 cazuri de rețea × 450 RON); **1.054,20 RON/lună** pierdere PZU pe 7 baterii setate greșit, adică **5,66 mil. EUR/an** extrapolat la 25.000 de prosumatori.
+
 **Ce arătăm mâine.** Un prototip funcțional pe o stradă simulată, cu producție solară reală (PVGIS) din 5 orașe. Spunem deschis că tensiunea și bateriile sunt simulate, pentru că nu există date publice despre ele.
 
 ---
@@ -45,7 +47,7 @@ Scopul e să aflăm dacă problemele sunt reale pentru furnizor, nu să le vinde
 
 ## De verificat înainte de pitch-ul final
 
-- Înlocuim cu cifra și citatul din interviuri: „X din Y mentori/prosumatori au confirmat…”.
+- Din interviuri: **2 din 2** interlocutori (un prosumator, un furnizor) au indicat spontan opririle de la prânz; un distribuitor a găsit 60% din invertoarele verificate setate greșit; un prosumator povestește 15–20 vizite fără diagnostic (Softpedia). Citat reprezentativ (APCE): „Când tensiunea din rețea depășește 253 V, echipamentele prosumatorilor se opresc automat.” Citatul exact din interviuri și rezultatele mentorilor: *[de confirmat]*. Detalii: `docs/interviews/2026-10-24-sinteza-dovezi-interviuri.md`.
 - Programul Electrica a fost un pilot în august 2026. Nu spunem că mai e activ.
 - Proiectele de ordin ANRE pentru Legea 160 erau în consultare în august. Nu spunem că au fost adoptate.
 - Sursele pentru fiecare cifră sunt în documentul „Ce ar plăti furnizorul”, secțiunea „Dovezi”.
