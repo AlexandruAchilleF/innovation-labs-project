@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SunProof — Inteligență pentru prosumatori și rețea</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1d2330; --mute:#667085; --line:#e4e7ec; --acc:#2f6fdb;
+          --crit:#c62828; --warn:#b26a00; --info:#2f6fdb; --ok:#2e7d32; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; background:var(--bg); color:var(--ink); }
+  header { padding:14px 24px; background:#13233f; color:#fff; display:flex; gap:16px; align-items:baseline; }
+  header h1 { margin:0; font-size:20px; } header span { opacity:.75; }
+  main { padding:16px 24px; max-width:1400px; margin:auto; }
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; margin-bottom:16px; }
+  .kpi, .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:10px 12px; }
+  .kpi b { display:block; font-size:20px; font-variant-numeric:tabular-nums; } .kpi small { color:var(--mute); }
+  .grid2 { display:grid; grid-template-columns:minmax(380px,1fr) 1.4fr; gap:16px; align-items:start; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th, td { text-align:left; padding:5px 6px; border-bottom:1px solid var(--line); vertical-align:top; }
+  tbody tr { cursor:pointer; } tbody tr:hover, tr.sel { background:#eef3fc; }
+  .tablewrap { max-height:72vh; overflow:auto; }
+  .sev { font-weight:600; font-size:11px; padding:1px 6px; border-radius:10px; color:#fff; white-space:nowrap; }
+  .CRITICAL { background:var(--crit); } .WARNING { background:var(--warn); } .INFO { background:var(--info); } .OK { background:var(--ok); }
+  h2 { font-size:17px; margin:0 0 6px; } h3 { font-size:14px; margin:14px 0 6px; }
+  .verdicts { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .verdicts .card small { color:var(--mute); display:block; }
+  .triage { padding:8px 10px; background:#fff8e1; border-left:4px solid var(--warn); margin:8px 0; }
+  .text { white-space:pre-wrap; background:#fafbfc; border:1px solid var(--line); border-radius:6px; padding:8px; font-size:13px; }
+  .badge { font-size:11px; padding:1px 6px; border-radius:10px; margin-left:6px; }
+  .pass { background:#e3f4e5; color:var(--ok); } .fail { background:#fde7e7; color:var(--crit); }
+  button { background:var(--acc); color:#fff; border:0; border-radius:6px; padding:6px 12px; cursor:pointer; margin:2px 4px 2px 0; }
+  button:disabled { opacity:.5; cursor:wait; }
+  pre { background:#0f172a; color:#d6e2ff; padding:8px; border-radius:6px; overflow:auto; max-height:260px; font-size:12px; }
+  textarea { width:100%; min-height:110px; font:13px system-ui; }
+  svg { width:100%; height:150px; background:#fafbfc; border:1px solid var(--line); border-radius:6px; }
+  .mute { color:var(--mute); } .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+</style>
+</head>
+<body>
+<header><h1>SunProof</h1><span>Prosumatori &amp; rețea — diagnostic determinist, texte verificate (aug. 2026)</span></header>
+<main>
+  <section class="kpis" id="kpis"><div class="kpi">Se încarcă portofoliul…</div></section>
+  <div class="grid2">
+    <section class="card">
+      <h2>Gospodării monitorizate <span class="mute" id="count"></span></h2>
+      <div class="tablewrap"><table>
+        <thead><tr><th>ID</th><th>Client</th><th>Oraș</th><th>Severitate</th><th>Triaj</th></tr></thead>
+        <tbody id="rows"></tbody></table></div>
+    </section>
+    <section class="card" id="detail"><p class="mute">Selectați o gospodărie din listă.</p></section>
+  </div>
+</main>
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = (n, d = 0) => Number(n).toLocaleString("ro-RO", {maximumFractionDigits: d});
+const DEMO_SENTENCE = " În plus, vă garantăm o compensație suplimentară de 999 RON pe lună.";
+let current = null;
+
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  if (!r.ok) throw new Error(r.status + " " + (await r.text()));
+  return r.json();
+}
+const post = (path, body) => api(path, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body || {})});
+
+async function loadPortfolio() {
+  const p = await api("/api/portfolio"), m = p.metrics;
+  const k = [
+    ["Gospodării monitorizate", m.monitored_households_count],
+    ["Probleme de rețea (distribuitor)", m.grid_fault_households_count],
+    ["Defecte locale (instalator)", m.local_fault_households_count],
+    ["Baterii configurate greșit", m.misconfigured_Batteries_count],
+    ["Facturi cu probleme", m.invoice_issues_count],
+    ["Deplasări evitate (RON)", fmt(m.fleet_avoided_truck_rolls_ron)],
+    ["Economii PZU lunare (RON)", fmt(m.fleet_monthly_pzu_savings_ron)],
+    ["Valoare furnizor / lună (RON)", fmt(m.fleet_total_supplier_monthly_value_ron)],
+    ["Valoare clienți / lună (RON)", fmt(m.fleet_total_customer_monthly_value_ron)],
+    ["Extrapolare 25k: EUR / an", fmt(m.extrapolated_annual_supplier_savings_eur)],
+  ];
+  $("#kpis").innerHTML = k.map(([l, v]) => `<div class="kpi"><b>${esc(v)}</b><small>${esc(l)}</small></div>`).join("");
+  $("#count").textContent = `(${p.households.length})`;
+  $("#rows").innerHTML = p.households.map((h) => `<tr data-id="${esc(h.household_id)}">
+    <td>${esc(h.household_id)}</td><td>${esc(h.customer_name)}<br><small class="mute">${esc(h.scenario_badge_ro)}</small></td>
+    <td>${esc(h.city)}</td><td><span class="sev ${esc(h.overall_severity)}">${esc(h.overall_severity)}</span></td>
+    <td><small>${esc(h.one_line_triage_ro)}</small></td></tr>`).join("");
+  document.querySelectorAll("#rows tr").forEach((tr) => tr.onclick = () => loadHousehold(tr.dataset.id));
+}
+
+function sparkline(series, key, opts = {}) {
+  const vals = series.map((p) => p[key]); if (!vals.length) return "";
+  const W = 600, H = 150, lo = Math.min(...vals, opts.ref ?? Infinity), hi = Math.max(...vals, opts.ref ?? -Infinity);
+  const y = (v) => H - 8 - ((v - lo) / ((hi - lo) || 1)) * (H - 16), x = (i) => (i / (vals.length - 1 || 1)) * W;
+  const pts = vals.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
+  const extra = (opts.second || []).map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
+  const ref = opts.ref != null ? `<line x1="0" x2="${W}" y1="${y(opts.ref)}" y2="${y(opts.ref)}" stroke="#c62828" stroke-dasharray="4"/>
+    <text x="4" y="${y(opts.ref) - 3}" font-size="11" fill="#c62828">${opts.ref} V (EN 50549-1)</text>` : "";
+  return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">${ref}
+    <polyline points="${pts}" fill="none" stroke="#2f6fdb" stroke-width="1.5"/>
+    ${extra ? `<polyline points="${extra}" fill="none" stroke="#2e7d32" stroke-width="1.5"/>` : ""}
+    <text x="${W - 4}" y="12" font-size="11" text-anchor="end" fill="#667085">min ${fmt(lo, 1)} / max ${fmt(hi, 1)}</text></svg>`;
+}
+
+function textBlock(title, t) {
+  if (!t) return `<h3>${esc(title)}</h3><p class="mute">Text indisponibil.</p>`;
+  const badge = t.guardrail_passed ? `<span class="badge pass">verificat ✓ (${esc(t.source)})</span>`
+    : `<span class="badge fail">respins → ${esc(t.source)}</span>`;
+  return `<h3>${esc(title)}${badge}</h3><div class="text">${esc(t.text_ro)}</div>`;
+}
+
+async function loadHousehold(id) {
+  document.querySelectorAll("#rows tr").forEach((tr) => tr.classList.toggle("sel", tr.dataset.id === id));
+  $("#detail").innerHTML = `<p class="mute">Se analizează ${esc(id)}…</p>`;
+  const d = await api(`/api/households/${encodeURIComponent(id)}`); current = d;
+  const a = d.analysis, s = d.scenario, g = a.grid_verdict, b = a.battery_verdict, bi = a.billing_verdict;
+  const ts = d.timeseries.minutes;
+  $("#detail").innerHTML = `
+    <h2>${esc(a.customer_name)} — ${esc(a.household_id)} <span class="sev ${esc(a.overall_severity)}">${esc(a.overall_severity)}</span></h2>
+    <div class="mute">${esc(s.street_address)}, ${esc(s.city)} · ${esc(a.inverter_brand)} ${esc(a.inverter_model)} · ${fmt(a.installed_pv_kw, 1)} kWp · PT ${esc(a.transformer_id)} · ${esc(s.scenario_badge_ro)}</div>
+    <div class="triage">${esc(a.one_line_triage_ro)}</div>
+    <div class="verdicts">
+      <div class="card"><small>1. Declanșare invertor — ${esc(g.cause)}</small>${esc(g.headline_ro)}</div>
+      <div class="card"><small>2. Baterie — ${esc(b.status)}</small>${esc(b.headline_ro)}</div>
+      <div class="card"><small>3. Factură — ${esc(bi.status)}</small>${esc(bi.headline_ro)}</div>
+    </div>
+    <h3>Tensiune AC invertor (max / 5 min)</h3>${sparkline(ts, "ac_voltage_v", {ref: 253})}
+    <h3>Producție PV (albastru) vs. PVGIS așteptat (verde), kW</h3>${sparkline(ts, "pv_power_kw", {second: ts.map((p) => p.pvgis_expected_kw)})}
+    ${textBlock("Reclamație către distribuitor", a.distributor_complaint_text)}
+    ${textBlock("Explicația facturii", a.invoice_explanation_text)}
+    ${textBlock("Ghid baterie", a.battery_guide_text)}
+    <h3>Simulare: rezervă minimă baterie (SoC)</h3>
+    ${b.has_battery ? `<div class="row"><input type="range" id="soc" min="0" max="100" step="5" value="${b.configured_min_soc_pct}">
+      <b id="socv">${fmt(b.configured_min_soc_pct)} %</b><span class="mute">dorit de client: ${fmt(b.desired_min_soc_pct)} %</span>
+      <button id="btnWhatIf">Resimulează strada</button></div><div id="whatif"></div>` : `<p class="mute">Fără baterie.</p>`}
+    <h3>Acțiuni</h3>
+    <div class="row"><button id="btnPdf">Dosar PDF distribuitor</button><button id="btnTg">Alertă Telegram tehnician</button></div>
+    <pre id="tgOut" hidden></pre>
+    <h3>Test guardrail (text „LLM” cu cifră inventată)</h3>
+    <textarea id="grText">${esc((a.invoice_explanation_text?.text_ro || "") + DEMO_SENTENCE)}</textarea>
+    <button id="btnGr">Verifică textul</button><div id="grOut"></div>`;
+  const soc = $("#soc"); if (soc) soc.oninput = () => $("#socv").textContent = soc.value + " %";
+  const bw = $("#btnWhatIf"); if (bw) bw.onclick = () => runWhatIf(id, Number(soc.value), bw);
+  $("#btnPdf").onclick = () => window.open(`/api/households/${encodeURIComponent(id)}/pdf-dossier`, "_blank");
+  $("#btnTg").onclick = async () => {
+    const out = $("#tgOut"); out.hidden = false; out.textContent = "Se trimite…";
+    try { out.textContent = JSON.stringify(await post(`/api/households/${encodeURIComponent(id)}/telegram-alert`, {}), null, 2); }
+    catch (e) { out.textContent = "Eroare: " + e.message; }
+  };
+  $("#btnGr").onclick = () => runGuardrail(id);
+}
+
+async function runWhatIf(id, minSoc, btn) {
+  btn.disabled = true; $("#whatif").innerHTML = `<p class="mute">Se resimulează toată strada (câteva secunde)…</p>`;
+  try {
+    const r = await post(`/api/households/${encodeURIComponent(id)}/what-if-battery`, {min_soc_pct: minSoc});
+    const labels = {locked_capacity_kwh: "Capacitate blocată (kWh)", evening_battery_discharge_kwh_today: "Descărcare seară (kWh/zi)",
+      evening_peak_grid_import_kwh_today: "Import rețea la vârf seară (kWh/zi)", supplier_monthly_pzu_loss_ron: "Pierdere PZU furnizor (RON/lună)",
+      total_supplier_monthly_benefit_ron: "Beneficiu furnizor (RON/lună)"};
+    const rows = Object.entries(labels).map(([k, l]) => { const x = r.delta[k];
+      return `<tr><td>${l}</td><td>${fmt(x.before, 2)}</td><td>${fmt(x.after, 2)}</td><td>${x.change > 0 ? "+" : ""}${fmt(x.change, 2)}</td></tr>`; }).join("");
+    $("#whatif").innerHTML = `<table><thead><tr><th>Indicator</th><th>Înainte</th><th>După</th><th>Δ</th></tr></thead><tbody>${rows}
+      <tr><td>Stare baterie</td><td>${esc(r.delta.battery_status.before)}</td><td>${esc(r.delta.battery_status.after)}</td><td></td></tr></tbody></table>
+      <h3>SoC baterie: înainte (albastru) / după (verde), %</h3>${sparkline(r.timeseries.before, "battery_soc_pct", {second: r.timeseries.after.map((p) => p.battery_soc_pct)})}`;
+  } catch (e) { $("#whatif").innerHTML = `<p class="fail">Eroare: ${esc(e.message)}</p>`; }
+  btn.disabled = false;
+}
+
+async function runGuardrail(id) {
+  try {
+    const r = await post(`/api/households/${encodeURIComponent(id)}/test-guardrail`, {text_ro: $("#grText").value, doc_type: "invoice_explanation"});
+    const res = r.result;
+    $("#grOut").innerHTML = `<p>${res.guardrail_passed ? '<span class="badge pass">Toate cifrele sunt verificate</span>'
+      : `<span class="badge fail">Cifre neverificate prinse: ${esc(r.caught.join(", "))}</span>`}
+      ${r.fallback_applied ? '<span class="badge pass">S-a revenit la textul șablon determinist</span>' : ""}</p>
+      <div class="text">${esc(res.text_ro)}</div>`;
+  } catch (e) { $("#grOut").innerHTML = `<p class="fail">Eroare: ${esc(e.message)}</p>`; }
+}
+
+loadPortfolio().catch((e) => $("#kpis").innerHTML = `<div class="kpi">Eroare la încărcare: ${esc(e.message)}</div>`);
+</script>
+</body>
+</html>
