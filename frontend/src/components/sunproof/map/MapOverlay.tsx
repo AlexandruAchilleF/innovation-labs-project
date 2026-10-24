@@ -222,14 +222,11 @@ function Transformer({ active, at }: { active: ActiveGrid; at: { x: number; y: n
           <circle cx={26} cy={22} r={5.5} fill="none" stroke="var(--bone)" strokeWidth={1.3} />
         </svg>
       </div>
-      <div className="absolute left-0 top-0 ml-6 -translate-y-1/2 whitespace-nowrap rounded-[4px] border border-iron bg-obsidian/90 px-2 py-1">
-        <div className="num text-[10px] text-fog">
-          {active.nb.transformer_id} · {active.kva} kVA
-        </div>
-        <div className="num text-[12px] text-bone">
-          <span style={{ color: tone }}>{fmt(active.loadingPct, 1)}%</span>{" "}
-          {active.reverse ? "flux invers" : "consum"}
-        </div>
+      <div
+        className="num absolute left-0 top-0 ml-6 -translate-y-1/2 whitespace-nowrap rounded-[4px] border border-iron bg-obsidian/90 px-2 py-0.5 text-[11px] text-fog"
+        title={`${active.kva} kVA · ${active.reverse ? "flux invers" : "consum"}`}
+      >
+        {active.nb.transformer_id} <span style={{ color: tone }}>{fmt(active.loadingPct, 0)}%</span>
       </div>
     </div>
   );

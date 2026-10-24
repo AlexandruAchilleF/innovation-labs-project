@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import type { Map as MlMap } from "maplibre-gl";
 import { GridLayers, type LayerToggles } from "@/components/sunproof/map/GridLayers";
 import { MapCanvas, useMapApi, type Basemap } from "@/components/sunproof/map/MapCanvas";
 import { MapOverlay } from "@/components/sunproof/map/MapOverlay";
@@ -16,7 +15,7 @@ import {
 import { houseBearings } from "@/lib/geo-features";
 import type { GridState, HouseholdSummary, Neighborhood } from "@/lib/types";
 import type { CompareView } from "@/routes/harta";
-import { LayersMenu, LocationChip, ToolRail, ZoomRail } from "./MapChrome";
+import { LayersMenu, ToolRail, ZoomRail } from "./MapChrome";
 import { MapSearch } from "./MapSearch";
 import { TimeScrubber } from "./TimeScrubber";
 
@@ -49,10 +48,6 @@ export function MapStage({
 }) {
   const [basemap, setBasemap] = useState<Basemap>("satellite");
   const [toggles, setToggles] = useState<LayerToggles>({ feeders: true, heat: true, flow: true });
-  const [cursor, setCursor] = useState<{ center: LngLat; zoom: number }>({
-    center: [24.97, 45.94],
-    zoom: 6,
-  });
 
   const center = useMemo<LngLat | null>(() => (nb ? nbCenter(nb) : null), [nb]);
   const houses = useMemo(() => grid?.houses ?? [], [grid]);
@@ -68,14 +63,9 @@ export function MapStage({
     [neighborhoods],
   );
 
-  const onMove = (m: MlMap) => {
-    const c = m.getCenter();
-    setCursor({ center: [c.lng, c.lat], zoom: m.getZoom() });
-  };
-
   return (
     <section className="relative min-w-0 flex-1 overflow-hidden bg-obsidian">
-      <MapCanvas basemap={basemap} onMove={onMove}>
+      <MapCanvas basemap={basemap}>
         <Camera nb={nb} center={center} selectedId={selectedId} />
         {grid && center && (
           <GridLayers
@@ -113,13 +103,12 @@ export function MapStage({
           fleet={pins.map((p) => p.center)}
           selectedHouse={houses.find((h) => (h.household_id ?? h.house_id) === selectedId)}
         />
-        <ZoomRail zoom={cursor.zoom} />
+        <ZoomRail />
       </MapCanvas>
 
       <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-3 p-3">
         <div className="w-24" />
         <div className="pointer-events-auto flex w-full max-w-[460px] flex-col items-center gap-2">
-          <LocationChip center={cursor.center} nb={nb} zoom={cursor.zoom} />
           <MapSearch
             households={households}
             neighborhoods={neighborhoods}

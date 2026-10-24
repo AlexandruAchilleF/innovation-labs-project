@@ -13,14 +13,20 @@ export function DiagnosticTabs({ d }: { d: HouseholdDetail }) {
   const [tab, setTab] = useState<TabId>("grid");
   const b = d.analysis.battery_verdict;
   const tabs: { id: TabId; label: string }[] = [
-    { id: "grid", label: "1. Dovada Rețea vs. Instalație (253V)" },
-    { id: "battery", label: `2. Simulator Baterie & PZU Seara${b.battery_kwh ? ` (${b.configured_min_soc_pct}% → ${b.desired_min_soc_pct}%)` : ""}` },
-    { id: "billing", label: "3. Reconciliere Factură & Scut AI" },
-    { id: "proof", label: "4. Dovada (81/81 · 1m vs 5m)" },
+    { id: "grid", label: "Rețea sau instalație" },
+    {
+      id: "battery",
+      label: `Baterie${b.battery_kwh ? ` ${b.configured_min_soc_pct}% → ${b.desired_min_soc_pct}%` : ""}`,
+    },
+    { id: "billing", label: "Factură și scut AI" },
+    { id: "proof", label: "Acuratețe 81/81" },
   ];
   return (
-    <div className="space-y-3">
-      <div role="tablist" className="grid grid-cols-2 md:grid-cols-4 gap-1 rounded-lg border border-border bg-card p-1">
+    <div className="space-y-4">
+      <div
+        role="tablist"
+        className="flex gap-6 overflow-x-auto border-b border-border [scrollbar-width:none]"
+      >
         {tabs.map((t) => (
           <button
             key={t.id}
@@ -28,8 +34,10 @@ export function DiagnosticTabs({ d }: { d: HouseholdDetail }) {
             aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
             className={cn(
-              "rounded-lg px-2 py-1.5 text-[12px] leading-tight font-semibold transition-colors",
-              tab === t.id ? "bg-ink text-ink-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              "-mb-px shrink-0 border-b py-2.5 text-[13px] transition-colors",
+              tab === t.id
+                ? "border-bone text-bone"
+                : "border-transparent text-fog hover:text-bone",
             )}
           >
             {t.label}

@@ -1,54 +1,16 @@
 import { useMemo, useState } from "react";
-import {
-  Compass,
-  Globe2,
-  Layers,
-  LocateFixed,
-  Minus,
-  MousePointer2,
-  Plus,
-  ScanSearch,
-  Search,
-} from "lucide-react";
+import { Globe2, Layers, LocateFixed, Minus, Plus, ScanSearch, Search } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { LayerToggles } from "@/components/sunproof/map/GridLayers";
 import { useMapApi, type Basemap } from "@/components/sunproof/map/MapCanvas";
-import { ROMANIA_CENTER, housePlanXY, toLngLat, type LngLat } from "@/lib/geo";
+import { ROMANIA_CENTER, VOLTAGE_STOPS, housePlanXY, toLngLat, type LngLat } from "@/lib/geo";
 import { fmt } from "@/lib/format";
 import type { FeederHouse, HouseholdSummary, Neighborhood } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export const glass = "border border-iron bg-obsidian/85 backdrop-blur-sm shadow-overlay";
-
-export function LocationChip({
-  center,
-  nb,
-  zoom,
-}: {
-  center: LngLat;
-  nb: Neighborhood | undefined;
-  zoom: number;
-}) {
-  const place = zoom >= 12 && nb ? `${nb.city}${nb.county ? `, ${nb.county}` : ""}` : "România";
-  return (
-    <div
-      className={cn(
-        "flex items-center gap-2 rounded-[4px] px-2.5 py-1 text-[12px] text-bone",
-        glass,
-      )}
-    >
-      <span className="eyebrow !text-[9px] rounded-[2px] border border-iron px-1 !text-bone">
-        RO
-      </span>
-      {place}
-      <span className="num text-fog">
-        {fmt(center[1], 4)}° N, {fmt(center[0], 4)}° E
-      </span>
-    </div>
-  );
-}
 
 export function LayersMenu({
   basemap,
@@ -63,8 +25,8 @@ export function LayersMenu({
 }) {
   const rows: [keyof LayerToggles, string, string][] = [
     ["feeders", "Fideri JT", "culoare = tensiune, grosime = încărcare"],
-    ["flow", "Sensul puterii", "liniuțe animate spre PT la flux invers"],
-    ["heat", "Hartă termică", "creșterea tensiunii peste 236 V"],
+    ["flow", "Sensul puterii", "animat spre PT la export"],
+    ["heat", "Hartă termică", "creșterea tensiunii"],
   ];
   return (
     <Popover>
@@ -77,7 +39,7 @@ export function LayersMenu({
         Straturi <Layers className="size-4 text-fog" strokeWidth={1.5} />
       </PopoverTrigger>
       <PopoverContent align="end" className="w-72 space-y-3 border-iron bg-slate p-3">
-        <div className="eyebrow">Hartă de bază</div>
+        <div className="text-[12px] text-fog">Hartă de bază</div>
         <div className="grid grid-cols-2 gap-1">
           {(["satellite", "dark"] as const).map((b) => (
             <button
@@ -92,7 +54,7 @@ export function LayersMenu({
             </button>
           ))}
         </div>
-        <div className="eyebrow pt-1">Congestie</div>
+        <div className="pt-1 text-[12px] text-fog">Straturi de congestie</div>
         {rows.map(([k, l, d]) => (
           <label key={k} className="flex items-center justify-between gap-3">
             <span>
@@ -105,6 +67,17 @@ export function LayersMenu({
             />
           </label>
         ))}
+        <div className="space-y-1.5 border-t border-iron pt-3">
+          <div className="text-[12px] text-fog">Tensiune la branșament</div>
+          <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-fog">
+            {VOLTAGE_STOPS.map(([v, token], i) => (
+              <span key={v} className="flex items-center gap-1.5">
+                <span className="h-1 w-4 rounded-[1px]" style={{ background: `var(${token})` }} />
+                <span className="num">{i === VOLTAGE_STOPS.length - 1 ? `≥${v} V` : `${v} V`}</span>
+              </span>
+            ))}
+          </div>
+        </div>
       </PopoverContent>
     </Popover>
   );
@@ -162,9 +135,6 @@ export function ToolRail({
         glass,
       )}
     >
-      <RailButton label="Selectare" active>
-        <MousePointer2 className="size-4" strokeWidth={1.5} />
-      </RailButton>
       <RailButton
         label="Clientul analizat"
         onClick={() =>
@@ -201,7 +171,7 @@ export function ToolRail({
   );
 }
 
-export function ZoomRail({ zoom }: { zoom: number }) {
+export function ZoomRail() {
   const api = useMapApi();
   if (!api) return null;
   return (
@@ -214,13 +184,8 @@ export function ZoomRail({ zoom }: { zoom: number }) {
       <RailButton label="Mărește" onClick={() => api.map.zoomIn()}>
         <Plus className="size-4" strokeWidth={1.5} />
       </RailButton>
-      <span className="num py-0.5 text-[11px] text-fog">{fmt(zoom, 0)}</span>
       <RailButton label="Micșorează" onClick={() => api.map.zoomOut()}>
         <Minus className="size-4" strokeWidth={1.5} />
-      </RailButton>
-      <div className="my-1 h-px w-6 bg-iron" />
-      <RailButton label="Nord sus" onClick={() => api.map.resetNorth()}>
-        <Compass className="size-4" strokeWidth={1.5} />
       </RailButton>
     </div>
   );

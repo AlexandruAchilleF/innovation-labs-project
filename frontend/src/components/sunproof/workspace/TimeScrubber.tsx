@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Pause, Play } from "lucide-react";
-import { SLOTS, VOLTAGE_STOPS, houseVoltageAt, slotLabel, type Congestion } from "@/lib/geo";
+import { SLOTS, houseVoltageAt, slotLabel, type Congestion } from "@/lib/geo";
 import { fmt } from "@/lib/format";
 import { DERATING_START_V, LEGAL_LIMIT_V } from "@/lib/sim";
 import type { FeederHouse, TransformerPoint } from "@/lib/types";
@@ -57,7 +57,7 @@ export function TimeScrubber({
           {playing ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
         </button>
         <span className="num text-[18px] text-bone">{slotLabel(slot)}</span>
-        <span className="eyebrow">{label}</span>
+        <span className="text-[12px] text-fog">{label}</span>
         <span className="num ml-auto flex flex-wrap gap-x-3 text-[12px] text-fog">
           <span>
             Trafo{" "}
@@ -88,14 +88,17 @@ export function TimeScrubber({
               {fmt(c.maxVoltageV, 1)} V
             </span>
           </span>
-          <span>
-            <span className={c.tripped ? "text-critical" : "text-bone"}>{c.tripped}</span> oprite ·{" "}
-            <span className={c.derating ? "text-warning" : "text-bone"}>{c.derating}</span> derating
+          <span title={`${c.derating} în derating · ${fmt(Math.abs(c.activePowerKw), 0)} kW la PT`}>
+            <span className={c.tripped ? "text-critical" : "text-bone"}>{c.tripped}</span> oprite
           </span>
         </span>
       </div>
 
-      <div className="relative" style={{ height: H * 2 + 2 }}>
+      <div
+        className="relative"
+        style={{ height: H * 2 + 2 }}
+        title="Bare în sus: flux invers (export PV, % din kVA). Bare în jos: consum. Linia roșie: 100% din puterea trafo."
+      >
         <div
           className="absolute inset-x-0 border-t border-dashed border-critical/50"
           style={{ top: H - (100 / 130) * H }}
@@ -142,20 +145,6 @@ export function TimeScrubber({
         {["00:00", "06:00", "12:00", "18:00", "24:00"].map((t) => (
           <span key={t}>{t}</span>
         ))}
-      </div>
-      <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-[10.5px] text-fog">
-        <span className="eyebrow !text-[10px]">Tensiune</span>
-        {VOLTAGE_STOPS.map(([v, token], i) => (
-          <span key={v} className="flex items-center gap-1.5">
-            <span className="h-1 w-4 rounded-[1px]" style={{ background: `var(${token})` }} />
-            <span className="num">
-              {i === VOLTAGE_STOPS.length - 1 ? `≥${v} V oprire` : `${v} V`}
-            </span>
-          </span>
-        ))}
-        <span className="ml-auto">
-          ↑ flux invers (export PV) · ↓ consum · linie roșie = 100% kVA
-        </span>
       </div>
     </div>
   );

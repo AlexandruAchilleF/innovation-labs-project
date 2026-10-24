@@ -47,7 +47,6 @@ export function AppShell({ children }: { children: ReactNode }) {
 }
 
 function Rail() {
-  const mode = useApiMode();
   return (
     <nav className="flex w-14 shrink-0 flex-col items-center gap-1 border-r border-border bg-obsidian py-3">
       <Link
@@ -74,34 +73,6 @@ function Rail() {
           <TooltipContent side="right">{label}</TooltipContent>
         </Tooltip>
       ))}
-      <div className="mt-auto flex flex-col items-center gap-2">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <a
-              href={mode === "live" ? `${API_BASE}/docs` : undefined}
-              target="_blank"
-              rel="noreferrer"
-              className="flex size-9 items-center justify-center"
-              aria-label="Stare conexiune"
-            >
-              <span
-                className={cn(
-                  "size-2 rounded-full",
-                  mode === "live" ? "bg-voltage" : "bg-smoke",
-                  mode === "unknown" && "animate-pulse",
-                )}
-              />
-            </a>
-          </TooltipTrigger>
-          <TooltipContent side="right">
-            {mode === "live"
-              ? `Conectat la FastAPI (${API_BASE}) · deschide /docs`
-              : mode === "demo"
-                ? "Mod demonstrativ: backend indisponibil, date deterministe locale"
-                : "Se conectează…"}
-          </TooltipContent>
-        </Tooltip>
-      </div>
     </nav>
   );
 }
@@ -113,19 +84,16 @@ function TopBar() {
   const ex = extrapolate(n);
   const ticker: [string, string, string?][] = m
     ? [
-        ["Monitorizate", `${m.monitored_households_count}`],
         ["Rețea OD", `${m.grid_fault_households_count}`, "text-critical"],
         ["Instalație locală", `${m.local_fault_households_count}`, "text-warning"],
         ["Baterii blocate", `${m.misconfigured_Batteries_count}`, "text-warning"],
         ["Erori factură", `${m.invoice_issues_count}`, "text-critical"],
-        ["Economii PZU", `${fmt(m.fleet_monthly_pzu_savings_ron, 0)} RON/lună`],
       ]
     : [];
   return (
     <header className="flex h-11 shrink-0 items-center gap-5 border-b border-border bg-canvas px-4">
       <div className="flex items-baseline gap-2">
         <span className="font-display text-[16px] text-bone">SunProof</span>
-        <span className="eyebrow hidden !text-[10px] lg:inline">Prosumer & Grid Intelligence</span>
       </div>
       <div className="flex min-w-0 flex-1 items-center gap-5 overflow-hidden text-[12px] text-fog [mask-image:linear-gradient(90deg,black_92%,transparent)]">
         {ticker.map(([l, v, c]) => (
@@ -141,7 +109,7 @@ function TopBar() {
           {fmt(ex.annual_eur / 1_000_000, 2)} mil. EUR/an
         </PopoverTrigger>
         <PopoverContent align="end" className="w-80 space-y-3 border-iron bg-slate">
-          <div className="eyebrow">Extrapolare la nivel de furnizor</div>
+          <div className="text-[13px] text-bone">Extrapolare la nivel de furnizor</div>
           <div className="num flex justify-between text-[13px]">
             <span>{fmt(n)} prosumatori</span>
             <span>{fmt(ex.mwh_year)} MWh/an</span>
@@ -159,12 +127,32 @@ function TopBar() {
           </p>
         </PopoverContent>
       </Popover>
-      <span className="flex shrink-0 items-center gap-1.5 rounded-[4px] border border-iron px-2 py-1 text-[11px] font-medium uppercase tracking-[0.05em] text-fog">
-        <span
-          className={cn("size-1.5 rounded-full", mode === "live" ? "bg-voltage" : "bg-smoke")}
-        />
-        {mode === "live" ? "Live" : mode === "demo" ? "Demo" : "…"}
-      </span>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <a
+            href={mode === "live" ? `${API_BASE}/docs` : undefined}
+            target="_blank"
+            rel="noreferrer"
+            className="flex shrink-0 items-center gap-1.5 rounded-[4px] border border-iron px-2 py-1 text-[11px] font-medium uppercase tracking-[0.05em] text-fog"
+          >
+            <span
+              className={cn(
+                "size-1.5 rounded-full",
+                mode === "live" ? "bg-voltage" : "bg-smoke",
+                mode === "unknown" && "animate-pulse",
+              )}
+            />
+            {mode === "live" ? "Live" : mode === "demo" ? "Demo" : "…"}
+          </a>
+        </TooltipTrigger>
+        <TooltipContent side="bottom" align="end">
+          {mode === "live"
+            ? `Conectat la FastAPI (${API_BASE}) · deschide /docs`
+            : mode === "demo"
+              ? "Mod demonstrativ: backend indisponibil, date deterministe locale"
+              : "Se conectează…"}
+        </TooltipContent>
+      </Tooltip>
     </header>
   );
 }

@@ -4,68 +4,67 @@ import { cn } from "@/lib/utils";
 
 const STATES = [
   {
-    label: "☀️ 2 zile însorite fără defect",
-    tone: "bg-success-soft",
+    label: "2 zile însorite fără defect",
     badge: "Tichet VERIFICAT (închis automat după 48h cu producție ≥95% PVGIS)",
     why: "Producția măsurată se compară cu estimarea PVGIS pe 48h; peste 95% fără opriri, defectul este considerat remediat.",
   },
   {
-    label: "⚠️ Defectul revine a 2-a zi",
-    tone: "bg-critical-soft",
+    label: "Defectul revine a 2-a zi",
     badge: "Tichet REDESCHIS automat (producție sub prag / oprire detectată)",
     why: "Orice scădere sub prag sau o nouă oprire în fereastra de verificare redeschide tichetul fără intervenție manuală.",
   },
   {
-    label: "☁️ 2 zile înnorate după reparație",
-    tone: "bg-warning-soft",
-    badge: "DOVEZI INSUFICIENTE (iradiere scăzută — tichetul rămâne în monitorizare, nu se închide fals)",
+    label: "2 zile înnorate după reparație",
+    badge:
+      "DOVEZI INSUFICIENTE (iradiere scăzută — tichetul rămâne în monitorizare, nu se închide fals)",
     why: "Cu iradiere scăzută, producția nu poate confirma reparația; motorul așteaptă zile cu soare în loc să închidă pe date neconcludente.",
   },
   {
-    label: "📡 Fără telemetrie (Wi-Fi oprit)",
-    tone: "bg-info-soft",
+    label: "Fără telemetrie (Wi-Fi oprit)",
     badge: "LIPSĂ DATE (nu se clasifică drept oprire sau defect — 0 alarme false)",
     why: "Absența datelor este tratată separat de producția zero: fără mostre nu se emite nicio concluzie de defect.",
   },
 ];
 
-export function OmTicketLifecycleCard({ d }: { d: HouseholdDetail }) {
+export function OmTicketLifecycleCard(_: { d: HouseholdDetail }) {
   const [i, setI] = useState(0);
   const s = STATES[i] ?? STATES[0]!;
+  const tone = ["text-bone", "text-critical", "text-warning", "text-fog"][i];
   return (
-    <div className="rounded-lg border border-border bg-card p-4">
-      <div className="mb-2 flex items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold">Ciclul de viață al tichetului O&amp;M</h3>
-        <span className="num text-[11px] text-muted-foreground">{d.analysis.household_id}</span>
-      </div>
-      <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+    <section className="rounded-lg border border-border bg-card p-4">
+      <h3 className="mb-3 text-[13px] font-medium text-bone">
+        Ciclul de viață al tichetului O&amp;M
+      </h3>
+      <div className="flex flex-wrap gap-1.5">
         {STATES.map((st, k) => (
           <button
             key={st.label}
             onClick={() => setI(k)}
             aria-pressed={i === k}
             className={cn(
-              "rounded-lg border border-border px-2 py-1.5 text-left text-[12px] font-medium transition-colors",
-              i === k ? "bg-ink text-ink-foreground" : "hover:bg-muted",
+              "rounded-[4px] border px-2.5 py-1 text-[12px] transition-colors",
+              i === k ? "border-voltage text-bone" : "border-iron text-fog hover:text-bone",
             )}
           >
             {st.label}
           </button>
         ))}
       </div>
-      <div className={cn("mt-3 rounded-lg p-3", s.tone)}>
-        <div className="text-[13px] font-semibold">{s.badge}</div>
-        <p className="mt-1 text-[12px] text-muted-foreground">{s.why}</p>
-      </div>
-    </div>
+      <p className={cn("mt-3 text-[13px]", tone)}>{s.badge}</p>
+      <p className="mt-1 max-w-[75ch] text-[12.5px] text-fog">{s.why}</p>
+    </section>
   );
 }
 
 const CARDS = [
-  { v: "81/81", p: "100,0%", t: "Acuratețe Rețea vs. Echipament la 1 minut", tone: "bg-success-soft" },
-  { v: "81/81", p: "100,0%", t: "Acuratețe la 5 minute (Cloud Polling standard, fără hardware nou)", tone: "bg-success-soft" },
-  { v: "0/60", p: "0,0%", t: "Alarme false pe instalații sănătoase / regim Volt-Watt normal", tone: "bg-success-soft" },
-  { v: "81/81", p: "100,0%", t: "Audit Baterie & Reconciliere Factură Legea 160/2026", tone: "bg-success-soft" },
+  { v: "81/81", p: "100,0%", t: "Acuratețe Rețea vs. Echipament la 1 minut" },
+  {
+    v: "81/81",
+    p: "100,0%",
+    t: "Acuratețe la 5 minute (Cloud Polling standard, fără hardware nou)",
+  },
+  { v: "0/60", p: "0,0%", t: "Alarme false pe instalații sănătoase / regim Volt-Watt normal" },
+  { v: "81/81", p: "100,0%", t: "Audit Baterie & Reconciliere Factură Legea 160/2026" },
 ];
 
 const ROWS = [
@@ -79,17 +78,20 @@ const ROWS = [
 export function ProofBenchmarkPanel() {
   return (
     <div className="space-y-3">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <dl className="grid grid-cols-1 gap-x-6 gap-y-4 rounded-lg border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4">
         {CARDS.map((c) => (
-          <div key={c.t} className={cn("rounded-lg border border-border p-4", c.tone)}>
-            <div className="num text-2xl font-medium">{c.v}</div>
-            <div className="num text-[12px] font-semibold">({c.p})</div>
-            <div className="mt-1 text-[12px] text-muted-foreground">{c.t}</div>
+          <div key={c.t}>
+            <dd className="num text-[22px] text-bone">
+              {c.v} <span className="text-[12px] text-fog">{c.p}</span>
+            </dd>
+            <dt className="mt-0.5 text-[12px] text-fog">{c.t}</dt>
           </div>
         ))}
-      </div>
+      </dl>
       <div className="rounded-lg border border-border bg-card p-4">
-        <h3 className="mb-2 text-sm font-semibold">Categorii Ground Truth (81 scenarii)</h3>
+        <h3 className="mb-2 text-[13px] font-medium text-bone">
+          Categorii ground truth (81 scenarii)
+        </h3>
         <table className="w-full text-[12px]">
           <thead>
             <tr className="text-left text-muted-foreground">

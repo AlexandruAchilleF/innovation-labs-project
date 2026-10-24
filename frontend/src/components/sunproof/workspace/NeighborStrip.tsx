@@ -48,14 +48,16 @@ export function NeighborStrip({
 
   return (
     <div>
-      <div className="mb-2 flex items-baseline justify-between">
-        <span className="eyebrow">Strada clientului · {slotLabel(slot)}</span>
-        <span className="num text-[11px] text-fog">
-          {peersHit}/{peers.length} vecini opriți sau în derating
+      <div className="mb-2 flex items-baseline justify-between gap-3">
+        <h2 className="text-[13px] font-medium text-bone">Strada clientului</h2>
+        <span
+          className="num text-[11px] text-fog"
+          title="Vecini opriți sau în derating la ora selectată"
+        >
+          {peersHit}/{peers.length} vecini afectați · {slotLabel(slot)}
         </span>
       </div>
       <div className="relative rounded-[8px] border border-border bg-obsidian px-2 pb-2 pt-3">
-        <div className="absolute inset-x-2 top-[50px] h-px bg-iron" aria-hidden />
         <div
           className="relative grid gap-1"
           style={{ gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))` }}
@@ -74,11 +76,11 @@ export function NeighborStrip({
                   selected={me}
                   monitored={!!h.household_id}
                   size={40}
-                  title={`${h.label} · ${fmt(v, 1)} V`}
+                  title={`${me ? "Client" : "Vecin"} · ${statusRo[st]} · ${fmt(v, 1)} V · ${h.distance_m} m de PT`}
                 />
                 <span
                   className={cn(
-                    "num text-[11px]",
+                    me ? "num text-[11px] text-voltage" : "num text-[11px]",
                     v >= LEGAL_LIMIT_V
                       ? "text-critical"
                       : v >= DERATING_START_V
@@ -88,10 +90,6 @@ export function NeighborStrip({
                 >
                   {fmt(v, 1)}
                 </span>
-                <span className={cn("text-[10px]", me ? "text-voltage" : "text-fog")}>
-                  {me ? "client" : statusRo[st]}
-                </span>
-                <span className="num text-[9.5px] text-smoke">{h.distance_m} m</span>
               </div>
             );
           })}
