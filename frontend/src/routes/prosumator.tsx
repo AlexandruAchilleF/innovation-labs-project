@@ -10,6 +10,7 @@ import { householdQuery, portfolioQuery } from "@/lib/queries";
 import { GRID_TARIFF_RON_KWH, eveningBatterySavings } from "@/lib/sim";
 import type { HouseholdDetail } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { ProsumerDemoPanels } from "@/components/sunproof/prosumator/ProsumerDemoPanels";
 
 export const Route = createFileRoute("/prosumator")({
   validateSearch: (s: Record<string, unknown>) => ({ household: typeof s["household"] === "string" ? (s["household"] as string) : "RO-B-005" }),
@@ -80,6 +81,7 @@ function Dashboard({ d }: { d: HouseholdDetail }) {
   ];
   const max = Math.max(...bars.map((b) => b.v));
   return (
+    <>
     <div className="grid grid-cols-12 gap-5">
       <div className="col-span-12 space-y-5 md:col-span-5">
         <EnergyFlow d={d} />
@@ -128,6 +130,8 @@ function Dashboard({ d }: { d: HouseholdDetail }) {
         <SavingsCalculator d={d} />
       </div>
     </div>
+    <ProsumerDemoPanels d={d} />
+    </>
   );
 }
 
