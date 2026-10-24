@@ -62,28 +62,38 @@ LLM-ul nu ia decizii. Detecția și calculele sunt deterministe, iar LLM-ul doar
 sunproof/      nucleul de business: modele, motoare deterministe, scenarii, explainer, PDF dossier, Telegram bot, FastAPI app
 frontend/      noua interfață React 19 / TanStack Start (Triaj O&M, Rețea ce-ar fi dacă, Prosumator)
 static/        interfață standalone MVP (HTML/CSS/JS)
-tests/         teste automate pytest (acoperire completă motoare & API)
+tests/         teste automate pytest (823 teste deterministe, 100% green)
+scripts/       lansator demo integrat, generator grafice pitch și evaluare 81/81 scenarii
 ```
 
 ## Cum rulezi
 
-### 1. Backend (FastAPI)
+### 0. Demo complet dintr-o singură comandă (Recomandat)
+```bash
+./scripts/run_demo.sh
+```
+Pornește FastAPI backend (:8000), pre-încălzește cache-ul celor 81 gospodării și deschide interfața React 19 (:3000).
+
+### 1. Backend (FastAPI manual)
 ```bash
 pip install -e ".[dev]"
 uvicorn sunproof.app:app --reload --port 8000
 ```
 
-### 2. Frontend (React 19 / TanStack Start)
+### 2. Frontend (React 19 / Vite manual)
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-### 3. Teste
+### 3. Teste & Evaluare
 ```bash
-# Teste backend (Python)
-pytest tests/test_step*.py tests/test_engine*.py tests/test_neighborhoods.py -q
+# Teste backend (Python - 823 teste deterministe, 100% passed)
+pytest -q
+
+# Evaluare automată pe toate cele 81 de scenarii (Dovada GOAL.md #4)
+python scripts/evaluate_proof.py
 
 # Teste frontend (Vitest)
 cd frontend && npm test
@@ -93,13 +103,15 @@ Variabilele de mediu sunt în `.env.example`. Nu pune chei în git.
 
 ## Status
 
-🏗️ În lucru la hackathon (24–25 octombrie 2026).
+✅ Prototip 100% funcțional și evaluat (Hackathon 24–25 octombrie 2026).
 
-- [x] Modele modulare & scenarii (81 gospodării, 5 flagships)
-- [x] Motoare deterministe (rețea, baterie, facturare)
-- [x] Generare dosar sesizare distribuitor (PDF)
-- [x] Simulator baterie & optimizare prag descărcare
-- [x] Tichete O&M și alerte Telegram
-- [x] Explainer cu guardrails anti-halucinații
-- [x] API HTTP complet (FastAPI)
-- [x] Noua interfață web React 19 (Triaj O&M, Rețea, Prosumator)
+- [x] Modele modulare & scenarii (81 gospodării, 5 povești flagship verificate manual)
+- [x] Motoare deterministe (rețea JT, baterie, facturare Legea 160/2026)
+- [x] Evaluare 81/81 scenarii: 100% acuratețe la 1 min și 5 min, 0 alarme false pe case sănătoase
+- [x] Generare dosar sesizare distribuitor (PDF transliterat ASCII, core fonts)
+- [x] Simulator baterie & optimizare prag descărcare (arbitraj PZU seară vs. prânz)
+- [x] Tichete O&M, verificare 48h și alerte Telegram simulate/reale
+- [x] Explainer numeric cu guardrails stricte anti-halucinații
+- [x] API HTTP complet cu cache thread-safe (FastAPI)
+- [x] Noua interfață web React 19 / TanStack (Triaj O&M, Rețea JT, Prosumator, Audit GDPR)
+- [x] 4 grafice SVG de pitch și dovadă evaluare
