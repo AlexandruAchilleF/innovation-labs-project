@@ -19,7 +19,9 @@ _CAUSE_RO = {"GRID_OVERVOLTAGE": "Supratensiune in reteaua de distributie (post 
              "LOCAL_OVERVOLTAGE_SENSITIVITY": "Cauza locala: prag de declansare setat gresit in invertor",
              "LOCAL_CABLE_IMPEDANCE": "Cauza locala: cablu AC intern subdimensionat",
              "LOCAL_EQUIPMENT_FAULT": "Cauza locala: defect de echipament (invertor / stringuri)",
-             "NONE": "Fara declansari anormale in ziua analizata"}
+             "NONE": "Fara declansari anormale in ziua analizata",
+             "INSUFFICIENT_DATA": "Date insuficiente pentru diagnostic",
+             "MONITORING_UNCERTAIN": "Monitorizare incerta; diagnostic neconfirmat"}
 _REQUESTS = ("Verificarea si reglajul plotului (tap) transformatorului din postul de transformare.",
              "Echilibrarea incarcarii pe faze pe plecarea de joasa tensiune.",
              "Verificarea impedantei plecarii (sectiune conductor, conexiuni, lungime).",
@@ -43,6 +45,13 @@ def _f(x: float, d: int = 2) -> str:
 
 
 class _Dossier(FPDF):
+    def header(self) -> None:
+        self.set_font("Helvetica", "B", 9)
+        self.set_text_color(160, 35, 35)
+        self.cell(0, 6, "DEMO / DATE SIMULATE - sursa: scenarii sintetice SunProof",
+                  new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        self.set_text_color(0, 0, 0)
+
     def footer(self) -> None:
         self.set_y(-12)
         self.set_font("Helvetica", "I", 7)
@@ -97,6 +106,7 @@ def build_distributor_pdf_bytes(scenario: HouseholdScenario, analysis: Household
     """Complete A4 dossier (header, client, diagnosis, event table, neighbor correlation, requests)."""
     g, s = analysis.grid_verdict, scenario
     is_grid = g.cause.value == "GRID_OVERVOLTAGE"
+    uncertain = g.cause.value not in _CAUSE_RO or g.cause.value in {"INSUFFICIENT_DATA", "MONITORING_UNCERTAIN"}
     stats = _telemetry_stats(s)
     pdf = _Dossier(orientation="P", unit="mm", format="A4")
     pdf.set_auto_page_break(auto=True, margin=16)
@@ -107,10 +117,14 @@ def build_distributor_pdf_bytes(scenario: HouseholdScenario, analysis: Household
     pdf.line_text(f"Data analizei: {s.date_analyzed}    Referinta: {s.household_id} / {s.pod_code}", 8)
     pdf.line_text(f"Catre: {s.distribution_operator.value}", 10, "B", 6)
     pdf.ln(1)
-    pdf.line_text("Sesizare supratensiune retea JT — EN 50549-1", 14, "B", 7)
-    if not is_grid:
-        pdf.line_text("NOTA: diagnosticul indica o cauza LOCALA (instalatia clientului), nu reteaua de distributie. "
-                      "Documentul are caracter strict informativ; nu se solicita interventia operatorului.", 9, "B")
+    pdf.line_text("Dosar tehnic retea JT — EN 50549-1", 14, "B", 7)
+    pdf.line_text(f"Perioada: ziua {s.date_analyzed}; luna {s.monthly_summary.month_label}", 8)
+    pdf.line_text("Pregatit / netrimis. Nu exista dovada de livrare a unei sesizari.", 9, "B")
+    category = ("RETEA: proiect de sesizare pentru verificarea operatorului." if is_grid else
+                "CAUZA LOCALA: document informativ pentru instalatia clientului." if g.cause.value.startswith("LOCAL_") else
+                "Fara declansari anormale; nu se solicita interventii." if g.cause.value == "NONE" else
+                "Date insuficiente / monitorizare incerta: completati datele; fara solicitare de interventie.")
+    pdf.line_text(category, 9, "B")
 
     pdf.section("1. Date client si loc de consum")
     for k, v in (("Client", s.customer_name), ("Adresa", f"{s.street_address}, {s.city}, jud. {s.county}"),
@@ -128,18 +142,22 @@ def build_distributor_pdf_bytes(scenario: HouseholdScenario, analysis: Household
                   f"  |  Responsabil: {g.responsible_party.value}", 9, "B")
     pdf.line_text(g.headline_ro, 9, "B")
     pdf.line_text(g.explanation_ro, 8.5)
-    pdf.line_text(g.technical_proof_summary_ro, 8.5)
-    for line in (f"Tensiune maxima la invertor: {_f(g.max_inverter_voltage_v)} V; la contorul inteligent (PCC): "
-                 f"{_f(g.max_meter_voltage_v)} V; crestere pe cablul intern: {_f(g.voltage_rise_internal_cable_v)} V.",
-                 f"Minute cu tensiune > {_f(LIMIT_V, 0)} V: {stats['inverter_minutes_over']} la invertor (telemetrie "
-                 f"1 min), {stats['meter_minutes_over']} la contor (medii 15 min).",
-                 f"Vecini afectati simultan: {g.neighbors_affected_simultaneously} din {g.neighbors_total} "
-                 f"(raport de simultaneitate {_f(g.simultaneity_ratio)}).",
-                 f"Minute deconectat azi: {g.total_trip_minutes_today}; productie pierduta: "
-                 f"{_f(g.lost_production_today_kwh)} kWh azi, {_f(g.lost_production_month_est_kwh)} kWh/luna "
-                 f"estimat; valoare pierduta client: {_f(g.lost_value_customer_month_ron)} RON/luna."):
-        pdf.line_text("- " + line, 8.5)
-
+    if uncertain:
+        pdf.line_text("Masuratorile nu permit confirmarea maximelor sau a absentei evenimentelor.", 8.5)
+    else:
+        pdf.line_text(g.technical_proof_summary_ro, 8.5)
+        for line in (f"Tensiune maxima la invertor: {_f(g.max_inverter_voltage_v)} V; maximul mediilor de 15 min la contor (PCC): "
+                     f"{_f(g.max_meter_voltage_v)} V; crestere pe cablul intern: {_f(g.voltage_rise_internal_cable_v)} V.",
+                     f"Esantioane invertor / durata intervalelor contor cu media > {_f(LIMIT_V, 0)} V: {stats['inverter_minutes_over']} la invertor (telemetrie "
+                     f"1 min), {stats['meter_minutes_over']} la contor (medii 15 min).",
+                     f"Vecini afectati simultan: {g.neighbors_affected_simultaneously} din {g.neighbors_total} "
+                     f"(raport de simultaneitate {_f(g.simultaneity_ratio)}).",
+                     f"Minute deconectat azi: {g.total_trip_minutes_today}; productie pierduta: "
+                     f"{_f(g.lost_production_today_kwh)} kWh azi, {_f(g.lost_production_month_est_kwh)} kWh/luna "
+                     f"estimat; valoare pierduta client: {_f(g.lost_value_customer_month_ron)} RON/luna."):
+            pdf.line_text("- " + line, 8.5)
+    pdf.line_text("Contor: medii de 15 min, nu maxime instantanee. Invertor: esantioane la un minut; "
+                  "valorile din ferestre nu dovedesc varfuri simultane intre surse. Lipsa datelor nu inseamna zero.", 8)
     pdf.section(f"3. Tabel 1 - ferestre de supratensiune / declansare ({len(g.events)} ferestre)")
     rows = [[e.start_time, e.end_time, str(e.duration_minutes), _f(e.peak_inverter_voltage_v),
              _f(e.peak_meter_voltage_v), _f(e.internal_cable_voltage_rise_v), str(e.neighbors_tripped_count),
@@ -148,9 +166,11 @@ def build_distributor_pdf_bytes(scenario: HouseholdScenario, analysis: Household
             for e in g.events[:MAX_EVENT_ROWS]]
     if len(g.events) > MAX_EVENT_ROWS:
         rows.append([f"... inca {len(g.events) - MAX_EVENT_ROWS} ferestre (disponibile in format electronic)"])
-    if not rows:
+    if uncertain:
+        rows = [["Ferestre neconfirmate: completati datele de monitorizare"]]
+    elif not rows:
         rows = [["Nicio fereastra de declansare in ziua analizata"]]
-    pdf.grid_table(["Start", "Sfarsit", "Durata min", "Umax inv. V", "Umax contor V", "Cadere cablu V",
+    pdf.grid_table(["Start", "Sfarsit", "Durata min", "Umax inv. V", "Max med.15m V", "Cadere cablu V",
                "Vecini declansati", "Vecini >250V", "kWh pierduti", ">253V"],
               [17, 17, 16, 21, 22, 21, 20, 20, 19, 17], rows)
 
@@ -159,13 +179,13 @@ def build_distributor_pdf_bytes(scenario: HouseholdScenario, analysis: Household
                "Simultan cu clientul"], [42, 18, 16, 18, 20, 20, 22, 34],
               stats["neighbors"] or [["Nu exista vecini monitorizati cu consimtamant"]])
 
-    pdf.section("5. Solicitari" if is_grid else "5. Solicitari (informativ - cauza locala)")
-    for req in _REQUESTS:
-        pdf.line_text("- " + req, 9)
-    pdf.ln(2)
-    pdf.line_text(g.recommended_action_supplier_ro if not is_grid else
-                  "Va rugam sa confirmati inregistrarea sesizarii si sa comunicati masurile luate. Datele de "
-                  "telemetrie (1 minut) sunt disponibile la cerere.", 8.5, "I")
+    pdf.section("5. Solicitari propuse (netrimise)" if is_grid else "5. Concluzie informativa")
+    if is_grid:
+        for req in _REQUESTS:
+            pdf.line_text("- " + req, 9)
+        pdf.line_text("Propuneri pregatite pentru verificarea operatorului; transmiterea necesita o actiune separata.", 8.5, "I")
+    else:
+        pdf.line_text(category, 9)
     return bytes(pdf.output())
 
 

@@ -12,7 +12,8 @@ import re
 
 from sunproof.models import HouseholdCompleteAnalysis, HouseholdScenario, VerifiedTextOutput
 from sunproof.text_templates import ID_FIELDS as _ID_FIELDS
-from sunproof.text_templates import analysis_facts, build_template_text, fmt_ro
+from sunproof.text_templates import analysis_facts, build_template_text, fmt_ro, status_template
+from sunproof.text_evidence import number_tokens, match_number
 
 __all__ = ["DOC_TYPES", "LEGAL_REFERENCE_WHITELIST", "analysis_facts", "build_template_text", "explain_household",
            "extract_numbers_ro", "fmt_ro", "generate_verified_explanation", "verify_text", "verify_text_against_facts"]
@@ -24,86 +25,32 @@ _FIELD = {"distributor_complaint": "distributor_complaint_text",
 LEGAL_REFERENCE_WHITELIST = ("SR EN 50549-1", "EN 50549-1", "EN 50549", "SR EN 50160", "EN 50160",
                              "Legea 160/2026", "Legea nr. 160/2026", "Legea 123/2012",
                              "Ordinul ANRE nr. 46/2021", "Ord. ANRE 46/2021")
-_NUM_RE = re.compile(r"(?<![\w.,])([-−]?)(\d{1,3}(?:\.\d{3})+(?!\d)(?:,\d+)?|\d+,\d+|\d+\.\d+|\d+)(\s*%)?")
-_RO_THOUSANDS = re.compile(r"\d{1,3}(?:\.\d{3})+(?:,\d+)?")
-
-
-
-# ---------------------------------------------------------------- number extraction
-def _candidates(sign: str, body: str, pct: str | None) -> list[tuple[float, bool]]:
-    """All plausible (value, written_as_integer) readings; the first one is the Romanian reading."""
-    neg = -1.0 if sign else 1.0
-    out: list[tuple[float, bool]] = []
-    if _RO_THOUSANDS.fullmatch(body):
-        ip, _, dp = body.partition(",")
-        out.append((float(ip.replace(".", "") + ("." + dp if dp else "")), not dp))
-        if not dp and body.count(".") == 1:
-            out.append((float(body), False))           # "1.320" may also be English 1.32
-    elif "," in body:
-        ip, dp = body.split(",")
-        out.append((float(f"{ip}.{dp}"), False))
-        if len(dp) == 3:
-            out.append((float(ip + dp), True))         # "1,320" may also be English 1320
-    else:
-        out.append((float(body), "." not in body))
-    if pct:
-        out += [(v / 100.0, False) for v, _ in list(out)]
-    return [(neg * v, is_int) for v, is_int in out]
-
-
 def _strip_known(text: str, facts: dict | None) -> str:
     for ref in sorted(LEGAL_REFERENCE_WHITELIST, key=len, reverse=True):
         text = re.sub(re.escape(ref), " ", text, flags=re.IGNORECASE)
-    strings = {str(v).strip() for v in (facts or {}).values() if isinstance(v, str)}
+    identity_keys = set(_ID_FIELDS) | {"household_id", "invoice_number", "battery_model",
+                                       "pod", "inv", "d", "t", "addr"}
+    strings = {str(v).strip() for k, v in (facts or {}).items() if isinstance(v, str) and
+               (k in identity_keys or re.fullmatch(r"grid_event_\d+_(?:start|end)_time", k))}
     for s in sorted((s for s in strings if len(s) >= 3 and not re.fullmatch(r"-?\d+(?:[.,]\d+)?", s)),
                     key=len, reverse=True):
         text = text.replace(s, " ")
     return text
 
 
-def _tokens(text: str, facts: dict | None = None) -> list[list[tuple[float, bool]]]:
-    return [_candidates(m.group(1), m.group(2), m.group(3))
-            for m in _NUM_RE.finditer(_strip_known(text or "", facts))]
-
-
 def extract_numbers_ro(text_ro: str) -> list[float]:
-    """Numbers in Romanian text (RO reading: `1.320`=1320, `210,80`=210.8); legal refs are ignored."""
-    return [cands[0][0] for cands in _tokens(text_ro)]
-
-
-# ---------------------------------------------------------------- guardrail
-def _string_numbers(facts: dict) -> dict[float, str]:
-    """Numbers written inside string facts (e.g. 'nr. 14'), excluding times/dates (too generic)."""
-    out: dict[float, str] = {}
-    for k, v in facts.items():
-        if isinstance(v, str) and not re.fullmatch(r"\d{1,2}:\d{2}|\d{4}-\d{2}-\d{2}", v.strip()):
-            for cands in _tokens(v):
-                out.setdefault(cands[0][0], k)
-    return out
-
-
-def _match(cands: list[tuple[float, bool]], facts: dict, strnums: dict[float, str]) -> str | None:
-    best, best_d = None, None
-    for v, is_int in cands:
-        for k, f in facts.items():
-            if isinstance(f, str):
-                continue
-            d = abs(v - float(f))
-            if d <= (1.0 if is_int else 0.01 + 0.005 * abs(float(f))) and (best_d is None or d < best_d):
-                best, best_d = k, d
-    if best is None:
-        best = next((strnums[v] for v, _ in cands if v in strnums), None)
-    return best
+    """Parse complete measurements using Romanian thousands and decimal notation."""
+    return [value for value, _ in number_tokens(_strip_known(text_ro or "", None))]
 
 
 def _check(text: str, facts: dict) -> tuple[list[float], list[float], dict]:
-    extracted, bad, used, strnums = [], [], {}, _string_numbers(facts)
-    for cands in _tokens(text, facts):
-        extracted.append(cands[0][0])
-        key = _match(cands, facts, strnums)
+    extracted, bad, used = [], [], {}
+    for value, unit in number_tokens(_strip_known(text, facts)):
+        extracted.append(value)
+        key = match_number(value, unit, facts)
         if key is None:
-            if cands[0][0] not in bad:
-                bad.append(cands[0][0])
+            if value not in bad:
+                bad.append(value)
         else:
             used[key] = facts[key]
     return extracted, bad, used
@@ -111,7 +58,12 @@ def _check(text: str, facts: dict) -> tuple[list[float], list[float], dict]:
 
 def verify_text_against_facts(text_ro: str, facts: dict, *, document_type: str = "guardrail_demo",
                               fallback_text_ro: str | None = None, source: str = "llm") -> VerifiedTextOutput:
-    """Every number in `text_ro` must match a fact; otherwise reject (and use `fallback_text_ro` if given)."""
+    """Validate numeric evidence, not prose meaning. `guardrail_passed` describes the input.
+
+    On rejection, extracted numbers describe the returned text; caught numbers describe the
+    rejected input. The fallback is independently checked and replaced if it is unsafe.
+    Only engine-produced facts belong here; never merge a user's question into `facts`.
+    """
     extracted, bad, used = _check(text_ro, facts)
     if not bad:
         return VerifiedTextOutput(document_type=document_type, text_ro=text_ro, source=source,
@@ -120,7 +72,11 @@ def verify_text_against_facts(text_ro: str, facts: dict, *, document_type: str =
     final_text, final_source = text_ro, source
     if fallback_text_ro is not None:
         final_text, final_source = fallback_text_ro, "template_fallback"
-        used = _check(fallback_text_ro, facts)[2]
+        final_extracted, final_bad, used = _check(fallback_text_ro, facts)
+        if final_bad:
+            final_text = "Date insuficiente pentru o explicație verificată."
+            final_extracted, used = [], {}
+        extracted = final_extracted
     return VerifiedTextOutput(document_type=document_type, text_ro=final_text, source=final_source,
                               guardrail_passed=False, numbers_extracted_from_text=extracted,
                               unverified_numbers_caught=bad, facts_used=used)
@@ -151,28 +107,42 @@ def _relevant_facts(analysis: HouseholdCompleteAnalysis, doc_type: str) -> dict:
 def _call_claude(analysis: HouseholdCompleteAnalysis, doc_type: str, template: str) -> str:
     import anthropic  # lazy: optional dependency, never imported in tests
 
-    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"], timeout=15.0, max_retries=0)
     prompt = (f"Tip document: {doc_type}\nFapte verificate (JSON):\n"
               f"{json.dumps(_relevant_facts(analysis, doc_type), ensure_ascii=False)}\n\n"
               f"Text de referință (corect, deterministic):\n{template}\n\n"
               "Reformulează textul de referință într-un stil natural, păstrând toate cifrele exact cum apar.")
-    msg = client.messages.create(model=os.environ.get("LLM_MODEL", "claude-sonnet-5-5"), max_tokens=800,
-                                 system=_SYSTEM_RO, messages=[{"role": "user", "content": prompt}])
-    text = "".join(getattr(b, "text", "") for b in msg.content if getattr(b, "type", "") == "text").strip()
-    if not text:
-        raise ValueError("răspuns LLM gol")
-    return text
+    try:
+        msg = client.messages.create(model=os.environ.get("LLM_MODEL", "claude-sonnet-5-5"), max_tokens=800,
+                                     system=_SYSTEM_RO, messages=[{"role": "user", "content": prompt}])
+        if getattr(msg, "stop_reason", None) != "end_turn":
+            raise ValueError("răspuns LLM incomplet")
+        text = "".join(getattr(b, "text", "") for b in msg.content if getattr(b, "type", "") == "text").strip()
+        if not text:
+            raise ValueError("răspuns LLM gol")
+        return text
+    finally:
+        client.close()
 
 
 def generate_verified_explanation(analysis: HouseholdCompleteAnalysis, doc_type: str,
                                   use_claude_api: bool = False) -> VerifiedTextOutput:
     """LLM text (if enabled and keyed) checked by the guardrail; deterministic template otherwise."""
     facts, template = analysis_facts(analysis), build_template_text(analysis, doc_type)
+    if _check(template, facts)[1]:
+        template = status_template(analysis, doc_type)
     if use_claude_api and os.environ.get("ANTHROPIC_API_KEY"):
         try:
             llm_text = _call_claude(analysis, doc_type, template)
-            return verify_text_against_facts(llm_text, facts, document_type=doc_type,
-                                             fallback_text_ro=template, source="llm")
+            checked = verify_text_against_facts(llm_text, facts, document_type=doc_type,
+                                                fallback_text_ro=template, source="llm")
+            # Numeric membership cannot verify which field a sentence describes (or a
+            # nonnumeric assertion). Only canonical named-slot documents are accepted.
+            if llm_text.strip() != template:
+                final = verify_text_against_facts(template, facts, document_type=doc_type, source="template_fallback")
+                return final.model_copy(update={"guardrail_passed": False,
+                    "unverified_numbers_caught": checked.unverified_numbers_caught})
+            return checked
         except Exception:  # noqa: BLE001 - any API/network problem -> deterministic template
             pass
     return verify_text_against_facts(template, facts, document_type=doc_type, source="template")

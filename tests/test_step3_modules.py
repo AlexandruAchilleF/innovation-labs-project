@@ -49,12 +49,12 @@ def test_string_facts_are_stripped_before_extraction():
 
 
 def test_ambiguous_thousands_and_tolerances():
-    assert verify_text_against_facts("1.320 kWh", {"x": 1.32}).guardrail_passed      # English reading
-    assert verify_text_against_facts("1.320 kWh", {"x": 1320.4}).guardrail_passed    # RO reading, +-1
-    assert verify_text_against_facts("225 kWh", {"x": 225.9}).guardrail_passed       # integer display +-1
+    assert not verify_text_against_facts("1.320 kWh", {"x": 1.32}).guardrail_passed  # RO means 1320
+    assert not verify_text_against_facts("1.320 kWh", {"x": 1320.4}).guardrail_passed
+    assert not verify_text_against_facts("225 kWh", {"x": 225.9}).guardrail_passed
     assert not verify_text_against_facts("6,70 V", {"x": 6.57}).guardrail_passed     # decimals: tight
     assert verify_text_against_facts("55%", {"ratio": 0.55}).guardrail_passed         # percent of a ratio
-    assert verify_text_against_facts("nr. 14", {"addr": "Str. Soarelui nr. 14"}).guardrail_passed
+    assert verify_text_against_facts("Str. Soarelui nr. 14", {"addr": "Str. Soarelui nr. 14"}).guardrail_passed
     assert not verify_text_against_facts("ora 7", {"t": "10:40"}).guardrail_passed   # times are not a pool
 
 
@@ -72,7 +72,7 @@ def test_demo_999_ron_is_caught_and_falls_back(tm001):
                                     fallback_text_ro=template, source="llm")
     assert out.unverified_numbers_caught == [999.0]
     assert out.guardrail_passed is False and out.source == "template_fallback" and out.text_ro == template
-    assert 999.0 in out.numbers_extracted_from_text
+    assert 999.0 not in out.numbers_extracted_from_text  # returned text is independently checked
     assert 0 < len(out.facts_used) < 40
     no_fallback = verify_text(bad, "distributor_complaint", "llm", analysis_facts(a))
     assert not no_fallback.guardrail_passed and no_fallback.text_ro == bad
@@ -117,8 +117,8 @@ def _fake_anthropic(text):
     class _Messages:
         def create(self, **kwargs):
             assert kwargs["max_tokens"] <= 1000 and len(json.dumps(kwargs["messages"])) < 30000
-            return types.SimpleNamespace(content=[types.SimpleNamespace(type="text", text=text)])
-    return types.SimpleNamespace(Anthropic=lambda **kw: types.SimpleNamespace(messages=_Messages()))
+            return types.SimpleNamespace(stop_reason="end_turn", content=[types.SimpleNamespace(type="text", text=text)])
+    return types.SimpleNamespace(Anthropic=lambda **kw: types.SimpleNamespace(messages=_Messages(), close=lambda: None))
 
 
 def test_llm_path_is_guarded_offline(monkeypatch, tm001):
