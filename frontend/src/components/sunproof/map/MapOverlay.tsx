@@ -1,4 +1,5 @@
 import { useEffect, useReducer, useState } from "react";
+import { flushSync } from "react-dom";
 import {
   housePlanXY,
   houseStatusAt,
@@ -51,15 +52,14 @@ export function MapOverlay({
 
   useEffect(() => {
     if (!api) return;
-    let raf = 0;
     const onMove = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(tick);
+      // MapLibre already animates the camera on its render frame. Commit the HTML
+      // positions in that same frame so roofs cannot trail behind the basemap.
+      flushSync(tick);
     };
     api.map.on("move", onMove);
     api.map.on("resize", onMove);
     return () => {
-      cancelAnimationFrame(raf);
       api.map.off("move", onMove);
       api.map.off("resize", onMove);
     };
