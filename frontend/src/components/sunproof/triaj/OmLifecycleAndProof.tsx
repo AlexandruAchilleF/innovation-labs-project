@@ -1,48 +1,59 @@
 import { useState } from "react";
-import type { HouseholdDetail } from "@/lib/types";
+import { useQuery } from "@tanstack/react-query";
+import { useHydrated } from "@tanstack/react-router";
+import { fmt } from "@/lib/format";
+import { responsibleLabel, scenarioLabel } from "@/lib/i18n";
+import { portfolioQuery } from "@/lib/queries";
+import type { HouseholdDetail, ScenarioCode } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const STATES = [
   {
-    label: "2 zile însorite fără defect",
-    badge: "Tichet VERIFICAT (închis automat după 48h cu producție ≥95% PVGIS)",
-    why: "Producția măsurată se compară cu estimarea PVGIS pe 48h; peste 95% fără opriri, defectul este considerat remediat.",
+    label: "Zile însorite fără defect",
+    badge: "Tichet VERIFICAT (închis automat după confirmarea producției PVGIS)",
+    why: "Producția măsurată se compară cu estimarea PVGIS; fără opriri în fereastra de verificare, defectul este considerat remediat.",
   },
   {
-    label: "Defectul revine a 2-a zi",
+    label: "Defectul revine după intervenție",
     badge: "Tichet REDESCHIS automat (producție sub prag / oprire detectată)",
     why: "Orice scădere sub prag sau o nouă oprire în fereastra de verificare redeschide tichetul fără intervenție manuală.",
   },
   {
-    label: "2 zile înnorate după reparație",
+    label: "Zile înnorate după reparație",
     badge:
       "DOVEZI INSUFICIENTE (iradiere scăzută — tichetul rămâne în monitorizare, nu se închide fals)",
     why: "Cu iradiere scăzută, producția nu poate confirma reparația; motorul așteaptă zile cu soare în loc să închidă pe date neconcludente.",
   },
   {
     label: "Fără telemetrie (Wi-Fi oprit)",
-    badge: "LIPSĂ DATE (nu se clasifică drept oprire sau defect — 0 alarme false)",
+    badge: "LIPSĂ DATE (nu se clasifică drept oprire sau defect)",
     why: "Absența datelor este tratată separat de producția zero: fără mostre nu se emite nicio concluzie de defect.",
   },
 ];
 
-export function OmTicketLifecycleCard(_: { d: HouseholdDetail }) {
+export function OmTicketLifecycleCard({ d }: { d: HouseholdDetail }) {
   const [i, setI] = useState(0);
   const s = STATES[i] ?? STATES[0]!;
   const tone = ["text-bone", "text-critical", "text-warning", "text-fog"][i];
+  const party =
+    responsibleLabel[d.analysis.primary_responsible_party] ?? d.analysis.primary_responsible_party;
   return (
     <section className="rounded-lg border border-border bg-card p-4">
-      <h3 className="mb-3 text-[13px] font-medium text-bone">
-        Ciclul de viață al tichetului O&amp;M
-      </h3>
-      <div className="flex flex-wrap gap-1.5">
+      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+        <h3 className="text-[13px] font-medium text-bone">Ciclul de viață al tichetului O&amp;M</h3>
+        <span className="text-[12px] text-fog">
+          Responsabil curent: <span className="text-bone">{party}</span>
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-2">
         {STATES.map((st, k) => (
           <button
             key={st.label}
+            type="button"
             onClick={() => setI(k)}
             aria-pressed={i === k}
             className={cn(
-              "rounded-[4px] border px-2.5 py-1 text-[12px] transition-colors",
+              "rounded-[4px] border px-3 py-1 text-[12px] transition-colors",
               i === k ? "border-voltage text-bone" : "border-iron text-fog hover:text-bone",
             )}
           >
@@ -51,61 +62,94 @@ export function OmTicketLifecycleCard(_: { d: HouseholdDetail }) {
         ))}
       </div>
       <p className={cn("mt-3 text-[13px]", tone)}>{s.badge}</p>
-      <p className="mt-1 max-w-[75ch] text-[12.5px] text-fog">{s.why}</p>
+      <p className="mt-1 max-w-[75ch] text-[12px] text-fog">{s.why}</p>
     </section>
   );
 }
 
-const CARDS = [
-  { v: "81/81", p: "100,0%", t: "Acuratețe Rețea vs. Echipament la 1 minut" },
-  {
-    v: "81/81",
-    p: "100,0%",
-    t: "Acuratețe la 5 minute (Cloud Polling standard, fără hardware nou)",
-  },
-  { v: "0/60", p: "0,0%", t: "Alarme false pe instalații sănătoase / regim Volt-Watt normal" },
-  { v: "81/81", p: "100,0%", t: "Audit Baterie & Reconciliere Factură Legea 160/2026" },
-];
-
-const ROWS = [
-  { c: "Sănătoase / Volt-Watt", n: "60", note: "0 alarme false" },
-  { c: "Supratensiune Rețea", n: "15", note: "6.750 RON deplasări evitate" },
-  { c: "Prag U> greșit", n: "1", note: "configurare invertor" },
-  { c: "Cablu AC subdimensionat", n: "1", note: "defect local instalație" },
-  { c: "Defect echipament / string", n: "4", note: "intervenție O&M" },
+const SCENARIO_ORDER: ScenarioCode[] = [
+  "HEALTHY",
+  "GRID_OVERVOLTAGE",
+  "LOCAL_OVERVOLTAGE_SENSITIVITY",
+  "MISCONFIGURED_MODE",
+  "MISSING_EXPORT_INDEX",
+  "INVOICE_VALID_EXPLAINED",
 ];
 
 export function ProofBenchmarkPanel() {
+  const hydrated = useHydrated();
+  const portfolio = useQuery(portfolioQuery());
+  const data = hydrated ? portfolio.data : undefined;
+
+  if (!data) {
+    return (
+      <div className="rounded-lg border border-border bg-card p-4 text-[13px] text-fog">
+        Se încarcă sumarul portofoliului…
+      </div>
+    );
+  }
+
+  const m = data.metrics;
+  const cards = [
+    {
+      v: fmt(m.monitored_households_count),
+      t: "Gospodării monitorizate în portofoliu",
+    },
+    {
+      v: `${fmt(m.fleet_avoided_truck_rolls_ron)} RON`,
+      t: `Deplasări evitate (${fmt(m.grid_fault_households_count)} cazuri rețea OD)`,
+    },
+    {
+      v: `${fmt(m.fleet_monthly_pzu_savings_ron, 1)} RON`,
+      t: `Economie lunară PZU (${fmt(m.misconfigured_Batteries_count)} baterii)`,
+    },
+    {
+      v: fmt(m.fleet_anre_complaints_prevented),
+      t: "Sesizări ANRE prevenite",
+    },
+  ];
+
+  const rows = SCENARIO_ORDER.map((code) => {
+    const matching = data.households.filter((h) => h.scenario_code === code);
+    const impactRon = matching.reduce((sum, h) => sum + h.monthly_impact_ron, 0);
+    return {
+      code,
+      label: scenarioLabel[code],
+      count: matching.length,
+      impactRon,
+    };
+  }).filter((r) => r.count > 0);
+
   return (
     <div className="space-y-3">
       <dl className="grid grid-cols-1 gap-x-6 gap-y-4 rounded-lg border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4">
-        {CARDS.map((c) => (
+        {cards.map((c) => (
           <div key={c.t}>
-            <dd className="num text-[22px] text-bone">
-              {c.v} <span className="text-[12px] text-fog">{c.p}</span>
-            </dd>
-            <dt className="mt-0.5 text-[12px] text-fog">{c.t}</dt>
+            <dd className="num text-[22px] text-bone">{c.v}</dd>
+            <dt className="mt-1 text-[12px] text-fog">{c.t}</dt>
           </div>
         ))}
       </dl>
       <div className="rounded-lg border border-border bg-card p-4">
         <h3 className="mb-2 text-[13px] font-medium text-bone">
-          Categorii ground truth (81 scenarii)
+          Distribuție portofoliu ({fmt(m.monitored_households_count)} gospodării)
         </h3>
         <table className="w-full text-[12px]">
           <thead>
             <tr className="text-left text-muted-foreground">
               <th className="py-1 font-medium">Categorie</th>
-              <th className="py-1 text-right font-medium">Nr.</th>
-              <th className="py-1 pl-3 font-medium">Rezultat</th>
+              <th className="py-1 text-right font-medium">Gospodării</th>
+              <th className="py-1 pl-3 text-right font-medium">Impact lunar</th>
             </tr>
           </thead>
           <tbody>
-            {ROWS.map((r) => (
-              <tr key={r.c} className="border-t border-border">
-                <td className="py-1.5">{r.c}</td>
-                <td className="num py-1.5 text-right font-semibold">{r.n}</td>
-                <td className="py-1.5 pl-3">{r.note}</td>
+            {rows.map((r) => (
+              <tr key={r.code} className="border-t border-border">
+                <td className="py-2">{r.label}</td>
+                <td className="num py-2 text-right font-medium">{fmt(r.count)}</td>
+                <td className="num py-2 pl-3 text-right text-fog">
+                  {r.impactRon > 0 ? `${fmt(r.impactRon, 1)} RON/lună` : "—"}
+                </td>
               </tr>
             ))}
           </tbody>

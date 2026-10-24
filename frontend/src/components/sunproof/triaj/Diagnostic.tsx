@@ -13,12 +13,14 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { api } from "@/lib/api";
 import { fmt } from "@/lib/format";
 import { responsibleLabel } from "@/lib/i18n";
 import type { HouseholdDetail, MinutePoint, Severity } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { AlertConfirm, openDossier } from "../AlertConfirm";
+import { AlertConfirm } from "../AlertConfirm";
 import { DisclosureChevron, Row, StatusBadge, axisProps, chartTooltipStyle } from "../primitives";
 
 export function TriageHeader({ d }: { d: HouseholdDetail }) {
@@ -52,7 +54,10 @@ export function TriageHeader({ d }: { d: HouseholdDetail }) {
                 size="sm"
                 variant="outline"
                 className="border-bone bg-transparent text-bone hover:bg-slate"
-                onClick={() => openDossier(a.household_id, a.transformer_id)}
+                onClick={() => {
+                  api.openPdfDossier(a.household_id);
+                  toast(`Dosar generat · ${a.transformer_id}`);
+                }}
               >
                 <FileDown /> Dosar PDF pentru distribuitor
               </Button>

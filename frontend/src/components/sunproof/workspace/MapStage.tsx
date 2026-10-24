@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { GridLayers, type LayerToggles } from "@/components/sunproof/map/GridLayers";
 import { MapCanvas, useMapApi, type Basemap } from "@/components/sunproof/map/MapCanvas";
 import { MapOverlay } from "@/components/sunproof/map/MapOverlay";
@@ -15,7 +15,7 @@ import {
 import { houseBearings } from "@/lib/geo-features";
 import type { GridState, HouseholdSummary, Neighborhood } from "@/lib/types";
 import type { CompareView } from "@/routes/harta";
-import { LayersMenu, ToolRail, ZoomRail } from "./MapChrome";
+import { LayersMenu, ToolRail, ZoomRail, prefersReducedMotion } from "./MapChrome";
 import { MapSearch } from "./MapSearch";
 import { TimeScrubber } from "./TimeScrubber";
 
@@ -67,7 +67,7 @@ export function MapStage({
   );
 
   return (
-    <section className="relative min-w-0 flex-1 overflow-hidden bg-obsidian">
+    <section className="relative min-w-0 flex-1 overflow-hidden bg-obsidian max-sm:[&_.maplibregl-ctrl-top-left]:hidden">
       <MapCanvas basemap={basemap}>
         <Camera nb={nb} center={center} selectedId={selectedId} />
         {grid && center && (
@@ -109,9 +109,9 @@ export function MapStage({
         <ZoomRail />
       </MapCanvas>
 
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-3 p-3">
-        <div className="w-24" />
-        <div className="pointer-events-auto flex w-full min-w-0 max-w-[460px] flex-col items-center gap-2">
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-2 p-3 sm:gap-3">
+        <div className="hidden w-24 shrink-0 sm:block" />
+        <div className="pointer-events-auto flex min-w-0 flex-1 max-w-[460px] flex-col items-center gap-2">
           <MapSearch
             households={households}
             neighborhoods={neighborhoods}
@@ -119,7 +119,7 @@ export function MapStage({
             onNeighborhood={onPickNeighborhood}
           />
         </div>
-        <div className="pointer-events-auto">
+        <div className="pointer-events-auto shrink-0">
           <LayersMenu
             basemap={basemap}
             onBasemap={setBasemap}
@@ -166,9 +166,15 @@ function Camera({
 }) {
   const api = useMapApi();
   const id = nb?.neighborhood_id;
+  const prevNb = useRef<string | undefined>(undefined);
   useEffect(() => {
     if (!api || !nb || !center) return;
     const client = nb.houses.find((h) => (h.household_id ?? h.house_id) === selectedId);
+    if (prevNb.current === id && client) {
+      const clientPt = toLngLat(center, housePlanXY(client).x, housePlanXY(client).y);
+      if (api.map.getZoom() >= 14 && api.map.getBounds().contains(clientPt)) return;
+    }
+    prevNb.current = id;
     let focus = nb.houses;
     let withPt = false;
     if (client) {
@@ -193,11 +199,10 @@ function Camera({
       ],
       {
         padding: narrow
-          ? { top: 120, bottom: 240, left: 120, right: 72 }
+          ? { top: 120, bottom: 200, left: 72, right: 72 }
           : { top: 140, bottom: 200, left: withPt ? 110 : 170, right: 130 },
         maxZoom: 18,
-        duration: 2400,
-        essential: true,
+        duration: prefersReducedMotion() ? 0 : 2400,
       },
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps

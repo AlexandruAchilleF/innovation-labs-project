@@ -18,11 +18,6 @@ import type { HouseholdDetail } from "@/lib/types";
 const headline = (o: object, fallback: string) =>
   (o as { headline_ro?: string }).headline_ro || fallback;
 
-export function openDossier(householdId: string, transformerId: string) {
-  api.openPdfDossier(householdId);
-  toast(`Dosar generat · ${transformerId}`);
-}
-
 export function AlertConfirm({
   d,
   open,

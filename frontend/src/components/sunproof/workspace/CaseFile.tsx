@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ChevronRight, FileDown, ReceiptText, Send, Smartphone } from "lucide-react";
+import { toast } from "sonner";
+import { api } from "@/lib/api";
 import { fmt } from "@/lib/format";
 import { responsibleLabel, severityLabel } from "@/lib/i18n";
 import type { GridState, HouseholdDetail, Neighborhood, Severity } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { AlertConfirm, openDossier } from "../AlertConfirm";
+import { AlertConfirm } from "../AlertConfirm";
 import { ActionButton, type Action } from "./CaseActions";
 import { NeighborStrip } from "./NeighborStrip";
 import { SeverityTag, sevText } from "./SeverityTag";
@@ -39,7 +41,10 @@ export function CaseFile({
     id: "pdf",
     icon: <FileDown />,
     label: "Dosar PDF pentru distribuitor",
-    onClick: () => openDossier(a.household_id, transformerId),
+    onClick: () => {
+      api.openPdfDossier(a.household_id);
+      toast(`Dosar generat · ${transformerId}`);
+    },
     title: `Dosar pentru distribuitor · ${transformerId}`,
   };
   const alert: Action = {
