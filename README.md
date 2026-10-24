@@ -1,4 +1,4 @@
-# Cutia neagră a prosumatorului
+# SunProof
 
 > **Un singur adevăr despre energia ta, care îți aparține.**
 
