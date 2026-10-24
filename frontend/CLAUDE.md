@@ -18,7 +18,7 @@ Self-contained UI for SunProof Prosumer & Grid Intelligence.
   `src/lib/geo.ts` turns backend `x_m`/`y_m` (metres from the PT) + neighborhood lat/lon into coordinates and computes
   per-15-min congestion (transformer loading, feeder loading, voltage headroom); `src/lib/geo-features.ts` builds the GeoJSON.
   Mocks lack geometry, so every accessor has a deterministic fallback. maplibre-gl is imported dynamically (client-only, SSR-safe).
-- **Layout**: `components/sunproof/shell` (icon rail + top bar), `workspace/` (case panel | map stage | network panel),
+- **Layout**: `components/sunproof/shell` (icon rail + top bar), `workspace/` (portfolio panel | map stage | detail panel: only one side panel open at a time; the detail panel splits into the 3 questions grid/battery/billing, worded in `src/lib/case-questions.ts`),
   `map/` (canvas, layers, HTML overlay with `SolarRoof` 2D houses built from the `equipment.tsx` models: PV array, inverter, battery, smart meter, low-zoom `HousePin`). `/retea` redirects to `/harta`.
 - **Localization**: Severity, status, and responsible party enums must use Romanian labels from `src/lib/i18n.ts`. Never render raw enums.
 - **Git safety**: Connected to Lovable — avoid force-pushing or amending published commits.

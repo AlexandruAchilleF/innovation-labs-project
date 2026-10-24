@@ -3,7 +3,12 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { CaseChip, CasePanel } from "@/components/sunproof/workspace/CasePanel";
 import { MapStage } from "@/components/sunproof/workspace/MapStage";
-import { NetworkPanel } from "@/components/sunproof/workspace/NetworkPanel";
+import { CaseDetail } from "@/components/sunproof/workspace/CaseDetail";
+import { SidePanel } from "@/components/sunproof/workspace/SidePanel";
+import { sevDot } from "@/components/sunproof/workspace/SeverityTag";
+import { answers, mainQuestion, QUESTION_IDS, type QuestionId } from "@/lib/case-questions";
+import { cn } from "@/lib/utils";
+import { ClipboardList } from "lucide-react";
 import { api } from "@/lib/api";
 import { worstSlot } from "@/lib/geo";
 import { householdQuery, neighborhoodsQuery, portfolioQuery } from "@/lib/queries";
@@ -28,6 +33,8 @@ export const Route = createFileRoute("/harta")({
 });
 
 export type CompareView = "before" | "after";
+/** Which side panel is open; the two never open together so the map keeps its width. */
+export type OpenSide = "left" | "right" | null;
 
 function HartaPage() {
   const { household, n } = Route.useSearch();
@@ -49,6 +56,15 @@ function HartaPage() {
   const [params, setParams] = useState<Required<GridWhatIfParams> | null>(null);
   const [view, setView] = useState<CompareView>("after");
   const [slot, setSlot] = useState(54);
+  const [side, setSide] = useState<OpenSide>("left");
+  const [tab, setTab] = useState<QuestionId | null>(null);
+  useEffect(() => setTab(null), [household]);
+  const activeTab = tab ?? (detail.data ? mainQuestion(detail.data) : "grid");
+  const qs = detail.data ? answers(detail.data) : null;
+  const openDetail = (q?: QuestionId) => {
+    if (q) setTab(q);
+    setSide("right");
+  };
   useEffect(() => {
     setParams(null);
     if (nb) setSlot(worstSlot(nb, nb.houses, nb.transformer_kva));
@@ -76,19 +92,14 @@ function HartaPage() {
     <div className="flex h-full min-h-0">
       <CasePanel
         households={portfolio.data?.households}
+        metrics={portfolio.data?.metrics}
         selected={household}
         detail={detail.data}
-        nb={nb}
-        grid={grid}
-        kva={kva}
-        slot={slot}
-        params={params}
-        onParams={setParams}
-        sim={sim}
-        loading={whatIf.isFetching}
-        view={view}
-        onView={setView}
+        open={side === "left"}
+        onOpen={() => setSide("left")}
+        onClose={() => setSide(null)}
         onSelect={select}
+        onDetail={openDetail}
       />
       <MapStage
         neighborhoods={list}
@@ -103,20 +114,55 @@ function HartaPage() {
         onPickNeighborhood={pickNeighborhood}
         simulating={!!sim}
         view={view}
-        caseChip={<CaseChip detail={detail.data} nb={nb} grid={grid} slot={slot} />}
+        caseChip={<CaseChip detail={detail.data} grid={grid} slot={slot} />}
       />
-      <NetworkPanel
-        nb={nb}
-        grid={grid}
-        kva={kva}
-        slot={slot}
-        params={params}
-        onParams={setParams}
-        sim={sim}
-        loading={whatIf.isFetching}
-        view={view}
-        onView={setView}
-      />
+      <SidePanel
+        side="right"
+        open={side === "right"}
+        onOpen={() => setSide("right")}
+        onClose={() => setSide(null)}
+        width="w-[400px]"
+        title={
+          <>
+            Analiză detaliată
+            {detail.data && (
+              <span className="text-fog"> · {detail.data.analysis.customer_name}</span>
+            )}
+          </>
+        }
+        railIcon={<ClipboardList />}
+        railLabel="Analiză detaliată"
+        railExtra={
+          qs && (
+            <span className="flex flex-col gap-1.5" aria-hidden>
+              {QUESTION_IDS.map((id) => (
+                <span key={id} className={cn("size-1.5 rounded-full", sevDot[qs[id].s])} />
+              ))}
+            </span>
+          )
+        }
+      >
+        <CaseDetail
+          key={household}
+          d={detail.data}
+          tab={activeTab}
+          onTab={setTab}
+          grid={grid}
+          slot={slot}
+          network={{
+            nb,
+            grid,
+            kva,
+            slot,
+            params,
+            onParams: setParams,
+            sim,
+            loading: whatIf.isFetching,
+            view,
+            onView: setView,
+          }}
+        />
+      </SidePanel>
     </div>
   );
 }

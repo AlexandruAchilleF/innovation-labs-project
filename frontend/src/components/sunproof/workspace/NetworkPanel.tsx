@@ -91,9 +91,9 @@ export function NetworkContent({
     });
 
   return (
-    <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-4 pb-6 pt-4">
+    <div className="space-y-6">
       <header>
-        <h2 className="font-display text-[20px] leading-tight text-bone">{nb.name}</h2>
+        <h3 className="text-[14px] font-medium leading-tight text-bone">{nb.name}</h3>
         <p
           className="num mt-1 text-[11.5px] text-fog"
           title={
@@ -142,6 +142,12 @@ export function NetworkContent({
             },
           ]}
         />
+        <p className="text-[11.5px] leading-relaxed text-smoke">
+          <span className="text-fog">Cum citești: </span>
+          cadranul arată cât din puterea transformatorului e folosită la ora aleasă (100% = plin;
+          «flux invers» = cartierul trimite energie înapoi în rețea). Bara de jos e cea mai mare
+          tensiune din cartier față de limita legală.
+        </p>
       </section>
       <section aria-label="Plecări (străzi)" className="space-y-2">
         <div className="flex items-baseline justify-between gap-3">
@@ -175,7 +181,11 @@ export function NetworkContent({
             );
           })}
         </ul>
-        <p className="num text-[10.5px] text-smoke">linia = 100% din capacitate</p>
+        <p className="text-[11.5px] leading-relaxed text-smoke">
+          <span className="text-fog">Cum citești: </span>
+          bara = cât de încărcat e cablul străzii (linia verticală = 100% din capacitate), cifra =
+          tensiunea maximă pe stradă, în volți.
+        </p>
       </section>
       {(nb.headline_ro || nb.recommended_distributor_action_ro) && (
         <details className="group text-[12.5px] leading-relaxed">
@@ -275,17 +285,5 @@ export function NetworkContent({
         </details>
       </section>
     </div>
-  );
-}
-
-export function NetworkPanel(props: NetworkPanelProps) {
-  return (
-    <aside className="hidden w-[320px] shrink-0 flex-col border-l border-border bg-canvas xl:flex">
-      <div className="flex h-10 shrink-0 items-center justify-between border-b border-border px-4">
-        <span className="text-[13px] text-bone">Rețea</span>
-        {props.nb && <span className="num text-[11px] text-fog">{props.nb.transformer_id}</span>}
-      </div>
-      <NetworkContent {...props} />
-    </aside>
   );
 }

@@ -1,6 +1,12 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
+import { FileDown, ReceiptText, Send, Smartphone } from "lucide-react";
+import { toast } from "sonner";
+import { api } from "@/lib/api";
+import { resolveOpenTicketsFor } from "@/lib/tickets";
+import type { HouseholdDetail, ResponsibleParty } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { AlertConfirm } from "../AlertConfirm";
 
 export interface Action {
   id: string;
@@ -44,4 +50,64 @@ export function ActionButton({
       {body}
     </button>
   );
+}
+
+/**
+ * The case actions in one place, so the summary and the detail sections offer the same buttons.
+ * `primary` is chosen by who must act; `dialog` must be rendered once by the caller.
+ */
+export function useCaseActions(d: HouseholdDetail) {
+  const a = d.analysis;
+  const [alertOpen, setAlertOpen] = useState(false);
+  const dossier: Action = {
+    id: "pdf",
+    icon: <FileDown />,
+    label: "Descarcă dosarul PDF pentru distribuitor",
+    onClick: () => {
+      api.openPdfDossier(a.household_id);
+      resolveOpenTicketsFor(a.household_id, "Dosar PDF generat pentru distribuitor");
+      toast(`Dosar generat · ${a.transformer_id}`);
+    },
+    title: `Dosar pentru distribuitor · ${a.transformer_id}`,
+  };
+  const alert: Action = {
+    id: "alert",
+    icon: <Send />,
+    label: "Trimite tehnician O&M (Telegram)",
+    onClick: () => setAlertOpen(true),
+  };
+  const guide: Action = {
+    id: "guide",
+    icon: <Smartphone />,
+    label: "Deschide ghidul de setare al clientului",
+    to: "/prosumator",
+  };
+  const bill: Action = {
+    id: "bill",
+    icon: <ReceiptText />,
+    label: "Corectează factura",
+    to: "/triaj",
+  };
+  const byParty: Partial<Record<ResponsibleParty, Action>> = {
+    DISTRIBUTION_OPERATOR: dossier,
+    INSTALLER: alert,
+    CUSTOMER_SETTING: guide,
+    SUPPLIER_BILLING: bill,
+  };
+  const dialog = (
+    <AlertConfirm
+      d={d}
+      open={alertOpen}
+      onOpenChange={setAlertOpen}
+      onSent={() => resolveOpenTicketsFor(a.household_id, "Tehnician O&M alertat prin Telegram")}
+    />
+  );
+  return {
+    dossier,
+    alert,
+    guide,
+    bill,
+    primary: byParty[a.primary_responsible_party] ?? null,
+    dialog,
+  };
 }

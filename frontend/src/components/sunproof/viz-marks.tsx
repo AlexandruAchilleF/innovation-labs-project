@@ -109,3 +109,74 @@ export function DayStrip({
     </div>
   );
 }
+
+/**
+ * Battery charge over the day (0–100 %), with the configured reserve as a dashed line and the
+ * evening peak (18–22) shaded: a battery that sits on the reserve line in the shaded band is locked.
+ */
+export function SocDay({
+  minutes,
+  reservePct,
+  wantedPct,
+}: {
+  minutes: MinutePoint[];
+  reservePct: number;
+  wantedPct?: number;
+}) {
+  const W = 300;
+  const H = 90;
+  const x = (m: number) => (m / 1440) * W;
+  const y = (p: number) => H - (Math.max(0, Math.min(100, p)) / 100) * H;
+  const pts = minutes
+    .filter((_, i) => i % 10 === 0)
+    .map((m) => `${x(m.minute_of_day).toFixed(1)},${y(m.battery_soc_pct).toFixed(1)}`)
+    .join(" ");
+  return (
+    <div aria-hidden>
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        className="h-24 w-full overflow-visible"
+        preserveAspectRatio="none"
+      >
+        <rect x={x(18 * 60)} y={0} width={x(4 * 60)} height={H} fill="var(--warning-soft)" />
+        <rect x={0} y={0} width={W} height={H} fill="none" stroke="var(--iron)" strokeWidth="1" />
+        {wantedPct !== undefined && wantedPct !== reservePct && (
+          <line
+            x1={0}
+            x2={W}
+            y1={y(wantedPct)}
+            y2={y(wantedPct)}
+            stroke="var(--fog)"
+            strokeDasharray="2 3"
+            strokeWidth="1"
+            vectorEffect="non-scaling-stroke"
+          />
+        )}
+        <line
+          x1={0}
+          x2={W}
+          y1={y(reservePct)}
+          y2={y(reservePct)}
+          stroke="var(--warning)"
+          strokeDasharray="5 3"
+          strokeWidth="1.25"
+          vectorEffect="non-scaling-stroke"
+        />
+        <polyline
+          points={pts}
+          fill="none"
+          stroke="var(--bone)"
+          strokeWidth="1.5"
+          vectorEffect="non-scaling-stroke"
+        />
+      </svg>
+      <div className="relative mt-1 h-3">
+        {[0, 6, 12, 18, 22].map((h) => (
+          <Pin key={h} at={(h / 24) * 100} className="num text-[10px] text-smoke">
+            {String(h).padStart(2, "0")}
+          </Pin>
+        ))}
+      </div>
+    </div>
+  );
+}

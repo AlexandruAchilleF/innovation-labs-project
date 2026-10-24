@@ -16,3 +16,10 @@ export function SeverityTag({ s }: { s: Severity }) {
     </span>
   );
 }
+
+export const sevDot: Record<Severity, string> = {
+  CRITICAL: "bg-critical",
+  WARNING: "bg-warning",
+  OK: "bg-success",
+  INFO: "bg-info",
+};

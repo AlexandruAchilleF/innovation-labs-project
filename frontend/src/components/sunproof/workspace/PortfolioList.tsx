@@ -1,29 +1,42 @@
 import { useMemo, useState } from "react";
 import { fmt } from "@/lib/format";
 import { useOpenTickets } from "@/lib/tickets";
-import type { HouseholdSummary, Severity } from "@/lib/types";
+import type { HouseholdSummary, PortfolioSummaryMetrics, Severity } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { sevText } from "./SeverityTag";
 
-const FILTERS: [string, (h: HouseholdSummary) => boolean][] = [
-  ["Toate", () => true],
-  ["Rețea", (h) => h.scenario_code === "GRID_OVERVOLTAGE"],
-  ["Local", (h) => h.scenario_code === "LOCAL_OVERVOLTAGE_SENSITIVITY"],
-  ["Baterie", (h) => h.scenario_code === "MISCONFIGURED_MODE"],
-  ["Factură", (h) => h.scenario_code === "MISSING_EXPORT_INDEX"],
+const TILES: { label: string; hint: string; test: (h: HouseholdSummary) => boolean }[] = [
+  {
+    label: "Opriri la prânz",
+    hint: "Invertoare deconectate de supratensiune (rețea sau instalație)",
+    test: (h) =>
+      h.scenario_code === "GRID_OVERVOLTAGE" || h.scenario_code === "LOCAL_OVERVOLTAGE_SENSITIVITY",
+  },
+  {
+    label: "Baterii blocate",
+    hint: "Baterii care nu livrează în vârful de seară",
+    test: (h) => h.scenario_code === "MISCONFIGURED_MODE",
+  },
+  {
+    label: "Facturi greșite",
+    hint: "Facturi care nu compensează exportul măsurat",
+    test: (h) => h.scenario_code === "MISSING_EXPORT_INDEX",
+  },
 ];
 const RANK: Record<Severity, number> = { CRITICAL: 0, WARNING: 1, INFO: 2, OK: 3 };
 
 export function PortfolioList({
   households,
+  metrics,
   selected,
   onSelect,
 }: {
   households: HouseholdSummary[] | undefined;
+  metrics?: PortfolioSummaryMetrics | undefined;
   selected: string;
   onSelect: (id: string) => void;
 }) {
-  const [filter, setFilter] = useState(0);
+  const [filter, setFilter] = useState<number | null>(null);
   const [q, setQ] = useState("");
   const openTickets = useOpenTickets();
   const ticketed = useMemo(() => new Set(openTickets.map((t) => t.household_id)), [openTickets]);
@@ -37,7 +50,7 @@ export function PortfolioList({
   const rows = useMemo(() => {
     const t = q.trim().toLowerCase();
     return (households ?? [])
-      .filter(FILTERS[filter]![1])
+      .filter((h) => filter === null || TILES[filter]!.test(h))
       .filter(
         (h) => !t || `${h.household_id} ${h.customer_name} ${h.city}`.toLowerCase().includes(t),
       )
@@ -49,37 +62,64 @@ export function PortfolioList({
   }, [households, filter, q]);
   return (
     <>
-      <div className="shrink-0 space-y-2 border-b border-border px-4 py-3">
+      <div className="shrink-0 space-y-3 border-b border-border px-4 py-3">
+        {metrics && (
+          <p className="flex items-baseline justify-between gap-3 text-[12px]">
+            <span className="text-fog">Valoare recuperabilă / lună</span>
+            <span className="num text-bone">
+              {fmt(metrics.fleet_total_supplier_monthly_value_ron)}
+              <span className="text-[11px] text-fog"> RON furnizor</span>
+              {" · "}
+              {fmt(metrics.fleet_total_customer_monthly_value_ron)}
+              <span className="text-[11px] text-fog"> RON clienți</span>
+            </span>
+          </p>
+        )}
+        <div role="group" aria-label="Probleme în portofoliu" className="grid grid-cols-3 gap-1.5">
+          {TILES.map((t, i) => {
+            const n = (households ?? []).filter(t.test).length;
+            return (
+              <button
+                key={t.label}
+                type="button"
+                onClick={() => setFilter(filter === i ? null : i)}
+                aria-pressed={filter === i}
+                title={`${t.hint} · apasă pentru a filtra lista`}
+                className={cn(
+                  "rounded-[4px] border px-2 py-1.5 text-left transition-colors hover:bg-slate",
+                  filter === i ? "border-voltage bg-slate" : "border-iron",
+                )}
+              >
+                <span
+                  className={cn(
+                    "num block text-[18px] leading-tight",
+                    n ? "text-bone" : "text-fog",
+                  )}
+                >
+                  {n}
+                </span>
+                <span className="block text-[11px] leading-tight text-fog">{t.label}</span>
+              </button>
+            );
+          })}
+        </div>
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           aria-label="Filtrează portofoliul"
-          placeholder="Filtrează după nume, ID sau oraș…"
-          className="h-9 w-full rounded-[4px] border border-iron bg-graphite px-3 text-[13px] text-bone outline-none placeholder:text-fog focus:border-voltage"
+          placeholder="Caută după nume, ID sau oraș…"
+          className="h-8 w-full rounded-[4px] border border-iron bg-graphite px-3 text-[12.5px] text-bone outline-none placeholder:text-fog focus:border-voltage"
         />
-        <div className="flex flex-wrap gap-1">
-          {FILTERS.map(([l], i) => (
-            <button
-              key={l}
-              onClick={() => setFilter(i)}
-              aria-pressed={filter === i}
-              className={cn(
-                "rounded-[4px] border px-2 py-1 text-[12px]",
-                filter === i ? "border-voltage text-bone" : "border-iron text-fog hover:text-bone",
-              )}
-            >
-              {l}
-            </button>
-          ))}
-        </div>
       </div>
       <div className="grid shrink-0 grid-cols-[1fr_auto] border-b border-border px-4 py-1.5">
-        <span className="eyebrow">Client · {rows.length}</span>
+        <span className="eyebrow">
+          {filter === null ? "Toți clienții" : TILES[filter]!.label} · {rows.length}
+        </span>
         <span
           className="eyebrow"
           title="Suma dintre beneficiul lunar furnizor și beneficiul lunar client"
         >
-          Furnizor + client (RON/lună)
+          Impact RON/lună
         </span>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto">
