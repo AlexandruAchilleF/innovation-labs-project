@@ -5,7 +5,7 @@ local installation? (2) is the battery locked out of the expensive evening peak?
 Deterministic engines decide; text (LLM or template) only explains numbers the engines already computed.
 
 ## Commands
-- Python: `.venv/bin/python` (3.14). Tests: `.venv/bin/python -m pytest -q --ignore=tests/test_config.py` (~20 s;
+- Python: `.venv/bin/python` (3.14). Tests: `.venv/bin/python -m pytest -q --tb=short --ignore=tests/test_config.py` (~20 s;
   `test_config.py` needs pandas, legacy module).
 - Run API + UI: `.venv/bin/uvicorn sunproof.app:app --reload` (env: `SUNPROOF_USE_LLM=1` + `ANTHROPIC_API_KEY` for LLM
   texts, `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID` for real alerts; otherwise templates / simulated alerts).
@@ -22,6 +22,8 @@ Deterministic engines decide; text (LLM or template) only explains numbers the e
 5. Never print scenario telemetry (1440 rows/household); aggregate in code and print summaries.
 6. Edit only the files you own (see roadmap in the cheatsheet). Do not touch models or `scenarios.py` signatures;
    if a contract must change, stop and report instead of editing.
+7. MONOREPO ISOLATION: When working on backend (`sunproof/`), DO NOT inspect or grep `frontend/`.
+   When working on UI, run Claude directly inside `frontend/` (using its isolated `frontend/CLAUDE.md`).
 
 ## File map (lines) — keep each file < 250 lines when adding code
 ```
@@ -80,3 +82,4 @@ Each agent: own branch/worktree, own tests file, run full `pytest -q` before com
 ## Testing
 - Engines are validated against `get_ground_truth(household_id)` (tests only) for all 81 scenarios.
 - Prefer assertions on verdict enums and key numbers; avoid snapshotting full models.
+- Always use `-q --tb=short` to avoid polluting context windows with verbose tracebacks.

@@ -1,0 +1,33 @@
+# Lockfiles (preventing ~500KB / 120k tokens from loading in searches)
+package-lock.json
+bun.lock
+yarn.lock
+pnpm-lock.yaml
+
+# Dependencies & runtime caches
+**/node_modules/
+.venv/
+venv/
+.pytest_cache/
+__pycache__/
+*.py[cod]
+
+# Heavy simulation internals (forbidden per CLAUDE.md rule 2)
+sunproof/grid.py
+sunproof/neighborhoods.py
+sunproof/data/
+
+# Large docs and interview/pitch transcripts not needed for coding
+docs/plan.md
+docs/pitch/
+docs/interviews/
+data/raw/
+
+# Build and binary outputs
+frontend/.output/
+frontend/.wrangler/
+frontend/dist/
+out/
+*.pdf
+*.db
+.coverage
