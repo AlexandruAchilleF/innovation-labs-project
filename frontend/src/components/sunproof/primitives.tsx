@@ -30,7 +30,7 @@ export function StatusBadge({
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[4px] border px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-[0.05em]",
+        "inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-[4px] border px-1.5 py-0.5 text-[11px] font-medium uppercase tracking-[0.05em]",
         sevClass[severity],
         className,
       )}
@@ -110,7 +110,7 @@ export const chartTooltipStyle = {
   labelStyle: { color: "var(--muted-foreground)", fontSize: 11 },
 };
 export const axisProps = {
-  tick: { fontSize: 10, fill: "var(--muted-foreground)", fontFamily: "var(--font-mono)" },
+  tick: { fontSize: 11, fill: "var(--muted-foreground)", fontFamily: "var(--font-mono)" },
   stroke: "var(--border)",
   tickLine: false,
 };

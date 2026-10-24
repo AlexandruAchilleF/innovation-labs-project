@@ -16,18 +16,21 @@ const views = [
     to: "/harta" as const,
     search: { household: "RO-TM-001" },
     label: "Hartă rețea & congestie",
+    shortLabel: "Hartă",
     icon: MapIcon,
   },
   {
     to: "/triaj" as const,
     search: { household: "RO-TM-001" },
     label: "Diagnostic complet",
+    shortLabel: "Diagnostic",
     icon: ClipboardList,
   },
   {
     to: "/prosumator" as const,
     search: { household: "RO-B-005" },
     label: "Aplicația prosumatorului",
+    shortLabel: "Prosumator",
     icon: Smartphone,
   },
 ];
@@ -40,6 +43,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="flex min-w-0 flex-1 flex-col">
           <TopBar />
           <div className="min-h-0 flex-1 overflow-y-auto">{children}</div>
+          <BottomNav />
         </div>
       </div>
     </TooltipProvider>
@@ -48,7 +52,10 @@ export function AppShell({ children }: { children: ReactNode }) {
 
 function Rail() {
   return (
-    <nav className="flex w-14 shrink-0 flex-col items-center gap-1 border-r border-border bg-obsidian py-3">
+    <nav
+      aria-label="Navigare principală"
+      className="hidden w-14 shrink-0 flex-col items-center gap-1 border-r border-border bg-obsidian py-3 sm:flex"
+    >
       <Link
         to="/harta"
         search={{ household: "RO-TM-001" }}
@@ -72,6 +79,29 @@ function Rail() {
           </TooltipTrigger>
           <TooltipContent side="right">{label}</TooltipContent>
         </Tooltip>
+      ))}
+    </nav>
+  );
+}
+
+function BottomNav() {
+  return (
+    <nav
+      aria-label="Navigare mobilă"
+      className="grid h-14 shrink-0 grid-cols-3 gap-1 border-t border-border bg-obsidian px-2 py-1 sm:hidden"
+    >
+      {views.map(({ to, search, label, shortLabel, icon: Icon }) => (
+        <Link
+          key={to}
+          to={to}
+          search={search as never}
+          aria-label={label}
+          className="flex flex-col items-center justify-center gap-1 rounded-[4px] border border-transparent py-1 text-[11px] text-fog transition-colors hover:bg-slate hover:text-bone"
+          activeProps={{ className: "!border-iron bg-slate !text-bone" }}
+        >
+          <Icon className="size-4" strokeWidth={1.5} />
+          <span>{shortLabel}</span>
+        </Link>
       ))}
     </nav>
   );

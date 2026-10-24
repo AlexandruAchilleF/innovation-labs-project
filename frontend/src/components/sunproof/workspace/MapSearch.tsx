@@ -82,7 +82,7 @@ export function MapSearch({
                 : results.nb[0] && (onNeighborhood(results.nb[0].neighborhood_id), done()))
           }
           placeholder="Caută client, POD, cartier sau coordonate (45.79, 21.24)"
-          className="h-full w-full bg-transparent text-[13px] text-bone outline-none placeholder:text-smoke"
+          className="h-full w-full bg-transparent text-[13px] text-bone outline-none placeholder:text-fog"
         />
       </label>
       {open && any && (

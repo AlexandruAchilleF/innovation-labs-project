@@ -70,23 +70,23 @@ export function GuardrailPanel({ d }: { d: HouseholdDetail }) {
           ) : (
             <ShieldCheck className="size-3.5" />
           )}
-          {sim?.fallback_applied ? "Fallback aplicat" : "Verificat"}
+          {sim?.fallback_applied ? "Text înlocuit cu șablonul" : "Verificat"}
         </span>
       }
     >
       <Tabs value={tab} onValueChange={(v) => setTab(v as Tab)}>
         <TabsList className="h-8 w-full">
           <TabsTrigger value="invoice_explanation" className="text-[12px]">
-            Explicație Factură
+            Explicație factură
           </TabsTrigger>
           <TabsTrigger value="distributor_complaint" className="text-[12px]">
-            Sesizare Distribuitor
+            Sesizare distribuitor
           </TabsTrigger>
           <TabsTrigger value="battery_guide" className="text-[12px]">
-            Ghid Baterie
+            Ghid baterie
           </TabsTrigger>
           <TabsTrigger value="call_center" className="text-[12px]">
-            Script Call-Center
+            Script call-center
           </TabsTrigger>
         </TabsList>
       </Tabs>

@@ -24,6 +24,13 @@ export function PortfolioList({
 }) {
   const [filter, setFilter] = useState(0);
   const [q, setQ] = useState("");
+  const nameCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const h of households ?? []) {
+      counts.set(h.customer_name, (counts.get(h.customer_name) ?? 0) + 1);
+    }
+    return counts;
+  }, [households]);
   const rows = useMemo(() => {
     const t = q.trim().toLowerCase();
     return (households ?? [])
@@ -65,28 +72,48 @@ export function PortfolioList({
       </div>
       <div className="grid shrink-0 grid-cols-[1fr_auto] border-b border-border px-4 py-1.5">
         <span className="eyebrow">Client · {rows.length}</span>
-        <span className="eyebrow">Impact RON/lună</span>
+        <span
+          className="eyebrow"
+          title="Suma dintre beneficiul lunar furnizor și beneficiul lunar client"
+        >
+          Furnizor + client (RON/lună)
+        </span>
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {rows.map((h) => (
-          <button
-            key={h.household_id}
-            onClick={() => onSelect(h.household_id)}
-            className={cn(
-              "grid w-full grid-cols-[1fr_auto] items-center gap-2 border-b border-border px-4 py-2.5 text-left transition-colors odd:bg-transparent even:bg-graphite hover:bg-slate",
-              h.household_id === selected && "!bg-iron",
-            )}
-          >
-            <span className="min-w-0">
-              <span className="block truncate text-[13px] text-bone">{h.customer_name}</span>
-              <span className="block truncate text-[11px] text-fog">
-                <span className="num">{h.household_id}</span> · {h.city} ·{" "}
-                <span className={sevText[h.overall_severity]}>{h.scenario_badge_ro}</span>
+        {rows.map((h) => {
+          const dup = (nameCounts.get(h.customer_name) ?? 0) > 1;
+          return (
+            <button
+              key={h.household_id}
+              onClick={() => onSelect(h.household_id)}
+              className={cn(
+                "grid w-full grid-cols-[1fr_auto] items-center gap-2 border-b border-border px-4 py-2.5 text-left transition-colors odd:bg-transparent even:bg-graphite hover:bg-slate",
+                h.household_id === selected && "!bg-iron",
+              )}
+            >
+              <span className="min-w-0">
+                <span className="flex items-baseline gap-1.5 truncate text-[13px] text-bone">
+                  <span className="truncate">{h.customer_name}</span>
+                  {dup && (
+                    <span className="num shrink-0 rounded-[4px] border border-iron bg-obsidian px-1.5 py-0.5 text-[11px] font-medium text-bone">
+                      {h.household_id}
+                    </span>
+                  )}
+                </span>
+                <span className="block truncate text-[11px] text-fog">
+                  {!dup && (
+                    <>
+                      <span className="num">{h.household_id}</span> ·{" "}
+                    </>
+                  )}
+                  {h.city} ·{" "}
+                  <span className={sevText[h.overall_severity]}>{h.scenario_badge_ro}</span>
+                </span>
               </span>
-            </span>
-            <span className="num text-[12px] text-bone">{fmt(h.monthly_impact_ron)}</span>
-          </button>
-        ))}
+              <span className="num text-[12px] text-bone">{fmt(h.monthly_impact_ron)}</span>
+            </button>
+          );
+        })}
       </div>
     </>
   );

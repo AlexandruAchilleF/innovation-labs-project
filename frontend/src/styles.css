@@ -189,6 +189,7 @@
 
   ::selection {
     background: color-mix(in oklab, var(--voltage) 40%, transparent);
+    color: var(--bone);
   }
 
   :root {
@@ -215,6 +216,24 @@
   * {
     scrollbar-width: thin;
     scrollbar-color: var(--iron) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: var(--iron);
+    border-radius: 3px;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--pewter);
   }
 }
 

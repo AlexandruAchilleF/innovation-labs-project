@@ -13,7 +13,5 @@ export default defineConfig({
     server: { entry: "server" },
   },
   // Default nitro target is cloudflare-module; on Vercel builds emit the Vercel Build Output.
-  nitro: {
-    preset: process.env.VERCEL ? "vercel" : undefined,
-  },
+  nitro: process.env["VERCEL"] ? { preset: "vercel" } : {},
 });

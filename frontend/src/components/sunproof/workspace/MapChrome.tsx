@@ -1,5 +1,4 @@
-import { useMemo, useState } from "react";
-import { Globe2, Layers, LocateFixed, Minus, Plus, ScanSearch, Search } from "lucide-react";
+import { Globe2, Layers, LocateFixed, Minus, Plus, ScanSearch } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -7,11 +6,14 @@ import { EquipmentIcon, type EquipmentKind } from "@/components/sunproof/map/equ
 import type { LayerToggles } from "@/components/sunproof/map/GridLayers";
 import { useMapApi, type Basemap } from "@/components/sunproof/map/MapCanvas";
 import { ROMANIA_CENTER, VOLTAGE_STOPS, housePlanXY, toLngLat, type LngLat } from "@/lib/geo";
-import { fmt } from "@/lib/format";
-import type { FeederHouse, HouseholdSummary, Neighborhood } from "@/lib/types";
+import type { FeederHouse, Neighborhood } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export const glass = "border border-iron bg-obsidian/85 backdrop-blur-sm shadow-overlay";
+
+export const prefersReducedMotion = () =>
+  typeof window !== "undefined" &&
+  window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
 export function LayersMenu({
   basemap,
@@ -33,7 +35,7 @@ export function LayersMenu({
     <Popover>
       <PopoverTrigger
         className={cn(
-          "flex h-8 items-center gap-2 rounded-[4px] px-3 text-[13px] text-bone hover:bg-slate",
+          "flex h-10 items-center gap-2 rounded-[4px] px-3 text-[13px] text-bone hover:bg-slate",
           glass,
         )}
       >
@@ -161,7 +163,7 @@ export function ToolRail({
   const api = useMapApi();
   if (!api) return null;
   const fly = (c: LngLat, zoom: number) =>
-    api.map.flyTo({ center: c, zoom, essential: true, duration: 1600 });
+    api.map.flyTo({ center: c, zoom, duration: prefersReducedMotion() ? 0 : 1600 });
   return (
     <div
       className={cn(
@@ -194,7 +196,10 @@ export function ToolRail({
                   [Math.min(...fleet.map((c) => c[0])), Math.min(...fleet.map((c) => c[1]))],
                   [Math.max(...fleet.map((c) => c[0])), Math.max(...fleet.map((c) => c[1]))],
                 ],
-                { padding: { top: 140, bottom: 200, left: 90, right: 90 }, duration: 1600 },
+                {
+                  padding: { top: 140, bottom: 200, left: 90, right: 90 },
+                  duration: prefersReducedMotion() ? 0 : 1600,
+                },
               )
             : fly(ROMANIA_CENTER, 6.2)
         }

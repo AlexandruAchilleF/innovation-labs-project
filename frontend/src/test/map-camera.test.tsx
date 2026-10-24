@@ -5,12 +5,27 @@ import { neighborhoods } from "@/lib/mock/neighborhoods";
 import { resolveMapGeometry } from "@/lib/map-geography";
 
 const api = vi.hoisted(() => ({
-  map: { fitBounds: vi.fn(), getContainer: () => ({ clientWidth: 1200 }) },
+  map: {
+    fitBounds: vi.fn(),
+    getContainer: () => ({ clientWidth: 1200 }),
+    getZoom: () => 18,
+    getBounds: () => ({ contains: () => true }),
+  },
 }));
 vi.mock("@/components/sunproof/map/MapCanvas", () => ({ useMapApi: () => api }));
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+});
+
+it("preserves the current camera when selecting a visible house in the same neighborhood", () => {
+  const first = neighborhoods[0]!;
+  const ready = resolveMapGeometry(first, first.houses);
+  const nb = { ...first, houses: ready.houses };
+  const { rerender } = render(<Camera nb={nb} center={ready.center} selectedId="" />);
+  expect(api.map.fitBounds).toHaveBeenCalledTimes(1);
+  rerender(<Camera nb={nb} center={ready.center} selectedId={ready.houses[0]!.house_id} />);
+  expect(api.map.fitBounds).toHaveBeenCalledTimes(1);
 });
 
 it("frames the new neighborhood when geometry recovers after stale simulation data", () => {
