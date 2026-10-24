@@ -41,24 +41,23 @@ export function TimeScrubber({
       })),
     [day, houses],
   );
-  const H = 34; // px per side of the axis at 130 %
   const tone = (v: number) =>
     v >= LEGAL_LIMIT_V ? "bg-critical" : v >= DERATING_START_V ? "bg-warning" : "bg-fog/70";
   const c = congestion;
 
   return (
-    <div className="absolute bottom-3 left-1/2 z-10 w-[min(820px,calc(100%-120px))] -translate-x-1/2 rounded-[8px] border border-iron bg-obsidian/90 px-3 pb-2 pt-2.5 shadow-overlay backdrop-blur-sm">
-      <div className="mb-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+    <div className="absolute bottom-3 left-1/2 z-10 w-[min(820px,calc(100%-24px))] -translate-x-1/2 rounded-[8px] border border-iron bg-obsidian/90 px-3 pb-2 pt-2 shadow-overlay backdrop-blur-sm sm:w-[min(820px,calc(100%-120px))] lg:pt-2.5">
+      <div className="mb-1.5 flex items-center gap-2 lg:mb-2 lg:flex-wrap lg:gap-x-4 lg:gap-y-1">
         <button
           onClick={() => setPlaying(!playing)}
           aria-label={playing ? "Pauză" : "Redă ziua"}
-          className="flex size-7 items-center justify-center rounded-[4px] border border-iron text-bone hover:bg-slate"
+          className="flex size-7 shrink-0 items-center justify-center rounded-[4px] border border-iron text-bone hover:bg-slate"
         >
           {playing ? <Pause className="size-3.5" /> : <Play className="size-3.5" />}
         </button>
-        <span className="num text-[18px] text-bone">{slotLabel(slot)}</span>
-        <span className="text-[12px] text-fog">{label}</span>
-        <span className="num ml-auto flex flex-wrap gap-x-3 text-[12px] text-fog">
+        <span className="num text-[15px] text-bone lg:text-[18px]">{slotLabel(slot)}</span>
+        <span className="hidden text-[12px] text-fog lg:inline">{label}</span>
+        <span className="num ml-auto hidden flex-wrap gap-x-3 text-[12px] text-fog lg:flex">
           <span>
             Trafo{" "}
             <span
@@ -95,16 +94,15 @@ export function TimeScrubber({
       </div>
 
       <div
-        className="relative"
-        style={{ height: H * 2 + 2 }}
+        className="relative h-10 lg:h-[70px]"
         title="Bare în sus: flux invers (export PV, % din kVA). Bare în jos: consum. Linia roșie: 100% din puterea trafo."
       >
         <div
           className="absolute inset-x-0 border-t border-dashed border-critical/50"
-          style={{ top: H - (100 / 130) * H }}
+          style={{ top: `${50 - (100 / 130) * 50}%` }}
           title="100% din puterea trafo"
         />
-        <div className="absolute inset-x-0 border-t border-iron" style={{ top: H }} />
+        <div className="absolute inset-x-0 top-1/2 border-t border-iron" />
         <div className="absolute inset-0 flex">
           {bars.map((b, s) => (
             <div key={s} className="relative h-full flex-1">
@@ -116,8 +114,8 @@ export function TimeScrubber({
                 )}
                 style={
                   b.reverse
-                    ? { bottom: H + 1, height: Math.max(1, (b.pct / 130) * H) }
-                    : { top: H + 1, height: Math.max(1, (b.pct / 130) * H) }
+                    ? { bottom: "50%", height: `${Math.max(2, (b.pct / 130) * 50)}%` }
+                    : { top: "50%", height: `${Math.max(2, (b.pct / 130) * 50)}%` }
                 }
               />
             </div>
@@ -137,11 +135,11 @@ export function TimeScrubber({
             onSlot(Number(e.target.value));
           }}
           aria-label="Ora din zi"
-          className="absolute inset-0 h-full w-full cursor-ew-resize opacity-0"
+          className="absolute inset-0 h-full w-full cursor-ew-resize appearance-none rounded-[4px] bg-transparent focus:outline-none focus:ring-2 focus:ring-voltage focus-visible:ring-2 focus-visible:ring-voltage [&::-moz-range-thumb]:size-0 [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-transparent [&::-moz-range-track]:bg-transparent [&::-webkit-slider-runnable-track]:bg-transparent [&::-webkit-slider-thumb]:size-0 [&::-webkit-slider-thumb]:appearance-none"
         />
       </div>
 
-      <div className="num mt-1 flex justify-between text-[10px] text-smoke">
+      <div className="num mt-1 flex justify-between text-[11px] text-fog">
         {["00:00", "06:00", "12:00", "18:00", "24:00"].map((t) => (
           <span key={t}>{t}</span>
         ))}
