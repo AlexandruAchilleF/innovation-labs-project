@@ -10,6 +10,7 @@ import {
 } from "@/lib/geo";
 import { fmt } from "@/lib/format";
 import { DERATING_START_V, LEGAL_LIMIT_V } from "@/lib/sim";
+import { layoutMapLabels, MAP_LABEL_WIDTH, MAP_LABEL_HEIGHT } from "@/lib/map-label-layout";
 import type { FeederHouse, Neighborhood } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useMapApi } from "./MapCanvas";
@@ -72,37 +73,88 @@ export function MapOverlay({
   const zoom = map.getZoom();
   const px = (ll: LngLat) => map.project(ll);
   const sun = solarFactor(slot);
+  const viewport = pins.length ? map.getContainer() : null;
+  const visiblePins = pins
+    .filter((p) => zoom < 12.5 || p.nb.neighborhood_id !== active?.nb.neighborhood_id)
+    .map((pin) => ({ ...pin, anchor: px(pin.center) }))
+    .filter(
+      ({ anchor }) =>
+        viewport &&
+        anchor.x >= 0 &&
+        anchor.x <= viewport.clientWidth &&
+        anchor.y >= 0 &&
+        anchor.y <= viewport.clientHeight,
+    );
+  const labels = new Map(
+    layoutMapLabels(
+      visiblePins.map(({ nb, anchor }) => ({ id: nb.neighborhood_id, x: anchor.x, y: anchor.y })),
+      viewport?.clientWidth ?? 0,
+      viewport?.clientHeight ?? 0,
+      active?.nb.neighborhood_id,
+    ).map((label) => [label.id, label]),
+  );
 
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      {pins
-        .filter((p) => zoom < 12.5 || p.nb.neighborhood_id !== active?.nb.neighborhood_id)
-        .map(({ nb, center, index }) => {
-          const p = px(center);
-          const isActive = nb.neighborhood_id === active?.nb.neighborhood_id;
+      <svg className="absolute inset-0 h-full w-full" aria-hidden>
+        {visiblePins.map(({ nb, anchor }) => {
+          const label = labels.get(nb.neighborhood_id)!;
+          if (label.compact) return null;
+          const x = Math.max(label.x, Math.min(label.x + MAP_LABEL_WIDTH, anchor.x));
+          const y = Math.max(label.y, Math.min(label.y + MAP_LABEL_HEIGHT, anchor.y));
+          if (x === anchor.x && y === anchor.y) return null;
           return (
-            <button
-              key={nb.neighborhood_id}
-              onClick={() => onPin(nb.neighborhood_id)}
-              style={{ transform: `translate(${p.x}px, ${p.y}px)` }}
-              className={cn(
-                "pointer-events-auto absolute left-0 top-0 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-[4px] border bg-obsidian/85 px-2 py-1 text-left backdrop-blur-sm transition-colors hover:bg-slate",
-                isActive ? "border-voltage" : "border-iron",
-              )}
-            >
-              <span className="block text-[11px] font-medium text-bone">{nb.city}</span>
-              <span className="num flex items-center gap-1.5 text-[11px] text-fog">
-                <span
-                  className={cn(
-                    "size-1.5 rounded-[1px]",
-                    index >= 100 ? "bg-critical" : index >= 80 ? "bg-warning" : "bg-fog",
-                  )}
-                />
-                {fmt(nb.peak_voltage_v, 1)} V · {nb.transformer_kva} kVA
-              </span>
-            </button>
+            <g key={nb.neighborhood_id}>
+              <line
+                x1={anchor.x}
+                y1={anchor.y}
+                x2={x}
+                y2={y}
+                stroke="var(--fog)"
+                strokeOpacity={0.65}
+              />
+              <circle cx={anchor.x} cy={anchor.y} r={2.5} fill="var(--bone)" />
+            </g>
           );
         })}
+      </svg>
+      {visiblePins.map(({ nb, index }) => {
+        const p = labels.get(nb.neighborhood_id)!;
+        const isActive = nb.neighborhood_id === active?.nb.neighborhood_id;
+        return (
+          <button
+            key={nb.neighborhood_id}
+            onClick={() => onPin(nb.neighborhood_id)}
+            aria-label={`${nb.city} ${fmt(nb.peak_voltage_v, 1)} V · ${nb.transformer_kva} kVA`}
+            title={`${nb.city} · ${fmt(nb.peak_voltage_v, 1)} V · ${nb.transformer_kva} kVA`}
+            style={{
+              transform: `translate(${p.x}px, ${p.y}px)`,
+              width: p.compact ? 12 : MAP_LABEL_WIDTH,
+              height: p.compact ? 12 : MAP_LABEL_HEIGHT,
+            }}
+            className={cn(
+              "pointer-events-auto absolute left-0 top-0 whitespace-nowrap border bg-obsidian/85 text-left backdrop-blur-sm transition-colors hover:bg-slate",
+              p.compact ? "rounded-full" : "rounded-[4px] px-2 py-1",
+              isActive ? "border-voltage" : "border-iron",
+            )}
+          >
+            {!p.compact && (
+              <>
+                <span className="block text-[11px] font-medium text-bone">{nb.city}</span>
+                <span className="num flex items-center gap-1.5 text-[11px] text-fog">
+                  <span
+                    className={cn(
+                      "size-1.5 rounded-[1px]",
+                      index >= 100 ? "bg-critical" : index >= 80 ? "bg-warning" : "bg-fog",
+                    )}
+                  />
+                  {fmt(nb.peak_voltage_v, 1)} V · {nb.transformer_kva} kVA
+                </span>
+              </>
+            )}
+          </button>
+        );
+      })}
 
       {active && zoom >= 12.5 && <Transformer active={active} at={px(active.center)} />}
 
