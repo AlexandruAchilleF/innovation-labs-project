@@ -165,7 +165,8 @@ def test_volt_watt_inverters_curtail_instead_of_tripping_somewhere():
 def test_ground_truth_mix_and_consistency():
     truths = [get_ground_truth(s.household_id) for s in get_all_scenarios()]
     grid = Counter(t.grid_cause for t in truths)
-    assert set(grid) == set(GridFaultCause)
+    engine_only = {GridFaultCause.INSUFFICIENT_DATA, GridFaultCause.MONITORING_UNCERTAIN}
+    assert set(grid) == set(GridFaultCause) - engine_only
     assert grid[GridFaultCause.GRID_OVERVOLTAGE] >= 8
     battery = Counter(t.battery_status for t in truths)
     assert battery[BatteryVerdictStatus.MISCONFIGURED_MODE] >= 3

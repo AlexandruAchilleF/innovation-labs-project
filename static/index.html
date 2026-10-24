@@ -3166,11 +3166,17 @@ Object.assign(ACT, {
   logout: () => { S.chat = []; closeChat(true); renderChat(); showScreen('landing'); },
 });
 // ---------- conexiune live cu backend-ul FastAPI SunProof ----------
-const CITY_TO_HH = { tim: 'RO-TM-001', buc: 'RO-IF-002', clj: 'RO-CJ-003', bv: 'RO-BV-004', is: 'RO-B-005' };
-const currentBackendId = () => CITY_TO_HH[S.city] || 'RO-TM-001';
+// Keys must match CITIES; backend has no Iași/Constanța household -> no fallback to another customer.
+const CITY_TO_HH = { tm: 'RO-TM-001', buc: 'RO-B-005', cluj: 'RO-CJ-003' };
+const currentBackendId = () => {
+  const hid = CITY_TO_HH[S.city];
+  if (!hid) toast(`${CITY().n}: nu există încă o gospodărie monitorizată în backend pentru acest oraș.`);
+  return hid;
+};
 
 ACT['dl-dossier'] = () => {
   const hid = currentBackendId();
+  if (!hid) return;
   window.open(`/api/households/${encodeURIComponent(hid)}/pdf-dossier`, '_blank');
   toast(`Dosar PDF oficial generat de backend (${hid}).`);
 };
@@ -3179,6 +3185,7 @@ const _origInstaller = ACT.installer;
 ACT.installer = async () => {
   if (_origInstaller) _origInstaller();
   const hid = currentBackendId();
+  if (!hid) return;
   try {
     const r = await fetch(`/api/households/${encodeURIComponent(hid)}/telegram-alert`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({})
@@ -3194,6 +3201,7 @@ const _origBatset = ACT.batset;
 ACT.batset = async (d) => {
   if (_origBatset) _origBatset(d);
   const hid = currentBackendId();
+  if (!hid) return;
   try {
     await fetch(`/api/households/${encodeURIComponent(hid)}/what-if-battery`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },

@@ -43,13 +43,24 @@ export function deriveScenarioCode(h: Raw): ScenarioCode {
   )
     return "LOCAL_OVERVOLTAGE_SENSITIVITY";
   if (
-    ["MISSING_EXPORT_INDEX", "ESTIMATED_INDEX_OVERCHARGE", "METER_INVERTER_DISCREPANCY"].includes(
+    [
+      "MISSING_EXPORT_INDEX",
+      "ESTIMATED_INDEX_OVERCHARGE",
+      "METER_INVERTER_DISCREPANCY",
+      "AMOUNT_MISMATCH",
+      "UNSUPPORTED_SETTLEMENT",
+    ].includes(
       h.billing_status,
     )
   )
     return "MISSING_EXPORT_INDEX";
   if (
-    ["MISCONFIGURED_SOC_RESERVE", "MISCONFIGURED_MODE", "UNDERPERFORMING_CAPACITY"].includes(
+    [
+      "MISCONFIGURED_SOC_RESERVE",
+      "MISCONFIGURED_MODE",
+      "MISCONFIGURED_DISCHARGE_POLICY",
+      "UNDERPERFORMING_CAPACITY",
+    ].includes(
       h.battery_status,
     )
   )

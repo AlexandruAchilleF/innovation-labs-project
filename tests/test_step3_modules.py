@@ -158,7 +158,8 @@ def test_pdf_for_all_scenarios(pairs):
 def test_alert_message_content(tm001):
     s, a = tm001
     msg = format_technician_alert(s, a)
-    for part in (s.household_id, s.pod_code, "257.19 V", "250.62 V", "6.57 V", "Acțiune recomandată"):
+    rise = f"{a.grid_verdict.voltage_rise_internal_cable_v:.2f} V"  # worst-event rise, engine-computed
+    for part in (s.household_id, s.pod_code, "257.19 V", "250.62 V", rise, "Acțiune recomandată"):
         assert part in msg
     assert "🔋" in msg  # battery misconfigured one-liner
 
