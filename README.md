@@ -113,12 +113,15 @@ Pe eșantion: **15 cazuri de rețea** × ~450 lei pe deplasare (estimare de vali
 
 Nu există un set public de date la nivel de stradă din România cu tensiunea pe faze și opririle simultane ale vecinilor ([analiza surselor](docs/research/2026-10-24-surse-date.md)). De aceea, telemetria este generată de un **simulator fizic determinist** al rețelei de joasă tensiune: posturi 20/0,4 kV, cabluri de aluminiu cu impedanțe reale, curgere de putere cuplată pe faze, praguri EN 50549-1 / EN 50160 ([`sunproof/grid.py`](sunproof/grid.py)).
 
+> **Ce înseamnă „inspirat din”:** niciun set de date recomandat în Challenge Brief (PVGIS, OPCOM, StoreNet, Open Power System Data) nu este descărcat sau încărcat în cod. Curbele de producție, consum și preț sunt formule și constante scrise de echipă, care imită forma acestor surse. Înlocuirea lor cu date reale este pasul următor.
+
 | Sursă | Cum o folosim |
 |---|---|
-| **PVGIS** (JRC) | Forma curbei de producție pentru o zi senină de august în România, cu orientare S/E/V și decalaj pe longitudine ([`clear_sky_pv_kw`](sunproof/grid.py#L117)). Curba este modelată analitic după profilele PVGIS, nu încărcată din fișiere PVGIS. |
-| **OPCOM PZU** | Profil orar tipic pentru august 2026 (amiază ~85–135 RON/MWh, seară ~940–1.120 RON/MWh), folosit la calculul pierderii din bateriile blocate ([`opcom_and_physics.py`](sunproof/data/opcom_and_physics.py#L32)) |
-| **StoreNet** (Irlanda) | Referință pentru tiparele de consum și comportamentul bateriei (randament, curbe de încărcare) ([`grid.py`](sunproof/grid.py#L170)) |
-| **ANRE și Legea 160/2026** | Numărul de prosumatori și regulile de compensare 1:1 din verificarea facturii ([`engine/billing.py`](sunproof/engine/billing.py)) |
+| **PVGIS** (JRC) | Forma curbei de producție pentru o zi senină de august în România, cu orientare S/E/V și decalaj pe longitudine ([`clear_sky_pv_kw`](sunproof/grid.py#L117)). Curba este o formulă analitică (sinus), inspirată din profilele PVGIS, nu încărcată din PVGIS. |
+| **OPCOM PZU** | 24 de prețuri orare scrise manual pentru o zi tipică de august (amiază ~85–135 RON/MWh, seară ~940–1.120 RON/MWh), folosite la calculul pierderii din bateriile blocate ([`opcom_and_physics.py`](sunproof/data/opcom_and_physics.py#L35)). Nu provin dintr-un export OPCOM. |
+| **StoreNet / OPSD** | Inspirație pentru forma consumului casnic (vârfuri dimineața, la prânz și seara, AC, mașină electrică). Consumul este o sumă de curbe gaussiene ([`household_load_kw`](sunproof/grid.py#L189)), nu este potrivit pe datele StoreNet sau OPSD. |
+| **ANRE și Legea 160/2026** | Regulile de compensare cantitativă 1:1 din verificarea facturii ([`engine/billing.py`](sunproof/engine/billing.py)). Toate instalațiile simulate sunt casnice, sub vechiul plafon de 200 kW, deci noul plafon de 400 kW nu este modelat. Cifrele ANRE (385.791 prosumatori, 151.040 cu baterie) apar doar în pitch, ca context de piață. |
+| **Mixul de invertoare** | Flota simulată respectă aproximativ proporția din brief: 57 din 81 de invertoare sunt chinezești (Huawei, Deye, Growatt), dintre care 41 Huawei. |
 | **Coduri de eroare ale invertoarelor** | Huawei `2034`, Fronius `102`, Growatt `300`, folosite în telemetria simulată ([`grid.py`](sunproof/grid.py#L86)). Integrarea reală cu Huawei FusionSolar și Fronius Solar API este planificată pentru pilot. |
 | **OpenStreetMap** | Geometria străzilor pentru hartă ([`scripts/import_map_geometry.py`](scripts/import_map_geometry.py)). Topologia rețelei este sintetică, nu a distribuitorului. |
 
