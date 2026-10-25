@@ -56,7 +56,7 @@ export function Landing() {
               />
               <RoleCard
                 src="/landing/role-prosumer.webp"
-                alt="Aplicația prosumatorului: casa, panourile și invertorul oprit la prânz"
+                alt="Aplicația prosumatorului: casa, panourile și invertorul deconectat de protecția la supratensiune"
                 h={607}
                 entry={<ProsumerEntry size="lg" className="w-full" />}
               />

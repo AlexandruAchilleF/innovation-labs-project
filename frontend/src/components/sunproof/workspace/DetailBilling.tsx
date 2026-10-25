@@ -6,7 +6,7 @@ import { CompareBars } from "../viz";
 import type { Action } from "./CaseActions";
 import { Answer, Mark, SectionActions } from "./DetailParts";
 
-/** Question 3: is the prosumer invoice correct (Law 160/2026, 1:1 quantity compensation). */
+/** Check 3: is the prosumer invoice correct (Law 160/2026, 1:1 quantity compensation). */
 export function DetailBilling({
   d,
   q,
@@ -25,15 +25,15 @@ export function DetailBilling({
       <Answer q={q} />
 
       <Mark
-        name="Export · kWh"
+        name="Energie injectată · kWh"
         value={short > 0 ? `−${fmt(short)} kWh` : undefined}
         tone="text-critical"
       >
         <CompareBars
           rows={[
-            { label: "contor", value: f.meter_export_kwh },
+            { label: "contor 2.8.0", value: f.meter_export_kwh },
             {
-              label: "factură",
+              label: "facturat",
               value: f.billed_export_kwh,
               tone: short > 0 ? "critical" : "success",
             },
@@ -41,12 +41,12 @@ export function DetailBilling({
         />
       </Mark>
 
-      <Mark name="Producție · kWh" value={fmt(f.produced_kwh)}>
+      <Mark name="Producție FV · kWh" value={fmt(f.produced_kwh)}>
         <SplitBar
           parts={[
-            { label: "casă", value: f.self_consumed_kwh, tone: "fog" },
-            { label: "baterie", value: f.battery_cycled_kwh, tone: "voltage" },
-            { label: "rețea", value: f.meter_export_kwh, tone: "bone" },
+            { label: "autoconsum", value: f.self_consumed_kwh, tone: "fog" },
+            { label: "stocare", value: f.battery_cycled_kwh, tone: "voltage" },
+            { label: "injecție", value: f.meter_export_kwh, tone: "bone" },
           ]}
         />
       </Mark>

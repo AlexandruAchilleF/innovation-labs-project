@@ -32,8 +32,8 @@ export function GridChapter() {
   return (
     <Chapter
       index="01"
-      title="Rețea sau instalație locală"
-      control={<Toggle label="Cauza opririi" value={mode} options={MODES} onChange={setMode} />}
+      title="Supratensiune: rețeaua JT sau instalația interioară"
+      control={<Toggle label="Cauza declanșării" value={mode} options={MODES} onChange={setMode} />}
     >
       <div ref={stage}>
         <Shot
@@ -47,8 +47,8 @@ export function GridChapter() {
               h={H}
               label={
                 local
-                  ? "Doar casa clientului se oprește; vecinii funcționează"
-                  : "Toate casele de pe transformator se opresc în același minut"
+                  ? "Declanșează doar invertorul clientului; vecinii rămân în funcțiune"
+                  : "Invertoarele de pe același post de transformare declanșează în același minut"
               }
             >
               <defs>

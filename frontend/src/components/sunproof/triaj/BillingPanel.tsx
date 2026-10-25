@@ -10,8 +10,8 @@ export function BillingPanel({ d }: { d: HouseholdDetail }) {
   const off = Math.abs(f.delta_ron) >= 0.01;
   return (
     <ChartFrame
-      eyebrow="Factură"
-      takeaway={off ? `Diferență ${fmt(Math.abs(f.delta_ron), 2)} RON` : "Corectă"}
+      eyebrow="Decontare"
+      takeaway={off ? `Abatere ${fmt(Math.abs(f.delta_ron), 2)} RON` : "Conformă"}
       tone={off ? "text-critical" : "text-bone"}
       legend={[]}
     >
@@ -20,7 +20,7 @@ export function BillingPanel({ d }: { d: HouseholdDetail }) {
           <h3 className="mb-2 text-[12px] text-fog">Energie lunară · kWh</h3>
           <CompareBars
             rows={[
-              { label: "Produs", value: f.produced_kwh, tone: "fog" },
+              { label: "Producție FV", value: f.produced_kwh, tone: "fog" },
               { label: "Autoconsum", value: f.self_consumed_kwh, tone: "fog" },
               { label: "Export contor", value: f.meter_export_kwh },
               {
@@ -35,7 +35,7 @@ export function BillingPanel({ d }: { d: HouseholdDetail }) {
           <h3 className="mb-2 text-[12px] text-fog">Valoare factură · RON</h3>
           <CompareBars
             rows={[
-              { label: "Corect", value: f.verified_ron, decimals: 2 },
+              { label: "Recalculat", value: f.verified_ron, decimals: 2 },
               {
                 label: "Facturat",
                 value: f.billed_ron,

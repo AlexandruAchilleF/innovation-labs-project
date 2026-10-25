@@ -46,8 +46,8 @@ export function BatterySimulator({ d }: { d: HouseholdDetail }) {
 
   if (b.battery_kwh === 0) {
     return (
-      <Panel title="Simulator rezervă baterie (SoC)">
-        <p className="text-[13px] text-fog">Fără baterie.</p>
+      <Panel title="Simulare SoC minim">
+        <p className="text-[13px] text-fog">Fără sistem de stocare.</p>
       </Panel>
     );
   }
@@ -68,7 +68,7 @@ export function BatterySimulator({ d }: { d: HouseholdDetail }) {
   const cards = r
     ? [
         {
-          l: "Livrat seara",
+          l: "Descărcat în vârf",
           a: r.after.evening_kwh_delivered_day,
           d: r.delta.evening_kwh_delivered_day,
           u: "kWh/zi",
@@ -93,11 +93,11 @@ export function BatterySimulator({ d }: { d: HouseholdDetail }) {
   const changed = soc !== b.configured_min_soc_pct;
   return (
     <ChartFrame
-      eyebrow="Rezervă baterie"
+      eyebrow="SoC minim"
       takeaway={
         r
           ? changed
-            ? `${fmt(r.before.evening_kwh_delivered_day, 1)} → ${fmt(r.after.evening_kwh_delivered_day, 1)} kWh seara`
+            ? `${fmt(r.before.evening_kwh_delivered_day, 1)} → ${fmt(r.after.evening_kwh_delivered_day, 1)} kWh în vârf`
             : `${fmt(b.locked_kwh, 1)} kWh blocați`
           : "…"
       }
@@ -106,7 +106,7 @@ export function BatterySimulator({ d }: { d: HouseholdDetail }) {
         { color: "var(--info)", label: changed ? "După" : "Încărcare" },
         ...(changed ? [{ color: "var(--fog)", label: "Acum", kind: "dash" as const }] : []),
         { color: "var(--warning)", label: "Rezervă", kind: "dash" },
-        { color: "var(--sun-soft)", label: "Seară", kind: "area" },
+        { color: "var(--sun-soft)", label: "Vârf seară", kind: "area" },
       ]}
     >
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3">

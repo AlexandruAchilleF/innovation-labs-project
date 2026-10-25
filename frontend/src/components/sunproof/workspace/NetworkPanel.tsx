@@ -71,10 +71,10 @@ export function NetworkContent({
   const overV = c.maxVoltageV >= LEGAL_LIMIT_V;
   const state =
     tripped > 0
-      ? { label: `Supratensiune · ${tripped} case deconectate azi`, tone: "text-critical" }
+      ? { label: `Supratensiune · ${tripped} invertoare deconectate azi`, tone: "text-critical" }
       : c.index >= 100
         ? {
-            label: overV ? "Tensiune peste limită, fără case deconectate" : "Supraîncărcat termic",
+            label: overV ? "Tensiune peste limită, fără deconectări" : "Suprasarcină termică",
             tone: "text-warning",
           }
         : c.index >= 80
@@ -246,7 +246,7 @@ export function NetworkContent({
               [
                 ["rebalance_phases", "Reechilibrare faze"],
                 ["enable_volt_watt_all", "Volt-Watt pe toate invertoarele"],
-                ["fix_all_batteries", "Baterii încărcate la prânz"],
+                ["fix_all_batteries", "Încărcare baterii în vârful solar"],
               ] as const
             ).map(([k, l]) => (
               <label

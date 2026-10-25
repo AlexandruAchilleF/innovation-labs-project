@@ -62,30 +62,30 @@ export function useCaseActions(d: HouseholdDetail) {
   const dossier: Action = {
     id: "pdf",
     icon: <FileDown />,
-    label: "Descarcă dosarul PDF pentru distribuitor",
+    label: "Descarcă dosarul tehnic pentru OD",
     onClick: () => {
       api.openPdfDossier(a.household_id);
-      resolveOpenTicketsFor(a.household_id, "Dosar PDF generat pentru distribuitor");
+      resolveOpenTicketsFor(a.household_id, "Dosar tehnic generat pentru OD");
       toast(`Dosar generat · ${a.transformer_id}`);
     },
-    title: `Dosar pentru distribuitor · ${a.transformer_id}`,
+    title: `Dosar tehnic OD · ${a.transformer_id}`,
   };
   const alert: Action = {
     id: "alert",
     icon: <Send />,
-    label: "Trimite tehnician O&M (Telegram)",
+    label: "Alocă intervenție O&M (Telegram)",
     onClick: () => setAlertOpen(true),
   };
   const guide: Action = {
     id: "guide",
     icon: <Smartphone />,
-    label: "Deschide ghidul de setare al clientului",
+    label: "Ghid de reconfigurare pentru client",
     to: "/prosumator",
   };
   const bill: Action = {
     id: "bill",
     icon: <ReceiptText />,
-    label: "Corectează factura",
+    label: "Emite factura de corecție",
     to: "/triaj",
   };
   const byParty: Partial<Record<ResponsibleParty, Action>> = {

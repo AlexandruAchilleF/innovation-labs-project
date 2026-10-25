@@ -43,7 +43,7 @@ export function Compare({
   // [label, before, after, decimals, unit, scale floor]: bars share one scale per metric
   const rows: [string, number, number, number, string, number][] = [
     ["Tensiune maximă", sim.before.peak_voltage_v, sim.after.peak_voltage_v, 1, " V", 230],
-    ["Case deconectate", sim.before.houses_tripped, sim.after.houses_tripped, 0, "", 0],
+    ["Invertoare deconectate", sim.before.houses_tripped, sim.after.houses_tripped, 0, "", 0],
     ["Vârf încărcare trafo", peak(sim.before, kvaBefore), peak(sim.after, kvaAfter), 0, "%", 0],
   ];
   return (

@@ -81,12 +81,12 @@ export function VoltageChart({ d }: { d: HouseholdDetail }) {
     { color: "var(--info)", label: "Contor" },
     ...(hasNb ? [{ color: "var(--pewter)", label: "Vecini", kind: "area" as const }] : []),
     ...(trips.length
-      ? [{ color: "var(--critical-border)", label: "Oprit", kind: "area" as const }]
+      ? [{ color: "var(--critical-border)", label: "Deconectat", kind: "area" as const }]
       : []),
   ];
 
   return (
-    <ChartFrame eyebrow="Tensiune" takeaway={takeaway} tone={tone} legend={legend}>
+    <ChartFrame eyebrow="Tensiune AC" takeaway={takeaway} tone={tone} legend={legend}>
       <div className="h-[260px]">
         <ResponsiveContainer>
           <ComposedChart data={rows} margin={{ top: 14, right: 44, left: -8, bottom: 0 }}>
@@ -145,7 +145,7 @@ export function VoltageChart({ d }: { d: HouseholdDetail }) {
                 {...(longest && a === longest[0]
                   ? {
                       label: {
-                        value: `oprit ${clock(a)}–${clock(b)}`,
+                        value: `deconectat ${clock(a)}–${clock(b)}`,
                         position: "insideBottom" as const,
                         fontSize: 10.5,
                         fill: "var(--critical)",
@@ -212,7 +212,7 @@ export function VoltageChart({ d }: { d: HouseholdDetail }) {
                 stroke="var(--warning)"
                 strokeWidth={2.5}
                 label={{
-                  value: `cablu +${fmt(g.voltage_rise_internal_cable_v, 1)} V`,
+                  value: `ΔU cablu +${fmt(g.voltage_rise_internal_cable_v, 1)} V`,
                   position: "right",
                   fontSize: 10.5,
                   fill: "var(--warning)",

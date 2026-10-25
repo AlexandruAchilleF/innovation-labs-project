@@ -21,7 +21,7 @@ export function BillingChapter() {
   return (
     <Chapter
       index="03"
-      title="Factură vs. contor"
+      title="Decontare vs. index de contor"
       control={
         <button
           onClick={() => setRun((r) => r + 1)}

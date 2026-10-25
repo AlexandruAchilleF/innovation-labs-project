@@ -9,7 +9,7 @@ import type { Action } from "./CaseActions";
 import { Answer, Mark, SectionActions } from "./DetailParts";
 import { NetworkContent, type NetworkPanelProps } from "./NetworkPanel";
 
-/** Question 1: midday inverter trip, the grid or the installation. */
+/** Check 1: inverter overvoltage trip, LV grid or the internal installation. */
 export function DetailGrid({
   d,
   q,
@@ -47,8 +47,8 @@ export function DetailGrid({
       <Answer q={q} lossRon={g.lost_ron_month} />
 
       <Mark
-        name="Tensiune invertor"
-        value={g.trip_minutes > 0 ? `${g.trip_minutes} min oprit` : undefined}
+        name="Tensiune AC la invertor"
+        value={g.trip_minutes > 0 ? `${g.trip_minutes} min deconectat` : undefined}
         tone="text-critical"
       >
         <DayLine
@@ -59,18 +59,18 @@ export function DetailGrid({
           danger={trips}
           peak
           unit="V"
-          label={`Tensiune maximă ${fmt(g.max_inverter_voltage_v, 1)} V, limită ${fmt(g.legal_limit_v)} V, ${g.trip_minutes} minute oprit`}
+          label={`Tensiune maximă ${fmt(g.max_inverter_voltage_v, 1)} V, limită ${fmt(g.legal_limit_v)} V, ${g.trip_minutes} minute deconectat`}
         />
       </Mark>
 
       <div className="grid grid-cols-2 gap-6">
         <Mark
-          name="Vecini opriți"
+          name="Declanșări simultane PT"
           value={`${g.neighbors_affected_simultaneously}/${g.neighbors_total}`}
         >
           <HouseRow hit={g.neighbors_affected_simultaneously} total={g.neighbors_total} />
         </Mark>
-        <Mark name="Cablu intern">
+        <Mark name="ΔU contor → invertor">
           <CableRise meter={g.max_meter_voltage_v} inverter={g.max_inverter_voltage_v} />
         </Mark>
       </div>
@@ -80,7 +80,7 @@ export function DetailGrid({
       {network && (
         <details open={cause === "grid"} className="group border-t border-border pt-4">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-2 text-[12.5px] text-fog hover:text-bone">
-            Rețeaua cartierului
+            Rețeaua JT și postul de transformare
             <DisclosureChevron />
           </summary>
           <div className="mt-4">

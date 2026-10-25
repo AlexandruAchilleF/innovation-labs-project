@@ -6,19 +6,19 @@ import { StatusDot } from "./SeverityTag";
 
 const TILES: { label: string; hint: string; test: (h: HouseholdSummary) => boolean }[] = [
   {
-    label: "Opriri la prânz",
-    hint: "Invertoare deconectate de supratensiune (rețea sau instalație)",
+    label: "Supratensiune",
+    hint: "Invertoare deconectate de protecția la supratensiune (rețea JT sau instalație interioară)",
     test: (h) =>
       h.scenario_code === "GRID_OVERVOLTAGE" || h.scenario_code === "LOCAL_OVERVOLTAGE_SENSITIVITY",
   },
   {
-    label: "Baterii blocate",
-    hint: "Baterii care nu livrează în vârful de seară",
+    label: "Stocare blocată",
+    hint: "SoC minim configurat peste cel solicitat: bateria nu se descarcă în vârful de seară",
     test: (h) => h.scenario_code === "MISCONFIGURED_MODE",
   },
   {
-    label: "Facturi greșite",
-    hint: "Facturi care nu compensează exportul măsurat",
+    label: "Export nefacturat",
+    hint: "Facturi care nu compensează integral energia injectată măsurată",
     test: (h) => h.scenario_code === "MISSING_EXPORT_INDEX",
   },
 ];
@@ -61,7 +61,7 @@ export function PortfolioList({
             RON/lună recuperabili
           </p>
         )}
-        <div role="group" aria-label="Probleme în portofoliu" className="grid grid-cols-3 gap-1.5">
+        <div role="group" aria-label="Abateri în portofoliu" className="grid grid-cols-3 gap-1.5">
           {TILES.map((t, i) => {
             const n = (households ?? []).filter(t.test).length;
             return (

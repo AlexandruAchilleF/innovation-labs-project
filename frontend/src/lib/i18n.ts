@@ -16,12 +16,12 @@ export const responsibleLabel: Record<ResponsibleParty, string> = {
 };
 
 export const scenarioLabel: Record<ScenarioCode, string> = {
-  GRID_OVERVOLTAGE: "Supratensiune rețea OD",
-  LOCAL_OVERVOLTAGE_SENSITIVITY: "Instalație locală sensibilă",
-  MISCONFIGURED_MODE: "Baterie blocată în rezervă",
-  MISSING_EXPORT_INDEX: "Index export lipsă pe factură",
-  INVOICE_VALID_EXPLAINED: "Factură corectă — explicată",
-  HEALTHY: "Funcționare optimă",
+  GRID_OVERVOLTAGE: "Supratensiune în rețeaua OD",
+  LOCAL_OVERVOLTAGE_SENSITIVITY: "Creștere de tensiune în instalația interioară",
+  MISCONFIGURED_MODE: "SoC minim configurat eronat",
+  MISSING_EXPORT_INDEX: "Index de export nefacturat",
+  INVOICE_VALID_EXPLAINED: "Factură conformă, reclamație neîntemeiată",
+  HEALTHY: "Fără abateri",
 };
 
 /** Who acts, phrased for the homeowner (prosumer app). */
