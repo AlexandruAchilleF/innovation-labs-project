@@ -18,20 +18,21 @@ suprapuse, două linii orizontale, două verticale, două diagonale, sclipiri î
 Desktopul (portalul furnizorului) e o fereastră cu colțuri de 14 px și umbră moale; telefonul (aplicația clientului) are ramă neagră, colțuri de 56 px.
 Cursor: săgeată albă mare (46 px, crește la 64 px pe momentele-cheie), contur #111. Apăsare: cursorul se strânge la 0,9, butonul real
 se umflă 8%, un inel chihlimbar se extinde.
-Textul de lângă cursor: card #eeeeee, Inter 600 30 px #111, a doua linie Fira Code 20 px cu cifrele. Cuvintele intră cu blur 6→0 px și
+Textul de lângă cursor: card #eeeeee, Inter 600 30 px #111, **doar titlul funcționalității** (ex. „Simulare: soluția distribuitorului”);
+cifrele rămân în aplicație, sub cursor, unde e deja camera. Cuvintele intră cu blur 6→0 px și
 culoare albastru #2b7fff → chihlimbar → #111 în ~10 cadre. Cardul urmează cursorul cu o ușoară întârziere (arc).
-Cifrele din carduri sunt citite din interfață în momentul filmării, nu scrise de mână.
 Interzis: subtitrări jos, casete care doar se luminează, crossfade-uri între scene, glow pe text, machete false ale aplicației.
 </direction>
 
 <structure>
+Textele după „→” de mai jos sunt cifrele pe care le arată aplicația în acel moment; cardul afișează doar titlul.
 0:00–0:03  DESCHIDERE · landing
   Camera strânsă 1,5x pe titlul „Aflați cauza opririi invertorului înainte să trimiteți echipa”, se retrage la 1,1x.
   Cursorul intră din dreapta pe „Deschide portofoliul demo”. Tăietură dură la 2,6x pe buton, apăsare, cadrul se încețoșează 6 px sub un văl cald.
 
 0:03–0:11  PORTOFOLIU + HARTĂ · /harta
   Fereastra apare retrasă (0,9) pe fundal și împinge la 1,0.
-  Cursor pe „982 RON/lună recuperabili” → „81 de clienți · 982 RON/lună recuperabili”.
+  Cursor pe „81 clienți” → „Portofoliul furnizorului · 81 clienți”.
   Cursorul mătură plăcile 21 / 4 / 5 → „21 supratensiuni · 4 baterii blocate · 5 exporturi nefacturate”.
   Zoom 1,7x pe casele roșii din Dumbrăvița → „10 invertoare oprite pe același transformator”.
   Click pe ▶ în bara de timp: ziua rulează, casele se aprind roșu spre amiază → „18 august, la fiecare 15 minute”.
@@ -45,7 +46,6 @@ Interzis: subtitrări jos, casete care doar se luminează, crossfade-uri între 
   Graficul de tensiune, zoom pe linia de 253 V → „Peste 253 V · deconectat 11:00–11:35”.
   „Stocare & arbitraj PZU” → cursorul trage rezerva bateriei de la 80% la 20% → economia lunară se actualizează live.
   Dan Munteanu → „Export contor 640 kWh · facturat 0 · abatere 312,80 RON”.
-  „Simulează o halucinație LLM (+999 RON)” → 999 marcat roșu → „Cifra inventată e prinsă; clientul primește șablonul verificat”.
 
 0:27–0:41  APLICAȚIA PROSUMATORULUI · telefon
   Click „Schimbă rolul: Vezi ca Prosumator”: fereastra iese, telefonul urcă în centru.
