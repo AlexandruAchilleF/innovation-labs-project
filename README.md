@@ -29,19 +29,19 @@ Pentru a răspunde cerinței juriului de a **depăși un simplu apel LLM** și d
 
 ## Problema Reală: Ce se întâmplă când panourile și bateria ta tac?
 
-În România, piața prosumatorilor a depășit **4.280 MW instalați**, iar numărul bateriilor a crescut cu **24.000 în doar două luni** (ajungând la peste 151.000 de unități). Cu toate acestea, clienții își văd energia fragmentată pe 4 ecrane separate: aplicația invertorului, aplicația bateriei, contorul inteligent și factura lunară.
+În România sunt **385.791 de prosumatori, iar 151.040 (≈39%) au baterie** (ANRE, 31 august 2026). Între iunie și august 2026 au apărut aproximativ **24.000 de baterii noi** (127.084 → 151.040). Cu toate acestea, clienții își văd energia fragmentată pe 4 ecrane separate: aplicația invertorului, aplicația bateriei, contorul inteligent și factura lunară.
 
-Din interviurile noastre cu prosumatori, instalatori și dispecerate O&M, am identificat **3 găuri negre financiare invizibile**:
+Din două conversații (un prosumator și un furnizor) și din cazuri publice documentate (presă, forumuri de prosumatori, verificări ale distribuitorilor) am identificat **3 probleme**, pe care le detaliem în [sinteza dovezilor](docs/interviews/2026-10-24-sinteza-dovezi-interviuri.md):
 
-1. **Supratensiunea din orele de vârf ale producției solare (253 V):** Rețelele rurale și periurbane de joasă tensiune sunt saturate. În orele de vârf ale producției solare (11:00–15:00), tensiunea depășește pragul legal EN 50549-1 de **253 V**, iar invertoarele se decuplează automat. Prosumatorul crede că „s-a înnorat”, iar furnizorul trimite echipe de intervenție în teren doar ca să constate că instalația din casă este impecabilă (**450 RON irosiți pe fiecare deplasare inutilă**).
-2. **Baterii blocate din montaj:** Peste 60% dintre baterii rămân setate la o rezervă de siguranță de **80% SoC** (setarea din fabrică), deși proprietarul a cerut rezervă de 20%. Bateria refuză să se încarce în orele de vârf ale producției solare și nu livrează nimic în **vârful de seară OPCOM PZU (19:00–22:00)**, când energia este cu până la 60% mai scumpă. Pierderea: peste **1.000 RON/an per instalație**.
-3. **Facturi decontate eronat (Legea 160/2026):** Compensarea cantitativă 1:1 între producție, import (1.8.0) și export (2.8.0) conține frecvent discrepanțe neobservate de clienți sau cantități injectate nedecontate de furnizor.
+1. **Supratensiunea din orele de vârf ale producției solare (253 V):** În rețelele de joasă tensiune cu mulți prosumatori, tensiunea poate depăși pragul de **253 V** (EN 50549-1), iar invertoarele se decuplează automat („Când tensiunea din rețea depășește 253 V, echipamentele prosumatorilor se opresc automat”, APCE). Prosumatorul nu știe dacă e vina rețelei sau a instalației, iar o echipă de intervenție poate fi trimisă degeaba (costul unei deplasări, estimat de noi la **~450 RON**, urmează să fie validat în pilot).
+2. **Baterii care nu livrează seara:** Setările bateriei pot diferi de ce a cerut proprietarul (de exemplu, o rezervă de 80% în loc de 20%). Bateria se încarcă puțin în orele de vârf ale producției solare și nu livrează în **vârful de seară**, când energia pe piața spot a ajuns în vara lui 2026 la un raport seară/amiază de **~8:1** ([Puterea.ro](https://www.puterea.ro/cel-mai-scump-kilowatt-e-cel-pe-care-nu-l-poti-muta/)). Cât de răspândite sunt aceste setări greșite nu știm încă. Singurul indiciu public: Distribuție Energie Oltenia a găsit **276 din 460 de invertoare (60%)** fără protecțiile obligatorii ([HotNews](https://hotnews.ro/prosumatorii-sustin-ca-distribuitorii-de-energie-incearca-sa-le-controleze-productia-panourilor-solare-replica-unui-distribuitor-in-60-dintre-cazuri-instalatiile-prosumatorilor-nu-respecta-paramet-2075879)). Cifra privește protecțiile invertoarelor, nu setările bateriei.
+3. **Facturi greu de verificat (Legea 160/2026):** Compensarea cantitativă 1:1 între import (1.8.0) și export (2.8.0) poate produce discrepanțe între invertor, contor și factură, pe care clientul nu are cum să le verifice singur.
 
 ---
 
 ## Soluția SunProof: „Vecinii sunt senzorul”
 
-SunProof este un motor software independent de brand, **100% fără hardware suplimentar în tablou**, care compară telemetria casei cu cea a **vecinilor anonimizați de pe același transformator**.
+SunProof este un motor software independent de brand, **fără hardware suplimentar în tablou**, care compară telemetria casei cu cea a **vecinilor anonimizați de pe același transformator**.
 
 ```
     Invertor (Cloud API / Local)       Contor Inteligent (15 min)        Curba OPCOM PZU
@@ -58,47 +58,48 @@ SunProof este un motor software independent de brand, **100% fără hardware sup
             ▼                                       ▼                                       ▼
    REȚEAUA E DE VINĂ?                      BATERIA FACE CE VREI?                   FACTURA E CORECTĂ?
  Supratensiune pe post confirmată        Intenție (20%) vs. Setare (80%).        Compensare 1:1 calculată
- de vecini -> Dosar PDF generat          Arbitraj PZU seară vs. amiază            față de contor -> Bani
- oficial către Distribuitor.             calculat instant.                       recuperați.
+ de vecini -> Dosar PDF generat          Arbitraj PZU seară vs. amiază            față de contor -> Diferențe
+ pentru Distribuitor.                    calculat instant.                       semnalate.
 ```
 
 ---
 
 ## Triaj în 3 Secunde: Ce rezolvă aplicația
 
-| Caz Detectat | Cauza Fizică | Ce face SunProof | Impact Financiar |
+| Caz Detectat | Cauza Fizică | Ce face SunProof | Valoare (de validat în pilot) |
 |---|---|---|---|
-| **Supratensiune Rețea** | Tensiunea trece de 253V la contor ȘI vecinii se opresc simultan | Emite instant **Dosarul Tehnic PDF** pentru Distribuitor (DEO, Rețele Electrice, DEER) | **Economie de 450 RON** (fără deplasare inutilă de echipă O&M) |
-| **Cablu Intern Subdimensionat** | Tensiune normală la contor, dar salt > 8V pe cablul intern AC | Semnalează **cădere internă de tensiune** către instalator | Evită incendiile sau degradarea prematură a invertorului |
-| **Defect Echipament** | Tensiune rețea normală, dar producție prăbușită vs. PVGIS | Deschide tichet direct la **tehnician pe Telegram** | Timp de remediere redus de la 3 săptămâni la 24h |
-| **Baterie Blocată** | Rezervă 80% când proprietarul a cerut 20% | Arată **arbitrajul PZU pierdut** și oferă buton de remediere | **982 RON/lună** pe cele 7 baterii blocate din eșantion |
-| **Eroare Factură** | Discrepanță între curba 2.8.0 și regularizarea furnizorului | Evidențiază kWh injectați nedecontați | Protecție financiară automată conform Legii 160/2026 |
+| **Supratensiune Rețea** | Tensiunea trece de 253V la contor ȘI vecinii se opresc simultan | Generează **Dosarul Tehnic PDF** pentru Distribuitor (DEO, Rețele Electrice, DEER) | Evită o deplasare inutilă a echipei O&M (~450 RON, estimare) |
+| **Cablu Intern Subdimensionat** | Tensiune normală la contor, dar salt > 8V pe cablul intern AC | Semnalează **căderea internă de tensiune** către instalator | Problema ajunge direct la instalator, nu la distribuitor |
+| **Defect Echipament** | Tensiune rețea normală, dar producție prăbușită vs. PVGIS | Deschide tichet către **tehnician pe Telegram** | Tichetul pleacă imediat, cu datele atașate |
+| **Baterie Blocată** | Rezervă 80% când proprietarul a cerut 20% | Arată **arbitrajul PZU pierdut** și setarea de corectat | În simulare: **982 RON/lună** pe cele 7 baterii blocate din eșantion |
+| **Eroare Factură** | Discrepanță între curba 2.8.0 și regularizarea furnizorului | Evidențiază kWh injectați nedecontați | Disputa se rezolvă cu cifrele din contor (Legea 160/2026) |
 
 ---
 
-## Validare pe Date & Cifre de Impact
+## Validare în Simulare
 
-Eficiența algoritmilor noștri este dovedită prin evaluarea automată pe **toate cele 81 de instalații din flotă** (5 povești principale validate manual + 76 generate pe 8 topologii de joasă tensiune):
+> **Important:** toate rezultatele de mai jos sunt obținute pe **date simulate**, nu pe instalații reale. Simulatorul, scenariile și răspunsurile corecte (`get_ground_truth`) sunt construite de echipă, deci rezultatele arată că logica motoarelor e consistentă cu fizica modelată, nu acuratețe demonstrată în teren. Următorul pas este un pilot pe 50–100 de locuințe.
 
-* **100.0% Acuratețe de Clasificare** Rețea vs. Local/Echipament la date de 1 minut.
-* **98.8% Acuratețe la Citire la 5 Minute:** Funcționează impecabil doar din API-urile cloud ale producătorilor (Huawei, Fronius, Deye, SolarEdge, Victron), **fără montaj de senzori hardware**.
-* **0 Alarme False pe Case Sănătoase (0.0%):** Nicio sesizare inutilă trimisă când rețeaua sau instalația este în parametri normali (Volt-Watt).
-* **6.750 RON/lună economisiți** pe o singură flotă de 81 de case doar prin eliminarea deplasărilor inutile de intervenție (15 cazuri de supratensiune rețea rezolvate prin dosar).
-* **≈713.000 EUR/an recuperați** prin deblocarea rezervelor de baterie, extrapolat la 25.000 de prosumatori cu stocare.
+Evaluare automată pe **81 de instalații simulate** (5 povești principale validate manual + 76 generate pe 8 topologii de joasă tensiune), [raport complet aici](docs/pitch/2026-10-24-dovada-evaluare-81-scenarii.md):
+
+* **81/81 (100%)** clasificare corectă Rețea vs. Local/Echipament la date de 1 minut.
+* **80/81 (98,8%)** la date de 5 minute, rezoluția tipică a API-urilor cloud ale producătorilor (Huawei, Fronius, Deye, SolarEdge, Victron).
+* **0/60 alarme false** pe instalațiile simulate fără defecte.
+* **15 cazuri de supratensiune de rețea** în eșantion: la ~450 RON pe deplasare (estimare), ar însemna **~6.750 RON** deplasări evitate.
 
 ---
 
 ## Arhitectură & Garanția Anti-Halucinație
 
-1. **Motoare Deterministe (Zero decizii AI pe cifre):** Detecția de anomalii, calculul pierderilor și responsabilitatea juridică sunt calculate 100% determinist prin legile fizicii și formule matematice pure.
-2. **Guardrail Numeric Binar:** Modelele LLM redactează explicațiile în limba română prietenoasă, dar fiecare cifră, procent sau sumă în RON este verificată automat. Dacă AI-ul generează **măcar un singur număr** neacoperit de faptele calculate, textul este respins instantaneu și înlocuit cu șablonul matematic garantat.
+1. **Motoare Deterministe (Zero decizii AI pe cifre):** Detecția de anomalii, calculul pierderilor și stabilirea părții responsabile sunt calculate determinist, din formule fizice și reguli explicite.
+2. **Guardrail Numeric Binar:** Modelele LLM redactează explicațiile în limba română, dar fiecare cifră, procent sau sumă în RON este verificată automat. Dacă textul conține **măcar un număr** care nu provine din motoare, este respins și înlocuit cu un șablon determinist. Aplicația funcționează complet și fără LLM.
 3. **GDPR by Design:** Vecinii sunt folosiți exclusiv ca martori anonimizați de tensiune. Niciun prosumator nu vede datele private sau curba de consum a vecinului; sistemul calculează doar indici agregați de simultaneitate pe post.
 
 ---
 
 ## Tech Stack
 
-* **Backend Engine:** Python 3.12+, FastAPI, Uvicorn (cache thread-safe în memorie, răspuns < 5ms), Pydantic v2, FPDF2 (generare PDF securizat latin-1), HTTPX (Telegram bot), Pytest (**900 teste automate, 100% green**).
+* **Backend Engine:** Python 3.12+, FastAPI, Uvicorn (cache thread-safe în memorie), Pydantic v2, FPDF2 (generare PDF securizat latin-1), HTTPX (Telegram bot), Pytest (**900 teste automate**).
 * **Frontend Web:** React 19, TanStack Start / Router, Tailwind CSS, Lucide React, Recharts, Vite. Interfață responsive cu mod live, hartă stradală 2D interactivă și suport complet offline.
 
 ---
@@ -138,7 +139,7 @@ cd frontend && npm test
 
 ## Concluzie pentru Juriul Innovation Labs
 
-SunProof răspunde direct celor trei cerințe de aur din Challenge Brief:
-1. **Validate before you build:** Punctele dureroase (450 RON drum O&M inutil, bateria blocată la 80%, dosar tehnic de rețea) au fost validate direct cu prosumatori și instalatori.
-2. **Go beyond one LLM call:** Unim 4 fluxuri distincte de date (Invertor + Contor Inteligent + OPCOM PZU + Vecini de pe post) într-un motor determinist cu zero halucinații.
-3. **Real data & physics:** Folosim PVGIS, OPCOM și StoreNet integrate într-un digital twin riguros pentru rețeaua de joasă tensiune din România.
+SunProof răspunde celor trei cerințe din Challenge Brief:
+1. **Validate before you build:** Problema opririlor din orele de vârf ale producției solare a fost semnalată spontan în ambele conversații pe care le-am avut (un prosumator și un furnizor) și este confirmată de presă și de APCE. Frecvența problemelor de baterie și factură rămâne de validat în pilot.
+2. **Go beyond one LLM call:** Unim 4 fluxuri distincte de date (Invertor + Contor Inteligent + OPCOM PZU + Vecini de pe post) într-un motor determinist; LLM-ul doar explică cifrele, sub un guardrail numeric.
+3. **Real data & physics:** Folosim PVGIS, OPCOM și StoreNet pentru a calibra un digital twin al rețelei de joasă tensiune din România. Rezultatele sunt obținute în simulare; validarea pe date reale e următorul pas.
