@@ -17,6 +17,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .recharts-tooltip-wrapper {
+    transition: none !important;
+  }
+
   .solar-mask-pattern {
     animation: none;
     opacity: 0.18;

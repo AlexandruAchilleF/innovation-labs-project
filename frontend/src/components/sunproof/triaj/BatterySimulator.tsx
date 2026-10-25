@@ -154,6 +154,9 @@ export function BatterySimulator({ d }: { d: HouseholdDetail }) {
             <XAxis {...xMinutes(0, 1440, 3)} />
             <YAxis domain={[0, 100]} {...AXIS} width={48} tickFormatter={(v) => `${v}%`} />
             <Tooltip
+              animationDuration={80}
+              animationEasing="linear"
+              useTranslate3d
               cursor={{ stroke: "var(--pewter)" }}
               content={
                 <ChartTip

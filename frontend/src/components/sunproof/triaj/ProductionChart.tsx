@@ -58,6 +58,9 @@ export function ProductionChart({ d }: { d: HouseholdDetail }) {
             <XAxis {...xMinutes(FROM, TO, 3)} />
             <YAxis {...AXIS} width={48} tickFormatter={(v) => `${v} kW`} />
             <Tooltip
+              animationDuration={80}
+              animationEasing="linear"
+              useTranslate3d
               cursor={{ stroke: "var(--pewter)" }}
               content={
                 <ChartTip

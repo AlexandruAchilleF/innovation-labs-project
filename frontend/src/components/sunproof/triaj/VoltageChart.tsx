@@ -101,6 +101,9 @@ export function VoltageChart({ d }: { d: HouseholdDetail }) {
               allowDataOverflow
             />
             <Tooltip
+              animationDuration={80}
+              animationEasing="linear"
+              useTranslate3d
               cursor={{ stroke: "var(--pewter)" }}
               content={
                 <ChartTip

@@ -148,7 +148,13 @@ export function DayCharts({
             {tab === "voltage" && (
               <YAxis domain={[220, Math.ceil(vMax + 3)]} {...AXIS} unit=" V" width={64} />
             )}
-            <Tooltip content={<Tip tab={tab} />} cursor={{ stroke: "var(--pewter)" }} />
+            <Tooltip
+              animationDuration={80}
+              animationEasing="linear"
+              useTranslate3d
+              content={<Tip tab={tab} />}
+              cursor={{ stroke: "var(--pewter)" }}
+            />
 
             {tab === "power" && tripped && (
               <Area
