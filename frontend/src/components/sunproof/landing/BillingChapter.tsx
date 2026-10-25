@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Chapter } from "./Chapter";
+import { fmt } from "@/lib/format";
+import { Chapter, type Fact } from "./Chapter";
+import { useCase } from "./use-case";
 import { useInView } from "./motion";
 import { Overlay, Shot } from "./Shot";
 
@@ -18,6 +20,12 @@ const BAR = { x: 162, x2: 562, y: 528, h: 18 };
 export function BillingChapter() {
   const [ref, seen] = useInView<HTMLDivElement>(0.5);
   const [run, setRun] = useState(0);
+  const v = useCase("RO-BV-004")?.billing_verdict;
+  const facts: Fact[] | undefined = v && [
+    ["Export la contor", `${fmt(v.meter_export_kwh)} kWh`],
+    ["Export pe factură", `${fmt(v.billed_export_kwh)} kWh`],
+    ["Diferență", `${fmt(v.delta_ron, 2)} RON`],
+  ];
   return (
     <Chapter
       index="03"
@@ -31,6 +39,7 @@ export function BillingChapter() {
           Reverifică
         </button>
       }
+      facts={facts}
     >
       <div ref={ref}>
         <Shot

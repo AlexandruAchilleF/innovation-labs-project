@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Lock } from "lucide-react";
-import { Chapter } from "./Chapter";
+import { fmt } from "@/lib/format";
+import { Chapter, type Fact } from "./Chapter";
+import { useCase } from "./use-case";
 import { span, useScrollProgress } from "./motion";
 import { Overlay, Shot, Toggle } from "./Shot";
 
@@ -30,12 +32,19 @@ export function BatteryChapter() {
   const dusk = span(t, 0.35, 1);
   const evening = t > 0.8;
   const fixed = mode === "fixed";
+  const b = useCase("RO-CJ-003")?.battery_verdict;
+  const facts: Fact[] | undefined = b && [
+    ["Rezervă setată", `${fmt(fixed ? b.desired_min_soc_pct : b.configured_min_soc_pct)} %`],
+    ["Energie blocată seara", `${fmt(fixed ? 0 : b.locked_kwh, 1)} kWh`],
+    ["PZU seară / prânz", `${fmt(b.pzu_evening_ron_mwh)} / ${fmt(b.pzu_midday_ron_mwh)} RON/MWh`],
+  ];
   return (
     <Chapter
       index="02"
       reverse
       title="Baterie blocată seara"
       control={<Toggle label="Setarea bateriei" value={mode} options={MODES} onChange={setMode} />}
+      facts={facts}
     >
       <div ref={stage}>
         <Shot
@@ -96,7 +105,6 @@ export function BatteryChapter() {
           w={1100}
           h={569}
           className="relative z-10 -mt-[16%] w-[62%] sm:-ml-6 lg:-ml-12"
-          style={{ transform: `translateY(${(1 - p) * 48}px)` }}
         />
       </div>
     </Chapter>

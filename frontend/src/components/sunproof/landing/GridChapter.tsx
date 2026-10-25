@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Chapter } from "./Chapter";
-import { useScrollProgress } from "./motion";
+import { fmt } from "@/lib/format";
+import { Chapter, type Fact } from "./Chapter";
+import { useCase } from "./use-case";
 import { Overlay, Shot, Toggle } from "./Shot";
 
 type Mode = "grid" | "local";
@@ -26,16 +27,27 @@ const NEIGHBORS = [
  */
 export function GridChapter() {
   const [mode, setMode] = useState<Mode>("grid");
-  const [stage, p] = useScrollProgress<HTMLDivElement>();
   const local = mode === "local";
+  const g = useCase(local ? "RO-IF-002" : "RO-TM-001")?.grid_verdict;
+  const facts: Fact[] | undefined = g && [
+    ["Tensiune la contor", `${fmt(g.max_meter_voltage_v, 1)} V`],
+    local
+      ? ["Creștere pe cablul intern", `${fmt(g.voltage_rise_internal_cable_v, 1)} V`]
+      : ["Limită legală", `${fmt(g.legal_limit_v, 1)} V`],
+    [
+      "Vecini opriți simultan",
+      `${fmt(g.neighbors_affected_simultaneously)} / ${fmt(g.neighbors_total)}`,
+    ],
+  ];
   const origin = local ? CLIENT : PT;
   return (
     <Chapter
       index="01"
       title="Rețea sau instalație locală"
       control={<Toggle label="Cauza opririi" value={mode} options={MODES} onChange={setMode} />}
+      facts={facts}
     >
-      <div ref={stage}>
+      <div>
         <Shot
           src="/landing/grid-map.webp"
           alt="Harta SunProof: postul de transformare și casele cu panouri de pe aceeași stradă"
@@ -84,7 +96,6 @@ export function GridChapter() {
           w={1400}
           h={417}
           className="relative z-10 -mt-[14%] ml-auto w-[78%] sm:-mr-6 lg:-mr-12"
-          style={{ transform: `translateY(${(1 - p) * 48}px)` }}
         />
       </div>
     </Chapter>
