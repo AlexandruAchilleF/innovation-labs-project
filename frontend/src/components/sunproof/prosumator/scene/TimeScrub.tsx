@@ -2,6 +2,7 @@ import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { Pause, Play } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { clock } from "@/lib/energy-day";
+import { cn } from "@/lib/utils";
 import type { MinutePoint } from "@/lib/types";
 
 /** Day scrubber: the production profile doubles as the track, with inverter trips marked in red. */
@@ -9,12 +10,10 @@ export function TimeScrub({
   minutes,
   minute,
   onChange,
-  now,
 }: {
   minutes: MinutePoint[];
   minute: number;
   onChange: Dispatch<SetStateAction<number>>;
-  now: number;
 }) {
   const [playing, setPlaying] = useState(false);
   useEffect(() => {
@@ -28,6 +27,10 @@ export function TimeScrub({
   const Y = (kw: number) => 40 - (kw / peak) * 36;
   const area = `M0 40 ${minutes.map((m) => `L${X(m.minute_of_day)} ${Y(m.pv_power_kw)}`).join(" ")} L1000 40 Z`;
   const trips = minutes.filter((m) => m.status === "TRIP");
+  const jump = (m: number) => {
+    setPlaying(false);
+    onChange(m);
+  };
 
   return (
     <div className="flex items-center gap-3">
@@ -76,16 +79,36 @@ export function TimeScrub({
           ))}
         </div>
       </div>
-      <button
-        type="button"
-        onClick={() => {
-          setPlaying(false);
-          onChange(now);
-        }}
-        className="num shrink-0 rounded-[4px] border border-iron px-3 py-2 text-[12px] text-fog transition-colors hover:bg-slate hover:text-bone"
-      >
-        Acum {clock(now)}
-      </button>
+      <div className="flex shrink-0 gap-1.5">
+        {trips[0] && <Jump label="Avarie" to={trips[0].minute_of_day} critical go={jump} />}
+        <Jump label="Prânz" to={13 * 60} go={jump} />
+        <Jump label="Seară" to={20 * 60} go={jump} />
+      </div>
     </div>
+  );
+}
+
+function Jump({
+  label,
+  to,
+  critical,
+  go,
+}: {
+  label: string;
+  to: number;
+  critical?: boolean;
+  go: (m: number) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => go(to)}
+      className={cn(
+        "num rounded-[4px] border px-3 py-2 text-[12px] transition-colors hover:bg-slate",
+        critical ? "border-critical-border text-critical" : "border-iron text-fog hover:text-bone",
+      )}
+    >
+      {label} {clock(to)}
+    </button>
   );
 }

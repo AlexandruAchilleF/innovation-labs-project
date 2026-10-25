@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { dayTotals, equipmentFor, flowsAt, pointAt, pulseSeconds } from "@/lib/energy-day";
+import {
+  dayTotals,
+  equipmentFor,
+  flowsAt,
+  keyMinute,
+  pointAt,
+  pulseSeconds,
+} from "@/lib/energy-day";
 import type { MinutePoint } from "@/lib/types";
 
 const pt = (minute: number, o: Partial<MinutePoint> = {}): MinutePoint => ({
@@ -18,6 +25,21 @@ const pt = (minute: number, o: Partial<MinutePoint> = {}): MinutePoint => ({
 });
 
 describe("energy-day", () => {
+  it("opens the day on the first trip, then the locked evening, then the solar peak", () => {
+    const sunny = [
+      pt(600, { pv_power_kw: 2 }),
+      pt(780, { pv_power_kw: 5 }),
+      pt(1150, { grid_import_kw: 1 }),
+    ];
+    expect(keyMinute(sunny, false)).toBe(780);
+    expect(keyMinute(sunny, true)).toBe(1150);
+    expect(keyMinute([pt(780, { pv_power_kw: 5 })], true)).toBe(1200);
+    expect(
+      keyMinute([...sunny, pt(725, { status: "TRIP" }), pt(730, { status: "TRIP" })], true),
+    ).toBe(725);
+    expect(keyMinute([pt(0), pt(5)], false)).toBe(780);
+  });
+
   it("finds the nearest sample in a downsampled series", () => {
     const s = [pt(0), pt(5), pt(10)];
     expect(pointAt(s, 7)?.minute_of_day).toBe(5);

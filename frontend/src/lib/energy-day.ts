@@ -94,3 +94,22 @@ export function equipmentFor(pvKw: number, batteryKwh: number) {
 
 export const clock = (minute: number) =>
   `${String(Math.floor(minute / 60) % 24).padStart(2, "0")}:${String(minute % 60).padStart(2, "0")}`;
+
+/**
+ * The minute worth opening the day on: the first inverter trip, else (battery issue) the first
+ * evening minute where the house buys from the grid while the battery still holds charge,
+ * else the solar production peak.
+ */
+export function keyMinute(minutes: MinutePoint[], batteryIssue: boolean): number {
+  const trip = minutes.find((m) => m.status === "TRIP");
+  if (trip) return trip.minute_of_day;
+  if (batteryIssue) {
+    const evening = minutes.find(
+      (m) => m.minute_of_day >= 18 * 60 && m.grid_import_kw > 0.05 && m.battery_soc_pct > 30,
+    );
+    return evening?.minute_of_day ?? 20 * 60;
+  }
+  let peak = minutes[0];
+  for (const m of minutes) if (!peak || m.pv_power_kw > peak.pv_power_kw) peak = m;
+  return peak && peak.pv_power_kw > 0 ? peak.minute_of_day : 13 * 60;
+}

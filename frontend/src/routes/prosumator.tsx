@@ -7,7 +7,7 @@ import { DayCharts } from "@/components/sunproof/prosumator/DayCharts";
 import { MonthCard } from "@/components/sunproof/prosumator/MonthCard";
 import { EnergyScene } from "@/components/sunproof/prosumator/scene/EnergyScene";
 import { TimeScrub } from "@/components/sunproof/prosumator/scene/TimeScrub";
-import { clock, dayTotals, pointAt } from "@/lib/energy-day";
+import { clock, dayTotals, keyMinute, pointAt } from "@/lib/energy-day";
 import { fmt } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { TicketForm } from "@/components/sunproof/prosumator/TicketForm";
@@ -61,11 +61,13 @@ function ProsumatorPage() {
 
 function Dashboard({ d }: { d: HouseholdDetail }) {
   const a = d.analysis;
-  const now = useMemo(() => {
-    const t = new Date();
-    return Math.floor((t.getHours() * 60 + t.getMinutes()) / 5) * 5;
-  }, []);
-  const [minute, setMinute] = useState(now);
+  // open on the moment that tells this household's story, not on the wall clock
+  const [minute, setMinute] = useState(() =>
+    keyMinute(
+      d.timeseries.minutes,
+      a.battery_verdict.status === "WARNING" || a.battery_verdict.status === "CRITICAL",
+    ),
+  );
   const p = pointAt(d.timeseries.minutes, minute) ?? d.timeseries.minutes[0]!;
   const day = useMemo(() => dayTotals(d.timeseries.minutes), [d]);
   return (
@@ -96,12 +98,7 @@ function Dashboard({ d }: { d: HouseholdDetail }) {
         </div>
         <EnergyScene d={d} p={p} />
         <div className="border-t border-border px-5 pb-4 pt-12">
-          <TimeScrub
-            minutes={d.timeseries.minutes}
-            minute={minute}
-            onChange={setMinute}
-            now={now}
-          />
+          <TimeScrub minutes={d.timeseries.minutes} minute={minute} onChange={setMinute} />
         </div>
       </section>
 
