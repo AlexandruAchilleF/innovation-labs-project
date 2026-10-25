@@ -8,9 +8,9 @@ import { cn } from "@/lib/utils";
 
 /** Demo prosumer accounts: the five flagship stories, each one problem. */
 export const PROSUMER_ACCOUNTS: [id: string, story: string][] = [
-  ["RO-TM-001", "Supratensiune în rețeaua OD"],
+  ["RO-TM-001", "Supratensiune în rețeaua distribuitorului"],
   ["RO-IF-002", "Cablu local subdimensionat"],
-  ["RO-CJ-003", "SoC minim configurat eronat"],
+  ["RO-CJ-003", "SoC minim setat greșit"],
   ["RO-BV-004", "Index de export nefacturat"],
   ["RO-B-005", "Factură conformă"],
 ];

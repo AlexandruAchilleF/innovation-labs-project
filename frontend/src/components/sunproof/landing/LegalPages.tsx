@@ -449,9 +449,9 @@ export function LegalDocumentPage({ docKey }: { docKey: LegalDocKey }) {
               variant="text"
               className="hidden h-10 text-[13px] sm:inline-flex"
             >
-              Sunt prosumator
+              Vedere prosumator
             </ProsumerEntry>
-            <SupplierEntry size="sm">Deschide demo-ul</SupplierEntry>
+            <SupplierEntry size="sm">Deschide portofoliul demo</SupplierEntry>
           </nav>
         </div>
       </header>

@@ -8,8 +8,8 @@ import { Overlay, Shot, Toggle } from "./Shot";
 
 type Mode = "locked" | "fixed";
 const MODES = [
-  ["locked", "Eronat"],
-  ["fixed", "Reconfigurat"],
+  ["locked", "Setare actuală"],
+  ["fixed", "Setare corectă"],
 ] as const;
 
 /** Pixel positions on /landing/bat-scene.webp (1600×971), the prosumer scene at 20:00. */
@@ -42,7 +42,7 @@ export function BatteryChapter() {
     <Chapter
       index="02"
       reverse
-      title="Stocare indisponibilă în vârful de seară"
+      title="Bateria nu se descarcă la vârful de seară"
       control={<Toggle label="SoC minim" value={mode} options={MODES} onChange={setMode} />}
       facts={facts}
     >

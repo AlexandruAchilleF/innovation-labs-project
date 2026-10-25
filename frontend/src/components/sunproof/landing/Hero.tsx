@@ -17,20 +17,20 @@ const CROP = 900;
 export function Hero() {
   return (
     <section>
-      <div className="mx-auto grid max-w-[1200px] gap-10 px-6 pt-16 sm:pt-24 lg:grid-cols-12 lg:items-end">
-        <h1 className="lp-rise font-display text-balance text-[40px] leading-[1.06] sm:text-[56px] lg:col-span-8 lg:text-[64px]">
-          Fiecare reclamație, cu dovada ei
+      <div className="mx-auto flex max-w-[1200px] flex-col gap-10 px-6 pt-16 sm:pt-24">
+        <h1 className="lp-rise font-display max-w-[920px] text-balance text-[34px] leading-[1.08] sm:text-[52px] lg:text-[60px]">
+          Aflați cauza opririi invertorului înainte să trimiteți echipa
         </h1>
         <div
-          className="lp-rise flex flex-wrap items-center gap-x-6 gap-y-3 lg:col-span-4 lg:justify-end lg:pb-2"
+          className="lp-rise flex flex-wrap items-center gap-x-6 gap-y-3"
           style={{ "--lp-delay": "0.1s" } as React.CSSProperties}
         >
           <SupplierEntry size="lg">
-            Deschide demo-ul
+            Deschide portofoliul demo
             <ArrowRight className="size-4" />
           </SupplierEntry>
           <ProsumerEntry size="lg" variant="text">
-            Sunt prosumator
+            Vedere prosumator
           </ProsumerEntry>
         </div>
       </div>

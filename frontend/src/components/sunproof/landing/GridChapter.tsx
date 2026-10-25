@@ -43,7 +43,7 @@ export function GridChapter() {
   return (
     <Chapter
       index="01"
-      title="Supratensiune: rețeaua JT sau instalația interioară"
+      title="Supratensiune: rețea sau instalație interioară?"
       control={<Toggle label="Cauza declanșării" value={mode} options={MODES} onChange={setMode} />}
       facts={facts}
     >

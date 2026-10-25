@@ -19,9 +19,9 @@ export function Landing() {
             variant="text"
             className="hidden h-10 text-[13px] sm:inline-flex"
           >
-            Sunt prosumator
+            Vedere prosumator
           </ProsumerEntry>
-          <SupplierEntry size="sm">Deschide demo-ul</SupplierEntry>
+          <SupplierEntry size="sm">Deschide portofoliul demo</SupplierEntry>
         </nav>
       </header>
 
@@ -35,7 +35,7 @@ export function Landing() {
               id="dovezi"
               className="font-display text-balance text-[32px] leading-tight sm:text-[40px]"
             >
-              Trei întrebări, trei dovezi
+              Ce verificăm la fiecare reclamație
             </h2>
             <ol className="mt-16 divide-y divide-border">
               <GridChapter />
@@ -55,15 +55,15 @@ export function Landing() {
               id="intrare"
               className="font-display text-balance text-[32px] leading-tight sm:text-[40px]"
             >
-              Primul caz e deja deschis
+              Încercați pe portofoliul demonstrativ
             </h2>
             <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
               <SupplierEntry size="lg">
-                Deschide demo-ul
+                Deschide portofoliul demo
                 <ArrowRight className="size-4" />
               </SupplierEntry>
               <ProsumerEntry size="lg" variant="text">
-                Sunt prosumator
+                Vedere prosumator
               </ProsumerEntry>
             </div>
           </div>

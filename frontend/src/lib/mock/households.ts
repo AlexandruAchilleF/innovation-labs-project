@@ -402,7 +402,7 @@ const APP: Record<HouseholdSpec["inverter_brand"], { name: string; path: string;
 function triageLine(s: HouseholdSpec, lockedKwh: number): string {
   switch (s.code) {
     case "GRID_OVERVOLTAGE":
-      return `Supratensiune în rețeaua OD: contorul (PCC) atinge ${fmt(s.meter_peak_v, 1)} V peste limita de ${LEGAL_LIMIT_V} V, iar ${s.neighbors_tripped} din 4 vecini declanșează simultan — NU trimiteți tehnician, depuneți sesizare la distribuitor.`;
+      return `Supratensiune în rețeaua distribuitorului: contorul atinge ${fmt(s.meter_peak_v, 1)} V, peste limita de ${LEGAL_LIMIT_V} V, iar ${s.neighbors_tripped} din 4 vecini declanșează simultan. Nu este nevoie de tehnician. Depuneți sesizare la distribuitor.`;
     case "LOCAL_OVERVOLTAGE_SENSITIVITY":
       return `Problemă în instalația locală: tensiunea străzii e sănătoasă (${fmt(s.meter_peak_v, 1)} V), dar cablul AC de ${fmt(s.cable_mm2, 1)} mm² / ${s.cable_m} m adaugă +${fmt(s.cable_rise_v, 1)} V și pragul invertorului e setat greșit la ${s.inverter_threshold_v} V.`;
     case "MISCONFIGURED_MODE":

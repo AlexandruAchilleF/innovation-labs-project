@@ -13,7 +13,7 @@ import { Shot } from "./Shot";
 
 const STEPS: [label: string, body: () => ReactNode][] = [
   [
-    "Măsurat",
+    "Date de la invertor și contor",
     () => (
       <Shot
         src="/landing/chain-measure.webp"
@@ -25,7 +25,7 @@ const STEPS: [label: string, body: () => ReactNode][] = [
     ),
   ],
   [
-    "Decis",
+    "Verdict",
     () => (
       <div className="-mx-6 overflow-x-auto px-6 sm:mx-0 sm:px-0">
         <Shot
@@ -38,11 +38,11 @@ const STEPS: [label: string, body: () => ReactNode][] = [
       </div>
     ),
   ],
-  ["Explicat", () => <Explained />],
-  ["Trimis", () => <Delivered />],
+  ["Explicație pentru client", () => <Explained />],
+  ["Sesizare la distribuitor și alertă O&M", () => <Delivered />],
 ];
 
-/** "De la minut la dosar": four ruled steps, from raw telemetry to the delivered dossier. */
+/** "Cum se închide un caz": four ruled steps, from raw telemetry to the delivered dossier. */
 export function ProofChain() {
   return (
     <section aria-labelledby="lant">
@@ -51,7 +51,7 @@ export function ProofChain() {
           id="lant"
           className="font-display text-balance text-[32px] leading-tight sm:text-[40px]"
         >
-          De la minut la dosar
+          Cum se închide un caz
         </h2>
         <ol className="mt-14 divide-y divide-iron border-t border-iron">
           {STEPS.map(([label, Body], i) => (

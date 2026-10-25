@@ -29,14 +29,14 @@ export function BillingChapter() {
   return (
     <Chapter
       index="03"
-      title="Decontare vs. index de contor"
+      title="Factura comparată cu indexul contorului"
       control={
         <button
           onClick={() => setRun((r) => r + 1)}
           className="inline-flex h-9 w-fit items-center gap-2 rounded-[4px] border border-iron px-3 text-[13px] text-fog transition-colors hover:border-pewter hover:text-bone"
         >
           <RotateCcw className="size-3.5" />
-          Reverifică
+          Rulează din nou
         </button>
       }
       facts={facts}
