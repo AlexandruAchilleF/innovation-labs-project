@@ -1,6 +1,6 @@
 import { useHydrated } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { FileText, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { householdQuery } from "@/lib/queries";
 import { cn } from "@/lib/utils";
@@ -21,19 +21,35 @@ export function Delivered() {
       <div {...rise("0s")}>
         <article
           aria-label="Dosar PDF pentru distribuitor"
-          className="relative aspect-[1/1.1] overflow-hidden rounded-[6px] border border-pewter bg-slate p-6"
+          className="rounded-[4px] bg-[var(--paper)] p-6 text-[var(--paper-ink)] sm:p-8"
         >
-          <header className="flex items-center gap-3 border-b border-iron pb-4">
-            <FileText className="size-4 text-fog" />
-            <span className="text-[13px] font-medium">Dosar tehnic</span>
-            <span className="num ml-auto text-[12px] text-fog">{a.household_id}</span>
+          <header className="flex items-start justify-between gap-4 border-b border-[var(--paper-line)] pb-4">
+            <div>
+              <span className="font-display block text-[20px] leading-tight">Dosar tehnic</span>
+              <span className="mt-1 block text-[12px] text-[var(--paper-muted)]">
+                {a.distribution_operator}
+              </span>
+            </div>
+            <span className="num rounded-[3px] border border-[var(--paper-line)] px-2 py-0.5 text-[11px] text-[var(--paper-muted)]">
+              PDF
+            </span>
           </header>
-          <p className="mt-4 line-clamp-[12] text-[12px] leading-relaxed text-fog">
+          <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 border-b border-[var(--paper-line)] py-4 text-[12px]">
+            {(
+              [
+                ["Loc de consum", a.household_id],
+                ["Post trafo", a.transformer_id],
+              ] as const
+            ).map(([k, v]) => (
+              <div key={k} className="contents">
+                <dt className="text-[var(--paper-muted)]">{k}</dt>
+                <dd className="num truncate">{v}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-4 line-clamp-[10] text-[13px] leading-relaxed">
             {a.distributor_complaint_text}
           </p>
-          <span className="num absolute bottom-4 right-4 rounded-[3px] border border-iron bg-graphite px-2 py-0.5 text-[11px] text-fog">
-            PDF
-          </span>
         </article>
       </div>
       <div {...rise("0.5s")} className={cn(rise("0.5s").className, "md:mt-16")}>

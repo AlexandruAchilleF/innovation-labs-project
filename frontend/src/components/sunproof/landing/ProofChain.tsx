@@ -7,7 +7,7 @@ import { fmt } from "@/lib/format";
 import { householdQuery } from "@/lib/queries";
 import { extractNumbers } from "@/lib/sim";
 import { cn } from "@/lib/utils";
-import { span, useInView, useScrollProgress } from "./motion";
+import { useInView } from "./motion";
 import { Delivered } from "./Delivered";
 import { Shot } from "./Shot";
 
@@ -39,10 +39,8 @@ const STEPS: [label: string, body: () => ReactNode][] = [
   ["Trimis", () => <Delivered />],
 ];
 
-/** "De la minut la dosar": one thread drawn by scrolling, from raw telemetry to the delivered dossier. */
+/** "De la minut la dosar": four ruled steps, from raw telemetry to the delivered dossier. */
 export function ProofChain() {
-  const [ref, p] = useScrollProgress<HTMLOListElement>();
-  const fill = span(p, 0, 0.95);
   return (
     <section aria-labelledby="lant">
       <div className="mx-auto max-w-[1200px] px-6 py-20 lg:py-28">
@@ -52,52 +50,28 @@ export function ProofChain() {
         >
           De la minut la dosar
         </h2>
-        <ol ref={ref} className="relative mt-14 flex flex-col gap-14 pl-10 sm:pl-16 lg:gap-20">
-          <span
-            aria-hidden
-            className="absolute bottom-2 left-[7px] top-2 w-px bg-iron sm:left-[11px]"
-          />
-          <span
-            aria-hidden
-            className="absolute left-[7px] top-2 w-px origin-top bg-voltage sm:left-[11px]"
-            style={{ height: "calc(100% - 16px)", transform: `scaleY(${fill})` }}
-          />
-          {STEPS.map(([label, Body], i) => {
-            const lit = fill >= i / (STEPS.length - 1) - 0.02;
-            return (
-              <li key={label} className="relative grid gap-5 lg:grid-cols-12 lg:gap-12">
-                <span
-                  aria-hidden
-                  className={cn(
-                    "absolute -left-10 top-1 size-[15px] rounded-full border transition-colors duration-500 sm:-left-16 sm:size-[23px]",
-                    lit ? "border-voltage bg-voltage/25" : "border-iron bg-canvas",
-                  )}
-                />
-                <div className="flex items-baseline gap-4 lg:col-span-3 lg:flex-col lg:gap-2">
-                  <span
-                    className={cn(
-                      "num text-[13px] transition-colors",
-                      lit ? "text-voltage" : "text-smoke",
-                    )}
-                  >
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <h3 className="text-[22px] font-medium leading-tight">{label}</h3>
-                </div>
-                <div
-                  className={cn(
-                    "transition-all duration-700 lg:col-span-9",
-                    lit ? "opacity-100" : "translate-y-4 opacity-40",
-                  )}
-                >
-                  <Body />
-                </div>
-              </li>
-            );
-          })}
+        <ol className="mt-14 divide-y divide-iron border-y border-iron">
+          {STEPS.map(([label, Body], i) => (
+            <Step key={label} index={i} label={label}>
+              <Body />
+            </Step>
+          ))}
         </ol>
       </div>
     </section>
+  );
+}
+
+function Step({ index, label, children }: { index: number; label: string; children: ReactNode }) {
+  const [ref, seen] = useInView<HTMLLIElement>(0.25);
+  return (
+    <li ref={ref} className="grid gap-5 py-10 lg:grid-cols-12 lg:gap-12 lg:py-14">
+      <div className="flex items-baseline gap-4 lg:col-span-3 lg:flex-col lg:gap-2">
+        <span className="num text-[13px] text-smoke">{String(index + 1).padStart(2, "0")}</span>
+        <h3 className="text-[22px] font-medium leading-tight">{label}</h3>
+      </div>
+      <div className={cn("lg:col-span-9", seen ? "lp-rise" : "opacity-0")}>{children}</div>
+    </li>
   );
 }
 
@@ -114,11 +88,17 @@ function Explained() {
   const [auto, setAuto] = useState(0);
   const [pinned, setPinned] = useState<number | null>(null);
   const g = d?.analysis.grid_verdict;
-  const facts: [field: string, value: number, shown: string][] = g
+  const facts: [label: string, field: string, value: number, shown: string][] = g
     ? [
-        ["max_meter_voltage_v", g.max_meter_voltage_v, `${fmt(g.max_meter_voltage_v, 1)} V`],
-        ["legal_limit_v", g.legal_limit_v, `${fmt(g.legal_limit_v)} V`],
         [
+          "Tensiune la contor",
+          "max_meter_voltage_v",
+          g.max_meter_voltage_v,
+          `${fmt(g.max_meter_voltage_v, 1)} V`,
+        ],
+        ["Limită legală", "legal_limit_v", g.legal_limit_v, `${fmt(g.legal_limit_v)} V`],
+        [
+          "Vecini opriți",
           "neighbors_affected_simultaneously",
           g.neighbors_affected_simultaneously,
           fmt(g.neighbors_affected_simultaneously),
@@ -133,7 +113,7 @@ function Explained() {
 
   if (!hydrated || !d) return <Skeleton className="h-40" />;
   const active = pinned ?? auto;
-  const factOf = (token: string) => facts.findIndex(([, v]) => v === extractNumbers(token)[0]);
+  const factOf = (token: string) => facts.findIndex(([, , v]) => v === extractNumbers(token)[0]);
 
   return (
     <div
@@ -165,21 +145,24 @@ function Explained() {
           })}
       </p>
       <dl className="flex flex-col justify-center gap-1 border-t border-pewter bg-obsidian p-4 md:border-l md:border-t-0 sm:p-6">
-        {facts.map(([field, , shown], i) => (
+        {facts.map(([label, field, , shown], i) => (
           <div
             key={field}
             className={cn(
-              "flex items-center justify-between gap-4 rounded-[4px] px-3 py-2.5 transition-colors",
+              "flex items-center justify-between gap-6 rounded-[4px] px-3 py-2 transition-colors",
               i === active ? "bg-voltage/15" : "",
             )}
           >
-            <dt
-              className={cn(
-                "num truncate text-[12px]",
-                i === active ? "text-voltage" : "text-smoke",
-              )}
-            >
-              {field}
+            <dt className="min-w-0">
+              <span className="block text-[13px] text-bone">{label}</span>
+              <span
+                className={cn(
+                  "num block truncate text-[11px]",
+                  i === active ? "text-voltage" : "text-smoke",
+                )}
+              >
+                {field}
+              </span>
             </dt>
             <dd className="num shrink-0 text-[14px] text-bone">{shown}</dd>
           </div>

@@ -364,6 +364,11 @@
   --font-sans: "IBM Plex Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", "Fira Code", ui-monospace, monospace;
   font-family: var(--font-sans);
+  /* the distributor dossier is the one printed artefact on the page */
+  --paper: #f3f1ec;
+  --paper-ink: #1c1b19;
+  --paper-muted: #6b6862;
+  --paper-line: #d9d5cc;
 }
 
 /* ---------- landing effects (base styles are the final, readable state; motion only adds the build-up) ---------- */
