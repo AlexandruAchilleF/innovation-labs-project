@@ -46,5 +46,5 @@ demo-sunproof.mp4
 # Jury deliverables are committed on purpose
 !deliverables/*.pdf
 scripts/.cache/
-demo-sunproof-preview-fara-sunet.mp4
+demo-sunproof-preview*.mp4
 !deliverables/*.mp4
