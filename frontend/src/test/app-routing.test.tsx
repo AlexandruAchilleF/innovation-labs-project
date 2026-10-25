@@ -14,4 +14,13 @@ describe("App routing", () => {
 
     expect(matches.at(-1)?.routeId).not.toBe(rootRouteId);
   });
+
+  it("matches legal routes (/termeni, /confidentialitate, /cookies)", () => {
+    const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
+
+    for (const path of ["/termeni", "/confidentialitate", "/cookies"] as const) {
+      const matches = router.matchRoutes(path);
+      expect(matches.at(-1)?.routeId).toBe(path);
+    }
+  });
 });

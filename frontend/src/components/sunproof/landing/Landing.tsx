@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fmt } from "@/lib/format";
 import { portfolioQuery } from "@/lib/queries";
+import { LegalFooter } from "./LegalPages";
 import { BatteryFigure, BillingFigure, GridFigure } from "./ProofFigures";
 import { ProsumerEntry, SupplierEntry } from "./RoleEntry";
 
@@ -37,12 +38,18 @@ export function Landing() {
 
         <section aria-labelledby="dovezi" className="border-t border-border">
           <div className="mx-auto max-w-[1200px] px-6 py-20">
-            <h2 id="dovezi" className="font-display text-balance text-[32px] leading-tight sm:text-[40px]">
+            <h2
+              id="dovezi"
+              className="font-display text-balance text-[32px] leading-tight sm:text-[40px]"
+            >
               Trei întrebări, trei dovezi
             </h2>
             <ol className="mt-12 grid divide-y divide-border md:grid-cols-3 md:divide-x md:divide-y-0">
               {PROOFS.map(([title, Figure]) => (
-                <li key={title} className="py-8 first:pt-0 last:pb-0 md:px-8 md:py-0 md:first:pl-0 md:last:pr-0">
+                <li
+                  key={title}
+                  className="py-8 first:pt-0 last:pb-0 md:px-8 md:py-0 md:first:pl-0 md:last:pr-0"
+                >
                   <h3 className="text-balance text-[18px] font-medium leading-snug">{title}</h3>
                   <div className="mt-6">
                     <Figure />
@@ -65,12 +72,7 @@ export function Landing() {
         </section>
       </main>
 
-      <footer className="border-t border-graphite bg-obsidian">
-        <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4 px-6 py-16 text-[13px] text-fog">
-          <span className="font-display text-[16px] text-bone">SunProof</span>
-          <span>România · august 2026</span>
-        </div>
-      </footer>
+      <LegalFooter />
     </div>
   );
 }

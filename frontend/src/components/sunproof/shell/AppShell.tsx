@@ -4,13 +4,15 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ProsumerHeader } from "./ProsumerHeader";
 import { SUPPLIER_VIEWS, SupplierTopBar, useCurrentHousehold } from "./SupplierTopBar";
 
+const PUBLIC_PATHS = new Set(["/", "/termeni", "/confidentialitate", "/cookies"]);
+
 /**
- * Three surfaces, three shells: the landing page is full-bleed, the prosumer app gets a plain
+ * Three surfaces, three shells: the landing & legal pages are full-bleed, the prosumer app gets a plain
  * homeowner header, and the supplier portal gets the top bar with tickets and navigation.
  */
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
-  if (path === "/") {
+  if (PUBLIC_PATHS.has(path)) {
     return <TooltipProvider delayDuration={150}>{children}</TooltipProvider>;
   }
   const prosumer = path.startsWith("/prosumator");

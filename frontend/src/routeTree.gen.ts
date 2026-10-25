@@ -10,14 +10,27 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ConfidentialitateRouteImport } from './routes/confidentialitate'
+import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as HartaRouteImport } from './routes/harta'
 import { Route as ProsumatorRouteImport } from './routes/prosumator'
 import { Route as ReteaRouteImport } from './routes/retea'
+import { Route as TermeniRouteImport } from './routes/termeni'
 import { Route as TriajRouteImport } from './routes/triaj'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfidentialitateRoute = ConfidentialitateRouteImport.update({
+  id: '/confidentialitate',
+  path: '/confidentialitate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HartaRoute = HartaRouteImport.update({
@@ -35,6 +48,11 @@ const ReteaRoute = ReteaRouteImport.update({
   path: '/retea',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermeniRoute = TermeniRouteImport.update({
+  id: '/termeni',
+  path: '/termeni',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TriajRoute = TriajRouteImport.update({
   id: '/triaj',
   path: '/triaj',
@@ -43,39 +61,76 @@ const TriajRoute = TriajRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/confidentialitate': typeof ConfidentialitateRoute
+  '/cookies': typeof CookiesRoute
   '/harta': typeof HartaRoute
   '/prosumator': typeof ProsumatorRoute
   '/retea': typeof ReteaRoute
+  '/termeni': typeof TermeniRoute
   '/triaj': typeof TriajRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/confidentialitate': typeof ConfidentialitateRoute
+  '/cookies': typeof CookiesRoute
   '/harta': typeof HartaRoute
   '/prosumator': typeof ProsumatorRoute
   '/retea': typeof ReteaRoute
+  '/termeni': typeof TermeniRoute
   '/triaj': typeof TriajRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/confidentialitate': typeof ConfidentialitateRoute
+  '/cookies': typeof CookiesRoute
   '/harta': typeof HartaRoute
   '/prosumator': typeof ProsumatorRoute
   '/retea': typeof ReteaRoute
+  '/termeni': typeof TermeniRoute
   '/triaj': typeof TriajRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/harta' | '/prosumator' | '/retea' | '/triaj'
+  fullPaths:
+    | '/'
+    | '/confidentialitate'
+    | '/cookies'
+    | '/harta'
+    | '/prosumator'
+    | '/retea'
+    | '/termeni'
+    | '/triaj'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/harta' | '/prosumator' | '/retea' | '/triaj'
-  id: '__root__' | '/' | '/harta' | '/prosumator' | '/retea' | '/triaj'
+  to:
+    | '/'
+    | '/confidentialitate'
+    | '/cookies'
+    | '/harta'
+    | '/prosumator'
+    | '/retea'
+    | '/termeni'
+    | '/triaj'
+  id:
+    | '__root__'
+    | '/'
+    | '/confidentialitate'
+    | '/cookies'
+    | '/harta'
+    | '/prosumator'
+    | '/retea'
+    | '/termeni'
+    | '/triaj'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ConfidentialitateRoute: typeof ConfidentialitateRoute
+  CookiesRoute: typeof CookiesRoute
   HartaRoute: typeof HartaRoute
   ProsumatorRoute: typeof ProsumatorRoute
   ReteaRoute: typeof ReteaRoute
+  TermeniRoute: typeof TermeniRoute
   TriajRoute: typeof TriajRoute
 }
 
@@ -86,6 +141,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/confidentialitate': {
+      id: '/confidentialitate'
+      path: '/confidentialitate'
+      fullPath: '/confidentialitate'
+      preLoaderRoute: typeof ConfidentialitateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/harta': {
@@ -109,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReteaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/termeni': {
+      id: '/termeni'
+      path: '/termeni'
+      fullPath: '/termeni'
+      preLoaderRoute: typeof TermeniRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/triaj': {
       id: '/triaj'
       path: '/triaj'
@@ -121,9 +197,12 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ConfidentialitateRoute: ConfidentialitateRoute,
+  CookiesRoute: CookiesRoute,
   HartaRoute: HartaRoute,
   ProsumatorRoute: ProsumatorRoute,
   ReteaRoute: ReteaRoute,
+  TermeniRoute: TermeniRoute,
   TriajRoute: TriajRoute,
 }
 export const routeTree = rootRouteImport
