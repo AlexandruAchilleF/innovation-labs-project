@@ -3,6 +3,7 @@ import { BatteryChapter } from "./BatteryChapter";
 import { BillingChapter } from "./BillingChapter";
 import { GridChapter } from "./GridChapter";
 import { LegalFooter } from "./LegalPages";
+import { NextSteps } from "./NextSteps";
 import { ProofChain } from "./ProofChain";
 import { ProsumerEntry, SupplierEntry } from "./RoleEntry";
 import { Hero } from "./Hero";
@@ -47,6 +48,9 @@ export function Landing() {
 
         <LimitRule />
         <ProofChain />
+
+        <LimitRule />
+        <NextSteps />
 
         <LimitRule />
         <section aria-labelledby="intrare">

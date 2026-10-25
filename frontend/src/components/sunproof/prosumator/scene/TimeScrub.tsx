@@ -33,7 +33,7 @@ export function TimeScrub({
   };
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex flex-wrap items-center gap-3">
       <button
         type="button"
         onClick={() => setPlaying(!playing)}
@@ -42,7 +42,7 @@ export function TimeScrub({
       >
         {playing ? <Pause className="size-4" /> : <Play className="size-4" />}
       </button>
-      <div className="relative min-w-0 flex-1">
+      <div className="relative min-w-[200px] flex-1">
         <svg
           viewBox="0 0 1000 40"
           preserveAspectRatio="none"
@@ -79,7 +79,8 @@ export function TimeScrub({
           ))}
         </div>
       </div>
-      <div className="flex shrink-0 gap-1.5">
+      {/* wraps under the slider on phones */}
+      <div className="flex shrink-0 gap-1.5 max-sm:w-full">
         {trips[0] && <Jump label="Avarie" to={trips[0].minute_of_day} critical go={jump} />}
         <Jump label="Prânz" to={13 * 60} go={jump} />
         <Jump label="Seară" to={20 * 60} go={jump} />
@@ -104,7 +105,7 @@ function Jump({
       type="button"
       onClick={() => go(to)}
       className={cn(
-        "num rounded-[4px] border px-3 py-2 text-[12px] transition-colors hover:bg-slate",
+        "num rounded-[4px] border px-3 py-2 text-[12px] transition-colors hover:bg-slate max-sm:flex-1 max-sm:px-1.5",
         critical ? "border-critical-border text-critical" : "border-iron text-fog hover:text-bone",
       )}
     >

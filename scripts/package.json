@@ -4,6 +4,7 @@
   "type": "module",
   "description": "Tooling for scripts/record-demo.mjs (install: npm --prefix scripts install)",
   "devDependencies": {
+    "ffmpeg-static": "^5.3.0",
     "playwright": "^1.56.0"
   }
 }

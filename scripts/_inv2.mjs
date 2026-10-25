@@ -1,0 +1,18 @@
+import { chromium } from "playwright";
+const base = "http://127.0.0.1:3765";
+const b = await chromium.launch();
+const ph = await b.newPage({ viewport: { width: 400, height: 860 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+await ph.goto(base + "/prosumator?household=RO-IF-002", { waitUntil: "networkidle" });
+await ph.waitForTimeout(2000);
+await ph.screenshot({ path: "/tmp/inv/phone1.jpg", quality: 70 });
+await ph.mouse.wheel(0, 900); await ph.waitForTimeout(500);
+await ph.screenshot({ path: "/tmp/inv/phone2.jpg", quality: 70 });
+const p = await b.newPage({ viewport: { width: 1920, height: 1080 } });
+await p.goto(base + "/harta?household=RO-IF-002", { waitUntil: "networkidle" });
+await p.waitForTimeout(2500);
+await p.getByRole("button", { name: "Analiză detaliată" }).last().click();
+await p.waitForTimeout(1500);
+await p.screenshot({ path: "/tmp/inv/harta_if.jpg", quality: 70 });
+const fs = await import("node:fs");
+fs.writeFileSync("/tmp/inv/harta_if.aria.txt", await p.locator("body").ariaSnapshot());
+await b.close();
