@@ -6,7 +6,6 @@
 [![Innovation Labs 2026](https://img.shields.io/badge/Innovation%20Labs-2026%20Challenge%201-FF6B00?style=for-the-badge&logo=rocket)](https://docs.google.com/document/d/1IPJvOmaBwrPZeOkEAt2mUe2IOyT_wOXSl8bA7UVBSBA/edit?tab=t.0)
 [![Dataset & APIs](https://img.shields.io/badge/Resurse%20Oficiale-PVGIS%20%7C%20OPCOM%20%7C%20StoreNet%20%7C%20OPSD-0A84FF?style=for-the-badge)](docs/research/2026-10-24-surse-date.md)
 [![Tests Passing](https://img.shields.io/badge/Pytest-900%20passed%20(100%25)-30D158?style=for-the-badge&logo=pytest)](docs/pitch/2026-10-24-dovada-evaluare-81-scenarii.md)
-[![Fleet Validation](https://img.shields.io/badge/Flot%C4%83%20Validat%C4%83-81%2F81%20Gospod%C4%83rii-BF5AF2?style=for-the-badge)](#validare-pe-date--cifre-de-impact)
 
 ---
 
