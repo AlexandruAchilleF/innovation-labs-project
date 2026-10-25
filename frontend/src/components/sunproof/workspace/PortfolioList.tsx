@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { fmt } from "@/lib/format";
 import type { HouseholdSummary, PortfolioSummaryMetrics, Severity } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { sevText } from "./SeverityTag";
+import { StatusDot } from "./SeverityTag";
 
 const TILES: { label: string; hint: string; test: (h: HouseholdSummary) => boolean }[] = [
   {
@@ -103,15 +103,15 @@ export function PortfolioList({
             <button
               onClick={() => onSelect(h.household_id)}
               className={cn(
-                "w-full px-4 py-2.5 text-left transition-colors hover:bg-slate",
+                "flex w-full items-center gap-2 px-4 py-1.5 text-left transition-colors hover:bg-slate",
                 h.household_id === selected && "bg-iron hover:bg-iron",
               )}
             >
-              <span className="block truncate text-[13px] text-bone">{h.customer_name}</span>
-              <span className="mt-0.5 block truncate text-[11.5px] text-fog">
-                {h.city} ·{" "}
-                <span className={sevText[h.overall_severity]}>{h.scenario_badge_ro}</span>
+              <span className="min-w-0 flex-1 truncate text-[12.5px] text-bone">
+                {h.customer_name}
               </span>
+              <span className="shrink-0 text-[11.5px] text-fog">{h.city}</span>
+              <StatusDot s={h.overall_severity} />
             </button>
           </li>
         ))}

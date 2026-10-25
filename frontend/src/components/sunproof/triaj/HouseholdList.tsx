@@ -3,6 +3,7 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import type { HouseholdSummary, Severity } from "@/lib/types";
+import { StatusDot } from "@/components/sunproof/workspace/SeverityTag";
 
 const RANK: Record<Severity, number> = { CRITICAL: 0, WARNING: 1, INFO: 2, OK: 3 };
 
@@ -69,13 +70,16 @@ export function HouseholdList({
           <li key={h.household_id}>
             <button
               onClick={() => onSelect(h.household_id)}
-              title={h.scenario_badge_ro}
               className={cn(
-                "w-full px-4 py-3 text-left transition-colors",
+                "flex w-full items-center gap-2 px-3 py-1.5 text-left transition-colors",
                 selected === h.household_id ? "bg-slate" : "hover:bg-slate/50",
               )}
             >
-              <span className="block truncate text-[13px] text-bone">{h.customer_name}</span>
+              <span className="min-w-0 flex-1 truncate text-[12.5px] text-bone">
+                {h.customer_name}
+              </span>
+              <span className="shrink-0 text-[11.5px] text-fog">{h.city}</span>
+              <StatusDot s={h.overall_severity} />
             </button>
           </li>
         ))}

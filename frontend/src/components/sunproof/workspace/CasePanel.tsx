@@ -54,7 +54,7 @@ export function CasePanel({
       open={open}
       onOpen={onOpen}
       onClose={onClose}
-      width="w-[360px]"
+      width="w-[320px]"
       title="Portofoliu"
       meta={
         hydrated && households ? (

@@ -41,7 +41,7 @@ function TriajPage() {
   return (
     <main className="mx-auto max-w-[1800px] space-y-3 px-4 py-3">
       <div className="grid grid-cols-12 gap-4">
-        <div className="col-span-12 md:col-span-4 xl:col-span-3">
+        <div className="col-span-12 md:col-span-4 lg:col-span-3 xl:col-span-2">
           {hydrated && portfolio.data ? (
             <HouseholdList
               households={portfolio.data.households}
@@ -52,7 +52,7 @@ function TriajPage() {
             <Skeleton className="h-[600px]" />
           )}
         </div>
-        <div className="col-span-12 min-w-0 space-y-3 md:col-span-8 xl:col-span-9">
+        <div className="col-span-12 min-w-0 space-y-3 md:col-span-8 lg:col-span-9 xl:col-span-10">
           {hydrated && detail.data ? (
             <>
               <TriageHeader d={detail.data} />

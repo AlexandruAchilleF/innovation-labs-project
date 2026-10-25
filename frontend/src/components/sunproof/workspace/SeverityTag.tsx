@@ -23,3 +23,22 @@ export const sevDot: Record<Severity, string> = {
   OK: "bg-success",
   INFO: "bg-info",
 };
+
+/** Traffic-light status: red = critical, yellow = warning, green = everything else. */
+const statusDot: Record<Severity, string> = {
+  CRITICAL: "bg-critical",
+  WARNING: "bg-warning",
+  OK: "bg-success",
+  INFO: "bg-success",
+};
+
+export function StatusDot({ s }: { s: Severity }) {
+  return (
+    <span
+      role="img"
+      aria-label={severityLabel[s]}
+      title={severityLabel[s]}
+      className={cn("size-2 shrink-0 rounded-full", statusDot[s])}
+    />
+  );
+}
