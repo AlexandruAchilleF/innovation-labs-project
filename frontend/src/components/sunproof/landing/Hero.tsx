@@ -38,36 +38,40 @@ export function Hero() {
         className="lp-rise mx-auto mt-12 max-w-[1280px] px-4 sm:mt-16 sm:px-6"
         style={{ "--lp-delay": "0.2s" } as React.CSSProperties}
       >
-        <Shot
-          priority
-          src="/landing/hero.webp"
-          alt="Analiza detaliată SunProof: portofoliul, cele trei verdicte, tensiunea și producția pierdută"
-          w={W}
-          h={H}
-          crop={CROP}
-          overlay={
-            <Overlay w={W} h={CROP} label="Tensiunea la contor peste limita de 253 V">
-              <rect
-                x={OVER.x}
-                y={OVER.y}
-                width={OVER.w}
-                height={OVER.h}
-                rx={4}
-                fill="none"
-                stroke="var(--critical)"
-                strokeWidth={2}
-                vectorEffect="non-scaling-stroke"
-                className="lp-draw"
-                style={
-                  {
-                    "--lp-len": 2 * (OVER.w + OVER.h),
-                    "--lp-delay": "0.9s",
-                  } as React.CSSProperties
-                }
-              />
-            </Overlay>
-          }
-        />
+        {/* Phones get the right half (verdicts + the curve over 253 V) at readable size. */}
+        <div className="overflow-hidden rounded-[8px] border border-pewter sm:overflow-visible sm:rounded-none sm:border-0">
+          <Shot
+            priority
+            className="-ml-[78%] w-[180%] max-w-none rounded-none border-0 sm:ml-0 sm:w-full sm:rounded-[8px] sm:border"
+            src="/landing/hero.webp"
+            alt="Analiza detaliată SunProof: portofoliul, cele trei verdicte, tensiunea și producția pierdută"
+            w={W}
+            h={H}
+            crop={CROP}
+            overlay={
+              <Overlay w={W} h={CROP} label="Tensiunea la contor peste limita de 253 V">
+                <rect
+                  x={OVER.x}
+                  y={OVER.y}
+                  width={OVER.w}
+                  height={OVER.h}
+                  rx={4}
+                  fill="none"
+                  stroke="var(--critical)"
+                  strokeWidth={2}
+                  vectorEffect="non-scaling-stroke"
+                  className="lp-draw"
+                  style={
+                    {
+                      "--lp-len": 2 * (OVER.w + OVER.h),
+                      "--lp-delay": "0.9s",
+                    } as React.CSSProperties
+                  }
+                />
+              </Overlay>
+            }
+          />
+        </div>
       </div>
       <FactStrip />
     </section>

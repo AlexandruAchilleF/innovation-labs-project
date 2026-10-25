@@ -27,12 +27,15 @@ const STEPS: [label: string, body: () => ReactNode][] = [
   [
     "Decis",
     () => (
-      <Shot
-        src="/landing/chain-verdict.webp"
-        alt="Cele trei verdicte: rețea, baterie, factură"
-        w={1400}
-        h={101}
-      />
+      <div className="-mx-6 overflow-x-auto px-6 sm:mx-0 sm:px-0">
+        <Shot
+          src="/landing/chain-verdict.webp"
+          alt="Cele trei verdicte: rețea, baterie, factură"
+          w={1400}
+          h={101}
+          className="min-w-[760px]"
+        />
+      </div>
     ),
   ],
   ["Explicat", () => <Explained />],
