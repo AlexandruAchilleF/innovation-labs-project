@@ -2,6 +2,8 @@
 
 **Un singur adevăr despre energia ta, care îți aparține.**
 
+Documentul de referință: tot ce spunem, cu dovezile și cifrele. Pentru prezentare, folosește `2026-10-25-kit-dimineata.md` (slide-uri, pitch de 60 s, scriptul demo-ului). Cifrele sunt cele rulate pe 25.10.
+
 ---
 
 ## 1. Problema, concret
@@ -56,54 +58,70 @@
 
 ## 3. Ce face SunProof
 
-0. **Îți arată toată energia pe un singur grafic.** Producția, consumul casei, bateria și rețeaua (tensiunea, importul, exportul), zi de zi. Consumul îl calculăm fără contor nou: producția invertorului + importul − exportul de pe contorul distribuitorului. Peste acest grafic, SunProof marchează tot ce nu merge cum trebuie:
-1. **Compară casa ta cu vecinii.** Dacă se opresc mai multe case de pe stradă în același minut și tensiunea e mare, problema e la rețea. Primești **dosarul de sesizare** în PDF, cu lista opririlor, graficul tensiunii și energia pierdută, adresat automat distribuitorului din județul tău (Rețele Electrice, Delgaz Grid, Distribuție Energie Oltenia sau Distribuție Energie Electrica România).
-2. **Dacă doar tu te-ai oprit și tensiunea era normală, e echipamentul.** Tehnicianul primește **alerta pe Telegram** în aceeași zi. Problema se închide doar după două zile în care datele arată că sistemul merge. Dacă defectul revine, cazul se redeschide singur. Dacă zilele sunt înnorate și nu se poate confirma nimic, spunem cinstit „dovezi insuficiente”, nu „rezolvat”. Și tu poți trimite o problemă echipei O&M din aplicație: tichetul pleacă cu datele zilei și cu verdictul nostru atașat.
-3. **Verifică bateria față de ce ai vrut tu.** Ne spui ce vrei („rezervă 20% pentru pană, restul seara”), iar noi comparăm cu setarea și cu ce s-a întâmplat. „Bateria e setată la 80%, iei curent din rețea degeaba: 4 lei pe zi.” Dacă ai vrut chiar 80%, nu primești nicio alertă. Păstrăm și istoricul setărilor, deci vezi când a început problema: „rezerva a trecut la 80% pe 3 iulie; de atunci iei din rețea seara cu 3,5 kWh mai mult pe zi”.
-4. **Verifică banii.** Comparăm ce spune invertorul, ce spune contorul și ce scrie pe factură. Dacă energia trimisă în rețea lipsește de pe factură sau apare la preț zero, îți arătăm suma.
-5. **Tu decizi cine vede ce.** Distribuitorul vede doar tensiunea și opririle, tehnicianul doar alertele. Nimeni nu primește parola invertorului, iar fiecare acces rămâne scris într-un jurnal.
+Pe scurt: **citim datele pe care invertorul și contorul le au deja și răspundem la trei întrebări, cu dovada la vedere.** Fiecare verificare dă un verdict clar, cine trebuie să rezolve și ce face mai departe.
 
-## 4. Cum îl construim (pe scurt)
+1. **Rețea sau instalație?** Ne uităm la tensiunea casei și la vecinii de pe același post de transformare. Dacă mai mulți vecini se opresc în același minut și tensiunea trece de 253 V, e rețeaua. Furnizorul nu mai trimite echipa, iar clientul primește **dosarul tehnic în PDF** pentru distribuitor: opririle, tensiunea minut cu minut, vecinii afectați și energia pierdută. Dacă se oprește doar casa ta și vecinii produc normal, e instalația: un prag setat greșit, un cablu prea subțire sau un defect. Atunci tehnicianul primește **alerta pe Telegram**.
+2. **Bateria e blocată seara?** Comparăm ce a vrut clientul („folosesc bateria seara, păstrez 20% pentru pană”) cu ce e setat de fapt și cu ce s-a întâmplat. Dacă bateria stă plină seara, arătăm câți kWh sunt blocați și câți lei pierd clientul și furnizorul, după prețurile OPCOM de la prânz și de seară. Dacă clientul chiar a vrut o rezervă mare, nu dăm alarmă.
+3. **Factura e corectă?** Punem lângă ce a produs invertorul, ce a măsurat contorul și ce scrie pe factură, după regula 1:1 din Legea 160/2026. Dacă energia trimisă în rețea lipsește de pe factură, arătăm suma de corectat. Dacă factura e corectă, explicăm de ce: „ai produs 780 kWh, dar 470 i-ai folosit direct în casă, deci la contor au ajuns doar 310”.
 
-- **Datele.** Producția solară e reală: date oficiale ale Comisiei Europene (PVGIS), pe un an întreg, pentru 5 orașe (București, Cluj, Iași, Timișoara, Constanța). Metoda funcționează oriunde în țară, pentru că PVGIS acoperă orice punct, iar compararea cu vecinii merge pe orice stradă. Tensiunea pe stradă o calculăm cu un model fizic simplu al rețelei, pentru că **nu există date publice despre ea**. Spunem asta deschis.
-- **Strada simulată.** 12 case pe aceeași stradă. Casele de la capăt, departe de transformator, au tensiunea cea mai mare și se opresc primele, exact ca în realitate. Putem „strica” o casă (defect de invertor) sau „seta greșit” o baterie, ca să vedem dacă aplicația observă.
-- **Detectorul.** Reguli clare, scrise în cod, nu „păreri” ale unui AI: tensiune peste prag, plus vecini opriți în același minut, înseamnă rețea; tensiune normală și vecini care produc înseamnă echipament; lipsa datelor e „lipsă date”, nu oprire. Pierderea în kWh și în lei se calculează din ce au produs vecinii în acel timp. Nu antrenăm un model ML: n-avem defecte reale etichetate, iar vecinii sunt deja „modelul” care spune cât ar fi trebuit să producă fiecare casă, adică detecție de anomalii fără etichete.
-- **AI-ul.** Îl folosim doar ca să scrie textul scrisorii de sesizare pe limba omului. Fiecare cifră din text e verificată în cod. Dacă AI-ul greșește o cifră, textul e rescris dintr-un șablon.
-- **Interfața.** Doar o aplicație web, care merge și pe telefon; alertele vin pe Telegram, deci n-avem nevoie de o aplicație mobilă. Are două panouri: al clientului (cifrele zilei, grafice, alerte, „trimite o problemă echipei O&M”) și al furnizorului (harta problemelor pe străzi, tichetele de rezolvat).
-- **Branduri.** O singură interfață de adaptor pentru toate brandurile de invertoare. Detectorul vede aceeași schemă de date, oricare ar fi brandul (tabelul din secțiunea 11).
-- **Dovada că funcționează, în două teste.** (1) Un test de robustețe: zeci de zile aleatoare din simulator, cu nori, goluri de date și defecte puse la întâmplare, la date la un minut și la cinci minute. Numărăm câte opriri a clasificat corect. (2) Un test pe date reale de la case adevărate (StoreNet, Irlanda, sau Open Power System Data, Germania), unde nu au existat opriri: numărăm câte alarme false de „defect de echipament” ar fi dat detectorul. Al doilea test nu depinde de simulatorul nostru.
+**Tichetul se închide pe date, nu pe cuvânt.** După o reparație, tichetul O&M se închide abia după zile însorite fără defect. Dacă defectul revine, se redeschide singur. Dacă e înnorat sau invertorul nu mai trimite date, spunem „dovezi insuficiente”, nu „rezolvat”.
+
+**Textele le poate scrie un AI, dar cifrele nu.** Explicația pentru client, scriptul pentru call center și scrisoarea către distribuitor pot fi redactate de Claude. Orice cifră din text trebuie să existe în calculul nostru. Dacă nu există, textul e aruncat și rescris dintr-un șablon.
+
+### Cum arată în aplicație
+
+| Ecran | Pentru cine | Ce vezi |
+|---|---|---|
+| `/` (prima pagină) | Oricine | Cele trei verificări, cu cazurile reale din demo, și cum se închide un caz |
+| `/harta` | Furnizorul | Harta posturilor de transformare, casele colorate după stare, încărcarea străzilor. **Analiză detaliată** deschide cele trei verificări, cu acțiunile: **Descarcă dosarul tehnic pentru OD**, **Alocă intervenție O&M (Telegram)**, **Emite factura de corecție**. **Simulează soluția** arată distribuitorului înainte/după |
+| `/triaj` | Furnizorul, analistul | Lista tuturor caselor și, pentru fiecare, graficele de tensiune, baterie și factură, ciclul tichetului O&M și verificarea textelor generate |
+| `/prosumator` | Clientul | Casa lui, cu energia care curge prin ea, de-a lungul zilei (**Avarie / Prânz / Seară**), explicația pe limba lui, luna zi cu zi (**Pe zile**) și butonul de tichet către furnizor |
+
+## 4. Cum l-am construit (pe scurt)
+
+- **Datele.** Producția solară e reală: date oficiale ale Comisiei Europene (PVGIS). Tensiunea pe stradă o calculăm cu un model fizic al rețelei de joasă tensiune, pentru că **nu există date publice despre ea**. Spunem asta deschis. Prețurile de la prânz și de seară urmează curba OPCOM PZU.
+- **Cartierele simulate.** 8 cartiere reale ca locație (Dumbrăvița, Giroc, Bragadiru, Corbeanca, Florești, Cluj-Zorilor, București-Aviației, Brașov-Răcădău), fiecare cu postul lui de transformare și cu aproximativ 220 de case în total. Dintre ele, 81 sunt clienți ai furnizorului care și-au dat acordul. Casele de la capătul străzii au tensiunea cea mai mare și se opresc primele, exact ca în realitate. Am pus în flotă și defecte: praguri setate greșit, cabluri subdimensionate, baterii pe modul greșit, facturi fără index de export.
+- **Motoarele de decizie.** Reguli clare, scrise în cod, nu „păreri” ale unui AI. Vecini opriți în același minut plus tensiune peste prag înseamnă rețea. Tensiune normală și vecini care produc înseamnă instalație. Lipsa datelor e „lipsă date”, nu oprire. Aceleași date dau mereu același verdict. Nu antrenăm un model ML: n-avem defecte reale etichetate, iar vecinii sunt deja reperul care spune cât ar fi trebuit să producă fiecare casă.
+- **AI-ul.** Doar scrie textele, iar fiecare cifră e verificată în cod (vezi secțiunea 3). Fără cheie API, aplicația merge cu șabloane, deci demo-ul nu depinde de internet.
+- **Interfața.** O aplicație web care merge și pe telefon. Alertele pentru tehnicieni vin pe Telegram, deci nu avem nevoie de o aplicație mobilă separată.
+- **Dovada că funcționează.** Rulăm motoarele pe toate cele 81 de case și comparăm verdictul cu ce știm că am pus în simulare. Repetăm testul și cu date la 5 minute, cum le dă cloud-ul unui invertor obișnuit, ca să vedem că nu avem nevoie de hardware dedicat.
 
 ## 5. Ce arătăm în demo (3 minute)
 
-1. Strada la prânz: tensiunea trece de 253 V, trei case de la capăt se opresc. Eticheta: **„Problemă de rețea, confirmată de 2 vecini”**. Apăsăm un buton și apare dosarul PDF.
-2. Stricăm invertorul unei case de pe altă stradă: **„Defect de echipament”**, iar alerta ajunge pe telefonul tehnicianului.
-3. Bateria setată greșit: „Iei curent din rețea degeaba.” O setăm corect și casa are mai puține opriri la prânz, pentru că bateria absoarbe energia.
-4. Factura: energia trimisă în rețea apare la preț zero, adică 150 de lei pierduți.
-5. Retragem accesul distribuitorului la date, iar jurnalul arată încercarea refuzată.
-6. Cifrele finale: cât de des am avut dreptate pe scenariile aleatoare și câte alarme false am dat pe datele reale.
+Scriptul complet, cu ce apeși și ce spui, e în `2026-10-25-kit-dimineata.md`, secțiunea C. Pe scurt:
+
+1. **Harta furnizorului, Andrei (Dumbrăvița):** invertorul a văzut 257 V, iar 6 din 11 vecini s-au oprit în aceleași minute. 91 de minute de oprire, peste 9 kWh pierduți azi. Verdictul: rețeaua. Nu trimitem echipa, descărcăm dosarul pentru Rețele Electrice și arătăm soluția înainte/după.
+2. **Triajul, Elena (Corbeanca):** se oprește doar ea, la 246 V, pentru că pragul e setat la 245 V în loc de 253 V. E instalația: alertă pe Telegram pentru tehnician.
+3. **Triajul, Mihai (Cluj):** bateria e pe modul de rezervă și păstrează 85% în loc de 15%. Seara cumpără 9 kWh din rețea cu bateria plină. Furnizorul pierde aproape 246 lei pe lună, clientul aproape 176.
+4. **Triajul, Dan (Brașov):** 640 kWh trimiși în rețea lipsesc de pe factură. A plătit 598 lei în loc de 285,20, deci 312,80 lei în plus.
+5. **Verificarea textelor:** apăsăm **Simulează o halucinație LLM (+999 RON)** și arătăm cum textul greșit e respins.
+6. **Ce vede clientul (Andrei):** pagina se deschide pe momentul opririi; explicația, luna zi cu zi și tichetul.
+
+Cazul de control e **Cristina (București)**: totul e în regulă, iar aplicația nu dă nicio alarmă. E bine de arătat dacă cineva întreabă de alarme false.
 
 ### Graficele din prezentare
 
 Patru grafice, fiecare cu o singură concluzie scrisă deasupra și cu mențiunea ce e real și ce e simulat:
 
-1. **„Bateriile cresc mai repede decât oricine le verifică.”** Baterii la prosumatori, iunie–august 2026: de la 127.084 la 151.040 (ANRE). Real.
-2. **„Prânzul e și cel mai bun moment, și cel mai riscant.”** Producția PVGIS pe o zi de iulie în 5 orașe, peste tensiunea pe stradă. Producția e reală, tensiunea simulată.
-3. **„Capătul străzii se oprește primul, deși panourile sunt bune.”** Tensiunea maximă casă cu casă pe strada demo. Simulat.
-4. **„Ce pierde omul.”** kWh și lei pierduți pe zi, plus bateria setată greșit. Simulat, cu formula la vedere.
+1. **„Bateriile cresc mai repede decât le verifică cineva.”** Baterii la prosumatori, iunie–august 2026: de la 127.084 la 151.040 (ANRE). Real.
+2. **„Prânzul e și cel mai bun moment, și cel mai riscant.”** Producția PVGIS pe o zi de vară, peste tensiunea pe stradă. Producția e reală, tensiunea simulată.
+3. **„Capătul străzii se oprește primul, deși panourile sunt bune.”** Tensiunea maximă casă cu casă pe o stradă demo. Simulat.
+4. **„Ce pierd omul și furnizorul.”** Energia pierdută la opriri și banii pierduți din bateriile setate greșit. Simulat, cu formula la vedere.
 
-Înaintea lor vine slide-ul cu cifrele din interviuri („2 din 2 interlocutori au indicat spontan opririle de la prânz”, 15–20 vizite fără diagnostic, 60% invertoare setate greșit) și două citate: cel al APCE despre 253 V și cazul Softpedia (citat din interviuri: *[de confirmat]*).
+Înaintea lor vine slide-ul cu cifrele din interviuri („2 din 2 interlocutori au pomenit singuri opririle de la prânz”, 15–20 de vizite fără diagnostic, 60% invertoare setate greșit) și două citate: cel al APCE despre 253 V și cazul de pe Softpedia (citatul din interviuri: *[de confirmat]*).
 
-### Dovada că funcționează (evaluare pe 81 de scenarii)
+### Dovada că funcționează (evaluare pe 81 de case)
 
-Rulăm motoarele deterministe pe toate cele 81 de gospodării și comparăm cu adevărul de referință:
+Rulăm motoarele pe toate cele 81 de case și comparăm cu ce am pus în simulare:
 
-- **Rețea vs. echipament:** **81/81 (100%)** la date la 1 minut și **81/81 (100%)** la 5 minute (cloud polling, fără hardware dedicat).
-- **Alarme false:** **0/60 (0%)** pe casele sănătoase, inclusiv cele în regim normal Volt-Watt, la 1 și la 5 minute.
-- **Deplasări inutile evitate:** 15 cazuri de rețea × 450 RON = **6.750 RON/lună** pe eșantion.
-- **Baterii setate greșit:** 7 baterii pierd **1.054,20 RON/lună** din arbitrajul PZU pe eșantion, adică **5,66 milioane EUR/an** extrapolat la 25.000 de prosumatori.
-- Auditul bateriei și reconcilierea facturii (Legea 160/2026): 81/81 (100%) fiecare.
+- **Rețea sau echipament:** **81/81 (100%)** cu date la 1 minut și **80/81 (98,8%)** cu date la 5 minute, cum le dă cloud-ul invertorului. Singura greșeală la 5 minute e un caz de rețea.
+- **Alarme false:** **0 din 60** case sănătoase, inclusiv cele care își reduc singure puterea (Volt-Watt), la 1 și la 5 minute.
+- **Baterie și factură:** **81/81 (100%)** fiecare.
+- **Deplasări inutile evitate:** 15 cazuri de rețea × 450 lei = **6.750 lei/lună** pe eșantion.
+- **Baterii setate greșit:** 7 baterii îl costă pe furnizor **982,08 lei/lună** pe eșantion, adică circa **713.000 EUR/an** extrapolat la 25.000 de prosumatori.
+- **Facturi greșite:** 5 facturi, cu **1.408,42 lei** de corectat.
 
-Precizare: datele sunt simulate (producția solară e reală, din PVGIS), deci cifrele arată corectitudinea logicii, nu performanța pe case reale. Raport complet: `docs/pitch/2026-10-24-dovada-evaluare-81-scenarii.md`.
+Precizare: datele sunt simulate (producția solară e reală, din PVGIS), deci cifrele arată că logica e corectă, nu cum merge pe case reale. Raport complet, regenerat cu `scripts/evaluate_proof.py`: `docs/pitch/2026-10-24-dovada-evaluare-81-scenarii.md`.
 
 ## 6. De ce noi, și nu o aplicație care există deja
 
@@ -114,12 +132,12 @@ Precizare: datele sunt simulate (producția solară e reală, din PVGIS), deci c
 
 ## 7. Cine plătește
 
-**Furnizorul de energie, per casă.** Valoarea principală pentru el e operațională: echipa lui de O&M află de defecte în aceeași zi, primește tichete doar pentru defectele reale, ordonate după banii pierduți, și nu mai pleacă degeaba la casele unde vina e a rețelei. În plus, îl oferă clienților ca serviciu de fidelizare (oamenii primesc răspunsuri în loc să sune la call center) și poate trimite distribuitorului un raport pe stradă, fără să ceară acces la invertoare. Același serviciu se poate vinde și instalatorilor sau firmelor independente de O&M.
+**Furnizorul de energie, per casă.** Valoarea principală pentru el e operațională: echipa lui de O&M află de defecte în aceeași zi, primește tichete doar pentru defectele reale și nu mai pleacă degeaba la casele unde vina e a rețelei. În plus, îl oferă clienților ca serviciu de fidelizare (oamenii primesc răspunsuri în loc să sune la call center) și poate trimite distribuitorului un raport pe stradă, fără să ceară acces la invertoare. Același serviciu se poate vinde și instalatorilor sau firmelor independente de O&M.
 
 ## 8. Întrebări grele și răspunsurile noastre
 
 **„Challenge-ul cere o singură imagine a energiei. Voi ați făcut un detector de opriri?”**
-Nu doar. Baza e graficul zilei cu producția, consumul, bateria și rețeaua, toate laolaltă, cu consumul calculat fără contor nou. Detectorul e ce face graficul util: în loc să te uiți tu la curbe, îți spunem ce nu merge, a cui e vina și ce faci mai departe. Un grafic unificat există deja (Home Assistant, SolarAssistant), dar nu dă un diagnostic și nu declanșează nicio acțiune.
+Nu doar. Clientul își vede casa pe un singur ecran: producția, consumul, bateria și rețeaua, de-a lungul zilei și zi cu zi pe toată luna. Verdictele sunt ce fac imaginea utilă: în loc să te uiți tu la curbe, îți spunem ce nu merge, a cui e vina și ce faci mai departe. Un grafic unificat există deja (Home Assistant, SolarAssistant), dar nu dă un diagnostic și nu declanșează nicio acțiune.
 
 **„Furnizorul și distribuitorul fac des parte din același grup. De ce ar plăti furnizorul ca proprii clienți să reclame rețeaua grupului?”**
 Furnizorul nu plătește pentru plângeri. Plătește ca echipa lui de O&M să nu mai facă deplasări degeaba și ca reclamațiile „nu-mi merge sistemul” să primească răspuns. Dosarul de sesizare e un drept al prosumatorului, iar noi doar îl facem ușor de exercitat. Raportul agregat pe stradă ajută chiar grupul: distribuitorul vede unde crește tensiunea și unde trebuie investit, fără să ceară parolele invertoarelor, care au dus la reclamații la ANSPDCP.
@@ -128,31 +146,29 @@ Furnizorul nu plătește pentru plângeri. Plătește ca echipa lui de O&M să n
 Dovada principală vine de la casa însăși: tensiunea măsurată de invertor și codul lui de alarmă („Grid overvoltage”). Asta merge și pentru o singură casă. Vecinii doar întăresc dovada. Pe cei de pe aceeași „stradă” îi găsim după apropierea geografică, iar cu acordul distribuitorului putem folosi și postul de transformare exact. Cu cât un furnizor are mai mulți clienți într-o zonă, cu atât dovada e mai puternică.
 
 **„Tensiunea e simulată. De ce să credem acuratețea?”**
-Pentru că nu ne bazăm doar pe simulator. Testul de robustețe arată că detectorul nu se încurcă la nori, la goluri de date sau la date luate la 5 minute. Testul pe date reale de la case adevărate arată câte alarme false ar fi dat. Nu există date publice de tensiune pe străzile din România, iar acesta e chiar golul pe care îl acoperim.
+Nu cereți să credeți cifra, ci regula. Verdictul se bazează pe lucruri pe care le poate verifica oricine: tensiunea măsurată de invertor, limita de 253 V și vecinii opriți în același minut. Simularea arată că regula nu se încurcă la case sănătoase (0 alarme false din 60) și nici la date luate doar la 5 minute (80 din 81 corect). Producția e reală, din PVGIS. Tensiunea e simulată pentru că nu există date publice despre ea pe străzile din România, iar acesta e chiar golul pe care îl acoperim. Primul pas după demo e un pilot pe case reale.
 
 **„De ce nu folosiți machine learning?”**
-Pentru că n-avem defecte reale etichetate, iar un model antrenat pe simularea noastră ar învăța doar regulile simulatorului. În plus, distribuitorul trebuie să afle *de ce*: „254 V și 2 vecini opriți în același minut” convinge, „modelul a zis 0,87” nu. Compararea fiecărei case cu vecinii e chiar detecție de anomalii fără etichete. Peste ea putem pune un strat statistic pentru derive lente (murdărie, un string care cedează), dar verdictul rețea/echipament rămâne pe reguli citibile.
+Pentru că n-avem defecte reale etichetate, iar un model antrenat pe simularea noastră ar învăța doar regulile simulatorului. În plus, distribuitorul trebuie să afle *de ce*: „257 V și 6 vecini opriți în același minut” convinge, „modelul a zis 0,87” nu. Compararea fiecărei case cu vecinii e chiar detecție de anomalii fără etichete. Peste ea putem pune un strat statistic pentru derive lente (murdărie, un string care cedează), dar verdictul rețea/echipament rămâne pe reguli citibile.
 
 **„Ce câștigă omul din sesizare?”**
 Nu promitem despăgubiri. Distribuitorul e obligat să verifice și să remedieze calitatea tensiunii, iar un dosar cu date, ore și grafice e mult mai greu de ignorat decât un telefon. Ce au primit cei care au făcut deja sesizare: *[de confirmat; nu avem încă un caz documentat]*.
 
-## 9. Ce construim acum și cum creștem
+## 9. Ce am construit și cum creștem
 
-### Ce implementăm acum, pentru demo (24 de ore)
+### Ce merge azi, în demo
 
-- **Strada simulată** cu 12 case, în 5 orașe (București, Cluj, Iași, Timișoara, Constanța), cu producție solară reală din PVGIS și tensiune calculată cu un model fizic.
-- **Detectorul:** fiecare oprire e clasificată ca rețea, echipament, pană de curent sau lipsă de date, cu energia pierdută în kWh și lei.
-- **Dosarul de sesizare** în PDF, adresat automat distribuitorului din județul casei.
-- **Alerta pe Telegram** pentru tehnician și tichetul care se închide doar când datele confirmă reparația (verificat, redeschis sau dovezi insuficiente), plus tichetele trimise de clienți.
-- **Verificarea bateriei** față de ce a vrut proprietarul, cu importul evitabil în lei și istoricul setărilor („a început după schimbarea din 3 iulie”).
-- **O singură interfață de adaptor** pentru toate brandurile; la hackathon, datele vin din adaptorul simulat.
-- **Site-ul** cu panoul clientului și panoul furnizorului.
-- **Invertor vs. contor vs. factură**, pe facturi sintetice cu două erori plantate.
-- **„Cine vede ce”:** permisiuni și jurnalul de acces.
-- **Evaluarea:** cât de des avem dreptate, pe zeci de zile aleatoare, la date la 1 și la 5 minute, plus alarmele false pe date reale.
-- **Dacă rămâne timp:** prețurile OPCOM PZU, ca să arătăm cât valorează un kWh la prânz față de seară.
+- **8 cartiere simulate** cu postul lor de transformare, aproximativ 220 de case, dintre care 81 sunt clienții furnizorului. Producție solară reală (PVGIS), tensiune calculată cu un model fizic al rețelei.
+- **Trei motoare de decizie:** rețea sau instalație, baterie față de intenția clientului, factură față de contor. Fiecare dă verdictul, cine e responsabil, ce trebuie făcut și cât costă, în kWh și în lei.
+- **Dosarul tehnic în PDF** pentru distribuitorul casei (în demo, Rețele Electrice și Distribuție Energie Electrica România).
+- **Alerta pe Telegram** pentru tehnician (reală dacă e configurat botul, altfel simulată) și ciclul tichetului O&M care se închide doar pe date.
+- **Simularea soluției pentru distribuitor:** ce se întâmplă pe stradă înainte și după măsuri, de exemplu reglarea ploturilor transformatorului, un transformator mai mare, cabluri mai groase, reechilibrarea fazelor, Volt-Watt pe toate invertoarele sau bateriile setate corect.
+- **Simularea bateriei:** „cât câștigi dacă schimbi rezerva”.
+- **Textele pentru client, call center și distribuitor**, cu verificarea cifrelor.
+- **Trei ecrane:** harta furnizorului, triajul și pagina clientului, plus prima pagină de prezentare.
+- **Evaluarea pe 81 de case**, la 1 și la 5 minute, regenerabilă cu un singur script. 823 de teste automate.
 
-Toate datele de tensiune, facturile și invertoarele sunt simulate. Producția solară e reală.
+Tensiunea, bateriile, facturile și invertoarele sunt simulate. Producția solară e reală.
 
 ### Ce vine după demo
 
@@ -160,24 +176,26 @@ Toate datele de tensiune, facturile și invertoarele sunt simulate. Producția s
 - Conectori reali, doar pentru citire: Huawei FusionSolar și Fronius (cele mai răspândite în România), apoi SolarEdge, Deye și Growatt.
 - Un pilot cu un furnizor sau o firmă de O&M, pe 50–100 de case din același cartier, ca să avem vecini reali.
 - Importul automat al curbei de sarcină din portalul distribuitorului și al facturii (PDF sau e-Factura).
-- Aplicația mobilă, peste aceleași date (până atunci, alertele vin pe Telegram).
+- **Cine vede ce:** clientul alege ce date vede distribuitorul (doar tensiunea și opririle) și ce vede tehnicianul (doar alertele), cu un jurnal al fiecărui acces.
+- Istoricul setărilor bateriei, ca să vedem când a început problema („rezerva a trecut la 80% pe 3 iulie”).
 
 **Pasul 2, 3–12 luni: din casă în casă, pe toată țara**
 - Harta tensiunii pe străzi, construită din datele clienților care și-au dat acordul. Azi nu există date publice despre asta în România.
 - Raportul lunar pe post de transformare pentru distribuitor: „pe strada X, 14 case s-au oprit de 60 de ori în iulie”. Distribuitorul vede unde să investească, fără acces la invertoare.
-- Verificarea programelor de baterie ale furnizorilor și a agregatorilor (YellowGrid, programe de tip Electrica): câștigă omul net sau nu?
-- Simularea „merită o baterie mai mare?”, pe datele reale ale casei, înainte de Casa Verde Baterii.
+- Verificarea programelor de baterie ale furnizorilor și ale agregatorilor (YellowGrid, programe de tip Electrica): câștigă omul net sau nu?
+- Simularea „merită o baterie mai mare?”, pe datele reale ale casei.
 
 **Pasul 3, peste un an: mai mult decât panouri**
-- Pompe de căldură, încărcătoare de mașini electrice și alte aparate mari, ca să vedem când lucrează unele împotriva altora.
-- Comunitățile de energie (prevăzute de lege), unde vecinii împart energia și au nevoie de o evidență comună în care să aibă încredere.
+- Pompe de căldură, încărcătoare de mașini electrice și alte consumatoare mari, ca să vedem când lucrează unele împotriva altora.
+- Comunitățile de energie, unde vecinii împart energia și au nevoie de o evidență comună în care să aibă încredere.
 - Alte țări din regiune cu aceeași problemă (Ungaria, Bulgaria, Polonia), pentru că metoda cu vecinii nu ține de România.
 
 **Ce nu facem nici pe viitor:** nu controlăm invertoarele și nu cerem parole. Citim, verificăm și dăm dovezi. Decizia rămâne la om.
 
 ## 10. Ce spunem deschis
 
-- Tensiunea și facturile din demo sunt **simulate**. Producția solară e reală.
+- Tensiunea, bateriile și facturile din demo sunt **simulate**. Producția solară e reală (PVGIS).
+- Cifrele din evaluare arată că logica e corectă, nu cum merge pe case reale. Asta aflăm din pilot.
 - Nu controlăm invertoare și nu schimbăm setări. **Doar citim.**
 - Nu promitem despăgubiri din sesizare. Valoarea e că distribuitorul trebuie să verifice și să repare.
 
@@ -187,27 +205,27 @@ Toate datele de tensiune, facturile și invertoarele sunt simulate. Producția s
 
 | Ce | Pentru ce |
 |---|---|
-| **Python 3.12** | Tot codul: simulatorul, detectorul, calculele |
-| **pandas, numpy** | Citirile la minut ale caselor, agregarea la 5 și la 15 minute, calculele de kWh și lei |
-| **SQLite** | Baza de date locală: citiri, evenimente, tichete, permisiuni, jurnalul de acces. Nu cere server |
-| **HTML + Leaflet** | Interfața: site-ul cu panoul clientului, panoul furnizorului și harta străzilor colorată după stare, cu aceeași simulare portată în JavaScript |
-| **Scriptul de demo** (`python -m sunproof.demo`) | Rulează motorul real în demo: ziua simulată, defectul, dosarul PDF, alerta pe Telegram, evaluarea |
-| **matplotlib** | Graficele din PDF (tensiunea pe zi, cu linia de 253 V) |
-| **fpdf2** | Generarea dosarului de sesizare în PDF |
-| **httpx** | Apelurile HTTP: Telegram, PVGIS, Claude, priza smart |
-| **pytest** | Testele, cu valori exacte (de exemplu 4,8 kWh pierduți, 3,20 lei bonus ratat) |
+| **Python 3.14 + FastAPI** | Serverul: simularea cartierelor, cele trei motoare de decizie, API-ul pentru interfață |
+| **pydantic** | Contractele de date: citirile invertorului, ale contorului, facturile și verdictele au aceeași formă peste tot |
+| **pandas, numpy** | Citirile la minut, agregarea la 5 și la 15 minute, calculele de kWh și lei |
+| **React 19 + TanStack Start** | Interfața web: harta furnizorului, triajul, pagina clientului, prima pagină |
+| **MapLibre GL** | Harta, cu imagini satelit sau fundal întunecat, fără cheie API |
+| **Recharts** | Graficele de tensiune, producție, baterie și factură |
+| **fpdf2** | Dosarul tehnic în PDF pentru distribuitor |
+| **httpx** | Apelurile HTTP către Telegram |
+| **anthropic** | Redactarea textelor cu Claude (opțional; fără cheie, șabloane) |
+| **pytest** | Testele automate, cu valori exacte (823 de teste) |
 
 ### API-uri și surse de date
 
 | API sau sursă | Ce luăm de acolo | În demo |
 |---|---|---|
-| **PVGIS** (Comisia Europeană, JRC), endpoint `seriescalc` | Producția solară orară reală pentru 5 orașe, anul 2020, cu norii reali | Real. Îl descărcăm o dată, cu `scripts/download_data.sh` |
-| **Claude API** (Anthropic, biblioteca `anthropic`) | Redactarea scrisorii de sesizare și a mesajelor, plus copilotul care răspunde la „de ce n-am produs azi?” | Real, cu cheie API. Cu `DEMO_MODE=1`, răspunsurile vin din cache, ca demo-ul să nu depindă de internet |
-| **Telegram Bot API** (`sendMessage`) | Alerta către tehnician când e un defect de echipament | Real: mesajul ajunge pe telefon. Dacă nu e internet, alertele stau la coadă și pleacă după, în ordine |
-| **Huawei FusionSolar Northbound API** și **Fronius Solar API** (`GetInverterRealtimeData`, câmpul `UAC`) | În produsul real: puterea, tensiunea rețelei, starea și alarmele invertorului | Doar interfața adaptorului. Datele vin din simulator, în același format |
-| **Exportul curbei de sarcină** din portalul distribuitorului (CSV, import/export la 15 minute) | Ce spune contorul, pentru consumul real al casei și pentru verificarea facturii | Generat din simulator, în același format |
-| **OPCOM PZU** (prețurile orare pe ziua următoare) | Cât valorează energia la fiecare oră: prânz vs. seară, la baterie și la factură | Opțional, dacă rămâne timp; descărcat de pe laptop |
-| **Shelly**, API HTTP local | Priza smart care pornește boilerul când tensiunea urcă (opțional) | Simulată |
+| **PVGIS** (Comisia Europeană, JRC) | Producția solară reală, cu norii reali | Real, descărcat o dată |
+| **OPCOM PZU** | Cât valorează energia la fiecare oră: prânz față de seară | Curba de preț a lunii august 2026 |
+| **Claude API** (Anthropic) | Textele pentru client, call center și distribuitor | Real cu `SUNPROOF_USE_LLM=1` și cheie API; altfel șabloane |
+| **Telegram Bot API** (`sendMessage`) | Alerta către tehnician | Real cu `TELEGRAM_BOT_TOKEN`; altfel simulat |
+| **Huawei FusionSolar Northbound API**, **Fronius Solar API** | În produsul real: puterea, tensiunea rețelei, starea și alarmele invertorului | Datele vin din simulator, în același format |
+| **Curba de sarcină** din portalul distribuitorului (import/export la 15 minute) | Ce spune contorul, pentru consumul real și pentru factură | Generată din simulator, în același format |
 
 ### Conectorii pe branduri: câte un API pentru fiecare brand major
 
@@ -230,27 +248,26 @@ Un adaptor e cod, nu hardware: estimăm 1–3 zile pentru un prototip și 1–2 
 
 | Modul | Ce face |
 |---|---|
-| `adapters.py` | Interfața unică pentru toate brandurile: orice invertor intră în aceeași schemă de citiri. La hackathon e implementat doar adaptorul simulat |
-| `config.py` | Toate pragurile într-un singur loc: 253 V (medie pe 10 minute), 264,5 V instantaneu, repornire după 15 minute, ferestrele bateriei. Nimic nu e scris direct în cod |
-| `profiles.py` | Transformă datele PVGIS orare în date la minut și generează consumul fiecărei case (vârf dimineața și seara) |
-| `feeder.py` | Simulatorul străzii: 12 case pe un cablu, tensiunea crește spre capăt cu cât se trimite mai multă energie. Invertorul se oprește peste prag, exact ca în realitate. Bateria, defectele de invertor și stringul pe jumătate inactiv sunt incluse |
-| `events.py` | Detectorul: găsește opririle și le clasifică în rețea, echipament, pană de curent, reducere de putere sau lipsă de date. Calculează energia pierdută față de vecini |
-| `store.py` | Salvarea în SQLite și simularea unei luni întregi |
-| `dossier.py` | Dosarul PDF: scrisoarea, tabelul opririlor și graficul tensiunii. Cifrele din textul scris de AI sunt verificate în cod |
-| `om.py` | Tichetele pentru tehnicieni (deschis, rezolvat, verificat, redeschis, dovezi insuficiente), tichetele trimise de clienți, coada de alerte Telegram, harta și contorul „deplasări inutile evitate” |
-| `battery.py` | Verificarea bateriei: intenția proprietarului vs. setarea vs. ce s-a măsurat, istoricul setărilor, importul evitabil și bonusul ratat |
-| `reconcile.py` | Invertor vs. contor vs. factură și consumul real calculat fără contor nou (producție + import − export) |
-| `consent.py` | Cine vede ce: permisiuni pe categorii și jurnalul de acces. Orice dată pentru terți trece doar pe aici |
-| `copilot.py` | Asistentul: Claude, cu unelte care citesc din baza de date. Cifrele vin din unelte, nu din model |
-| `evaluate.py` | Evaluarea: zeci de zile aleatoare cu defecte puse la întâmplare, apoi acuratețea clasificării la 1 și la 5 minute |
+| `sunproof/grid.py`, `neighborhoods.py` | Simularea rețelei de joasă tensiune în cele 8 cartiere: tensiunea crește spre capătul străzii cu cât se trimite mai multă energie, iar invertoarele se opresc peste prag |
+| `sunproof/scenarios.py` | Singura intrare în date: cele 81 de case și cartierele lor |
+| `sunproof/engine/grid_fault.py` | Rețea sau instalație: opririle, vecinii afectați simultan, creșterea de tensiune în casă, energia pierdută |
+| `sunproof/engine/battery.py` | Bateria față de intenția clientului: kWh blocați, pierderea la prețurile PZU, eligibilitatea pentru bonus |
+| `sunproof/engine/billing.py` | Invertor, contor și factură, după Legea 160/2026: suma corectă și diferența |
+| `sunproof/engine/pipeline.py` | Leagă cele trei verdicte și strânge toate cifrele care au voie să apară în texte |
+| `sunproof/explainer.py`, `text_templates.py` | Textele în română, de la Claude sau din șablon, cu verificarea cifrelor |
+| `sunproof/pdf_dossier.py` | Dosarul tehnic în PDF pentru distribuitor |
+| `sunproof/telegram_bot.py` | Alerta pentru tehnician |
+| `sunproof/app.py`, `api_support.py` | API-ul pentru interfață, inclusiv simulările „ce-ar fi dacă” |
+| `scripts/evaluate_proof.py` | Evaluarea pe 81 de case, la 1 și la 5 minute |
 
 ### Reguli tehnice importante
 
-- **Detecția e deterministă.** AI-ul nu decide nimic, doar scrie text. Aceleași date dau mereu același rezultat.
-- **Testele nu au nevoie de internet:** AI-ul e înlocuit în teste cu unul fals (`FakeLLM`).
-- **Calibrăm și raportăm pe date diferite:** pragurile se aleg pe seed-ul 1, iar acuratețea se raportează pe seed-ul 2, ca să nu ne păcălim singuri.
+- **Decizia e deterministă.** AI-ul nu decide nimic, doar scrie text. Aceleași date dau mereu același verdict.
+- **Testele nu au nevoie de internet.** AI-ul și Telegram sunt opționale, iar fără ele aplicația merge cu șabloane și alerte simulate.
+- **Interfața merge și fără server.** Dacă backend-ul nu răspunde, aplicația folosește date locale și o spune pe ecran.
 - **Fără hardware și fără control:** doar citim date, nu schimbăm setări pe invertor.
 - **Cheile API** (Claude, Telegram) stau în variabile de mediu, nu în cod și nu pe GitHub.
+
 
 ---
 *De confirmat înainte de pitch:* citatele exacte din interviurile 1 și 2, numărul de opriri pe lună și sursa cifrei 460 (vezi `docs/interviews/2026-10-24-sinteza-dovezi-interviuri.md`). Acuratețea din evaluare e integrată în secțiunea 5.

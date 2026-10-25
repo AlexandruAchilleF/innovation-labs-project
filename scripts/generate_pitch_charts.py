@@ -3,6 +3,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from xml.sax.saxutils import escape
+from sunproof.api_support import portfolio_metrics, raw_analysis
 from sunproof.scenarios import get_scenario_by_id, get_all_neighborhood_analyses
 
 OUT = Path(__file__).resolve().parent.parent / "docs" / "pitch" / "charts"
@@ -125,23 +126,26 @@ def chart3():
 def chart4():
     base, bw = 560, 130
     sc = 330 / 100
+    bv, pm = raw_analysis("RO-CJ-003").battery_verdict, portfolio_metrics()
+    got, want = round(bv.configured_min_soc_pct), round(bv.desired_min_soc_pct)
     b = line(70, base, 520, base, GREY) + t(70, 140, "RO-CJ-003 · SoC minim al bateriei", 17, weight=700)
-    for x, lab, v, c in [(110, "Before (setat)", 80, RED), (300, "After (dorit)", 20, GREEN)]:
+    for x, lab, v, c in [(110, "Setat acum", got, RED), (300, "Dorit de client", want, GREEN)]:
         b += rect(x, base - v * sc, bw, v * sc, c) + t(x + bw / 2, base - v * sc - 12, f"{v}%", 26, anchor="middle", weight=700, mono=True)
         b += t(x + bw / 2, base + 28, lab, 15, anchor="middle")
-    b += t(290, 215, "→", 30, GREY, "middle") + t(70, 612, "Baterie blocată la 80% în loc de 20% dorit; PZU seară ≈ 8× prânz.", 14, GREY)
-    cards = [("81/81", "100% detecție · 1 min și 5 min", GREEN), ("0/60", "alarme false", GREEN),
-             ("6.750 RON/lună", "deplasări evitate", BLUE), ("1.054,20 RON/lună", "pierdere PZU pe 7 baterii", AMBER),
-             ("5,66 mil. EUR/an", "la 25.000 prosumatori", RED)]
+    b += t(290, 215, "→", 30, GREY, "middle") + t(70, 612, f"Baterie blocată la {got}% în loc de {want}% dorit; PZU seară ≈ 8× prânz.", 14, GREY)
+    cards = [("81/81 · 80/81", "rețea vs. echipament · 1 min / 5 min", GREEN), ("0/60", "alarme false", GREEN),
+             (f"{ro(pm.fleet_avoided_truck_rolls_ron)} RON/lună", "deplasări evitate", BLUE),
+             (f"{ro(pm.fleet_monthly_pzu_savings_ron, 2)} RON/lună", f"pierdere PZU pe {pm.misconfigured_batteries_count} baterii", AMBER),
+             (f"≈{ro(round(pm.extrapolated_annual_supplier_savings_eur, -3))} EUR/an", f"la {ro(pm.extrapolated_prosumers_count)} prosumatori", RED)]
     for i, (big, small, c) in enumerate(cards):
         y = 130 + i * 90
         b += rect(600, y, 550, 76, "#f8fafc") + rect(600, y, 8, 76, c, 2)
         b += t(630, y + 36, big, 26, c if c != AMBER else "#b45309", weight=700, mono=True) + t(630, y + 61, small, 15, GREY)
-    return frame("4. Ce pierde prosumatorul și furnizorul — și dovada că detecția merge 100%.",
-                 "RO-CJ-003 (baterie blocată la 80% vs. 20% dorit, PZU seară 8× prânz) + Evaluare 81/81 scenarii (1 min & 5 min, 0 alarme false)", b)
+    return frame("4. Ce pierd prosumatorul și furnizorul, și dovada că detecția merge.",
+                 f"RO-CJ-003 (baterie blocată la {got}% vs. {want}% dorit, PZU seară 8× prânz) + evaluare pe 81 de case (0 alarme false)", b)
 
 
-FACTS = ["+23.956 baterii în 2 luni", "60% din 460 invertoare DEO setate greșit", "253 V prag EN 50549-1", "81/81 scenarii · 0 alarme false", "5,66 mil. EUR/an la 25.000 prosumatori"]
+FACTS = ["+23.956 baterii în 2 luni", "60% din 460 invertoare DEO setate greșit", "253 V prag EN 50549-1", "81/81 scenarii · 0 alarme false", "≈713.000 EUR/an la 25.000 prosumatori"]
 HTML = """<!doctype html><html lang="ro"><head><meta charset="utf-8"><title>SunProof — pitch</title>
 <meta name="viewport" content="width=device-width,initial-scale=1"><style>
 html{scroll-snap-type:y mandatory;scroll-behavior:smooth}body{margin:0;background:#0f172a;font-family:Inter,Arial,sans-serif;color:#fff}

@@ -72,7 +72,7 @@ SunProof este un motor software independent de brand, **100% fără hardware sup
 | **Supratensiune Rețea** | Tensiunea trece de 253V la contor ȘI vecinii se opresc simultan | Emite instant **Dosarul Tehnic PDF** pentru Distribuitor (DEO, Rețele Electrice, DEER) | **Economie de 450 RON** (fără deplasare inutilă de echipă O&M) |
 | **Cablu Intern Subdimensionat** | Tensiune normală la contor, dar salt > 8V pe cablul intern AC | Semnalează **cădere internă de tensiune** către instalator | Evită incendiile sau degradarea prematură a invertorului |
 | **Defect Echipament** | Tensiune rețea normală, dar producție prăbușită vs. PVGIS | Deschide tichet direct la **tehnician pe Telegram** | Timp de remediere redus de la 3 săptămâni la 24h |
-| **Baterie Blocată** | Rezervă 80% când proprietarul a cerut 20% | Arată **arbitrajul PZU pierdut** și oferă buton de remediere | **+1.054 RON/an** pe eșantionul demonstrativ |
+| **Baterie Blocată** | Rezervă 80% când proprietarul a cerut 20% | Arată **arbitrajul PZU pierdut** și oferă buton de remediere | **982 RON/lună** pe cele 7 baterii blocate din eșantion |
 | **Eroare Factură** | Discrepanță între curba 2.8.0 și regularizarea furnizorului | Evidențiază kWh injectați nedecontați | Protecție financiară automată conform Legii 160/2026 |
 
 ---
@@ -85,7 +85,7 @@ Eficiența algoritmilor noștri este dovedită prin evaluarea automată pe **toa
 * **98.8% Acuratețe la Citire la 5 Minute:** Funcționează impecabil doar din API-urile cloud ale producătorilor (Huawei, Fronius, Deye, SolarEdge, Victron), **fără montaj de senzori hardware**.
 * **0 Alarme False pe Case Sănătoase (0.0%):** Nicio sesizare inutilă trimisă când rețeaua sau instalația este în parametri normali (Volt-Watt).
 * **6.750 RON/lună economisiți** pe o singură flotă de 81 de case doar prin eliminarea deplasărilor inutile de intervenție (15 cazuri de supratensiune rețea rezolvate prin dosar).
-* **5,66 Milioane EUR/an recuperați** prin deblocarea rezervelor de baterie, extrapolat la nivelul parcului național de prosumatori cu stocare.
+* **≈713.000 EUR/an recuperați** prin deblocarea rezervelor de baterie, extrapolat la 25.000 de prosumatori cu stocare.
 
 ---
 

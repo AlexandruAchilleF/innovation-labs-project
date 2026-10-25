@@ -1,3 +1,5 @@
+> **Versiune veche (v1), păstrată ca arhivă.** Pitch-ul actual, cu furnizorul ca client, e în `2026-10-24-pitch-scurt.md`; pentru prezentare folosește `2026-10-25-kit-dimineata.md`.
+
 # SunProof: pitch scurt (~1 minut)
 
 **Un singur adevăr despre energia ta, care îți aparține.**

@@ -23,7 +23,9 @@ if str(ROOT) not in sys.path:
 
 from sunproof.engine import analyze_battery, analyze_grid_fault, reconcile_billing
 from sunproof.models import GridFaultCause, HouseholdScenario, InverterStatus, NeighborNode
+from sunproof.api_support import portfolio_metrics
 from sunproof.scenarios import get_all_scenarios, get_ground_truth
+from sunproof.text_templates import fmt_ro
 
 
 def downsample_scenario_5min(scenario: HouseholdScenario) -> HouseholdScenario:
@@ -151,6 +153,7 @@ def main() -> None:
         "LOCAL_EQUIPMENT_FAULT": "Defect echipament / string / offline (O&M)",
     }
 
+    pm = portfolio_metrics()
     lines = [
         "# Dovada (GOAL.md #4) — Evaluare pe cele 81 de scenarii SunProof",
         "",
@@ -191,12 +194,14 @@ def main() -> None:
             "",
             "## 3. Concluzia pentru cele 4 grafice din Pitch",
             "",
-            "1. **Graficul 1 (Triaj Rețea vs. Local):** Din 21 de gospodării cu opriri/probleme tehnice în flotă, "
-            "15 sunt supratensiuni de rețea (450 RON × 15 = **6.750 RON** deplasări inutile evitate lunar) și 6 sunt defecte locale reale trimise direct la O&M pe Telegram.",
+            f"1. **Graficul 1 (Triaj Rețea vs. Local):** Din {pm.grid_fault_households_count + pm.local_fault_households_count} de gospodării cu opriri/probleme tehnice în flotă, "
+            f"{pm.grid_fault_households_count} sunt supratensiuni de rețea (**{fmt_ro(pm.fleet_avoided_truck_rolls_ron)} RON** deplasări inutile evitate lunar) și {pm.local_fault_households_count} sunt defecte locale reale trimise direct la O&M pe Telegram.",
             "2. **Graficul 2 (1 min vs. 5 min):** Chiar și cu citire la 5 minute (fără hardware dedicat, doar din API-ul cloud al invertorului + contor la 15 min), "
-            f"clasificarea păstrează **{acc_5m:.1f}%** acuratețe și **{false_alarms_5m} alarme false** pe casele sănătoase (inclusiv cele în regim normal Volt-Watt).",
-            "3. **Graficul 3 (Baterii & Vârful de Seară PZU):** 7 baterii blocate la 80% SoC sau în mod greșit generează o pierdere de arbitraj PZU de **1.054,20 RON/lună** pe eșantion (peste **5,66 milioane EUR/an** extrapolat la 25.000 prosumatori).",
-            "4. **Graficul 4 (Facturi Legea 160/2026 & Guardrail):** 5 facturi cu erori reale (index 2.8.0 lipsă sau estimat abuziv) sunt prinse automat, iar guardrail-ul numeric blochează 100% din sumele neacoperite de fapte deterministe.",
+            f"clasificarea păstrează **{fmt_ro(acc_5m, 1)}%** acuratețe și **{false_alarms_5m} alarme false** pe casele sănătoase (inclusiv cele în regim normal Volt-Watt).",
+            f"3. **Graficul 3 (Baterii & Vârful de Seară PZU):** {pm.misconfigured_batteries_count} baterii blocate (rezervă SoC prea mare sau mod greșit) generează o pierdere de arbitraj PZU de **{fmt_ro(pm.fleet_monthly_pzu_savings_ron, 2)} RON/lună** pe eșantion "
+            f"(circa **{fmt_ro(round(pm.extrapolated_annual_supplier_savings_eur, -3))} EUR/an** extrapolat la {fmt_ro(pm.extrapolated_prosumers_count)} de prosumatori).",
+            f"4. **Graficul 4 (Facturi Legea 160/2026 & Guardrail):** {pm.invoice_issues_count} facturi cu erori reale (index de export lipsă sau estimat) sunt prinse automat, cu **{fmt_ro(pm.fleet_invoice_corrections_ron, 2)} RON** de corectat; "
+            "guardrail-ul numeric respinge orice text care conține o cifră absentă din faptele deterministe.",
             "",
         ]
     )
