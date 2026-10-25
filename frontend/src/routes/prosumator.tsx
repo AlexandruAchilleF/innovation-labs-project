@@ -10,13 +10,18 @@ import { TimeScrub } from "@/components/sunproof/prosumator/scene/TimeScrub";
 import { clock, dayTotals, keyMinute, pointAt } from "@/lib/energy-day";
 import { fmt } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { DaysView } from "@/components/sunproof/prosumator/days/DaysView";
+import type { ProsumerTab } from "@/components/sunproof/shell/ProsumerHeader";
 import { TicketForm } from "@/components/sunproof/prosumator/TicketForm";
 import { householdQuery } from "@/lib/queries";
 import type { HouseholdDetail, MinutePoint } from "@/lib/types";
 
 export const Route = createFileRoute("/prosumator")({
-  validateSearch: (s: Record<string, unknown>) => ({
+  validateSearch: (
+    s: Record<string, unknown>,
+  ): { household: string; tab?: ProsumerTab | undefined } => ({
     household: typeof s["household"] === "string" ? (s["household"] as string) : "RO-B-005",
+    ...(s["tab"] === "zile" ? { tab: "zile" as const } : {}),
   }),
   head: () => ({
     meta: [
@@ -38,7 +43,7 @@ export const Route = createFileRoute("/prosumator")({
 });
 
 function ProsumatorPage() {
-  const { household } = Route.useSearch();
+  const { household, tab } = Route.useSearch();
   const d = useQuery(householdQuery(household));
   // the shared query cache can resolve before hydration; render data only on the client
   const hydrated = useHydrated();
@@ -47,7 +52,11 @@ function ProsumatorPage() {
   return (
     <main className="mx-auto max-w-[1200px] space-y-6 px-4 py-8 sm:px-6 sm:py-10">
       {detail ? (
-        <Dashboard key={household} d={detail} />
+        tab === "zile" ? (
+          <DaysView key={household} d={detail} />
+        ) : (
+          <Dashboard key={household} d={detail} />
+        )
       ) : (
         <div className="space-y-6">
           <Skeleton className="h-10 w-80" />
