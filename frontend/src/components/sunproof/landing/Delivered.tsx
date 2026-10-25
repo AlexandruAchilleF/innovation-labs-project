@@ -28,13 +28,9 @@ export function Delivered() {
             <span className="text-[13px] font-medium">Dosar tehnic</span>
             <span className="num ml-auto text-[12px] text-fog">{a.household_id}</span>
           </header>
-          <p className="mt-4 text-[12px] leading-relaxed text-fog">
+          <p className="mt-4 line-clamp-[12] text-[12px] leading-relaxed text-fog">
             {a.distributor_complaint_text}
           </p>
-          <div
-            aria-hidden
-            className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate to-transparent"
-          />
           <span className="num absolute bottom-4 right-4 rounded-[3px] border border-iron bg-graphite px-2 py-0.5 text-[11px] text-fog">
             PDF
           </span>

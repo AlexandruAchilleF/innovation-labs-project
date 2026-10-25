@@ -369,26 +369,16 @@
 .lp-wave {
   transform-box: fill-box;
   transform-origin: center;
-  animation: lp-wave 4.5s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+  animation: lp-wave 2.4s cubic-bezier(0.2, 0.6, 0.3, 1) both;
 }
 @keyframes lp-trip {
-  0%, 44% { opacity: 0; transform: scale(0.4); }
-  48% { opacity: 1; transform: scale(1.25); }
+  0%, 40% { opacity: 0; transform: scale(0.6); }
   60%, 100% { opacity: 1; transform: scale(1); }
 }
 .lp-trip {
   transform-box: fill-box;
   transform-origin: center;
-  animation: lp-trip 4.5s ease-out infinite;
-}
-@keyframes lp-flash {
-  0%, 45% { opacity: 0; }
-  48% { opacity: 0.9; }
-  100% { opacity: 0; }
-}
-.lp-flash {
-  opacity: 0;
-  animation: lp-flash 4.5s ease-out infinite;
+  animation: lp-trip 2.4s ease-out both;
 }
 /* (b) energy finally flowing out of the battery at the evening peak */
 @keyframes lp-flow {
@@ -425,9 +415,9 @@
   animation: lp-draw 1.6s cubic-bezier(0.65, 0, 0.35, 1) var(--lp-delay, 0s) 1 both;
 }
 @keyframes lp-rise {
-  from { opacity: 0; transform: translateY(24px); }
+  from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: none; }
 }
 .lp-rise {
-  animation: lp-rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) var(--lp-delay, 0s) 1 both;
+  animation: lp-rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) var(--lp-delay, 0s) 1 both;
 }

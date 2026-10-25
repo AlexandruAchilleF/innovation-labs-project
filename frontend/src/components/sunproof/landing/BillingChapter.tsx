@@ -63,12 +63,9 @@ function Scan() {
     <>
       <div
         aria-hidden
-        className="lp-scan pointer-events-none absolute inset-x-0 top-0 h-[18%]"
-        style={{ "--lp-scan-to": "560%" } as React.CSSProperties}
-      >
-        <div className="h-full bg-gradient-to-b from-transparent to-voltage/20" />
-        <div className="h-px bg-voltage" />
-      </div>
+        className="lp-scan pointer-events-none absolute inset-x-0 top-0 h-px bg-voltage"
+        style={{ "--lp-scan-to": "74000%" } as React.CSSProperties}
+      />
       <Overlay w={W} h={H} label="Energia injectată lipsește de pe factură">
         <rect
           x={BLOCK.x}

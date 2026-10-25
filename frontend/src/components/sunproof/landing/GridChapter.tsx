@@ -21,7 +21,7 @@ const NEIGHBORS = [
 ];
 
 /**
- * (a) Voltage wave. Rețea: a ring leaves the transformer and every house on it trips in the same frame.
+ * (a) Voltage wave. Rețea: one ring leaves the transformer and every house on it trips in the same frame.
  * Instalație: the rise starts inside one house only; the neighbours stay up.
  */
 export function GridChapter() {
@@ -51,27 +51,18 @@ export function GridChapter() {
                   : "Toate casele de pe transformator se opresc în același minut"
               }
             >
-              <defs>
-                <radialGradient id="lp-wave-fill">
-                  <stop offset="0.7" stopColor="var(--voltage)" stopOpacity="0" />
-                  <stop offset="1" stopColor="var(--voltage)" stopOpacity="0.18" />
-                </radialGradient>
-              </defs>
               <rect width={W} height={H} fill="var(--obsidian)" opacity={0.28} />
-              {[0, 1.5, 3].map((delay) => (
-                <circle
-                  key={`${mode}-${delay}`}
-                  className="lp-wave"
-                  style={{ animationDelay: `${delay}s` }}
-                  cx={origin.x}
-                  cy={origin.y}
-                  r={local ? 170 : 1350}
-                  fill="url(#lp-wave-fill)"
-                  stroke={local ? "var(--critical)" : "var(--voltage)"}
-                  strokeWidth={1.5}
-                  vectorEffect="non-scaling-stroke"
-                />
-              ))}
+              <circle
+                key={`wave-${mode}`}
+                className="lp-wave"
+                cx={origin.x}
+                cy={origin.y}
+                r={local ? 170 : 1350}
+                fill="none"
+                stroke={local ? "var(--critical)" : "var(--voltage)"}
+                strokeWidth={1.5}
+                vectorEffect="non-scaling-stroke"
+              />
               <House at={CLIENT} tripped key={`c-${mode}`} />
               {NEIGHBORS.map((n, i) => (
                 <House key={`${mode}-${i}`} at={n} tripped={!local} />
@@ -100,7 +91,7 @@ export function GridChapter() {
   );
 }
 
-/** Trip marker: a red ring that lands in the same frame for every tripped house; healthy houses stay green. */
+/** Trip marker: a red ring that lands once, in the same frame for every tripped house; healthy houses stay green. */
 function House({ at, tripped }: { at: { x: number; y: number }; tripped: boolean }) {
   if (!tripped)
     return (
@@ -119,14 +110,6 @@ function House({ at, tripped }: { at: { x: number; y: number }; tripped: boolean
     );
   return (
     <g>
-      <circle
-        className="lp-flash"
-        cx={at.x}
-        cy={at.y}
-        r={70}
-        fill="var(--critical)"
-        fillOpacity={0.5}
-      />
       <circle
         className="lp-trip"
         cx={at.x}
