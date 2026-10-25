@@ -89,10 +89,10 @@ Evaluare automată pe **81 de instalații simulate** (5 povești principale vali
 
 ---
 
-## Arhitectură & Garanția Anti-Halucinație
+## Arhitectură: fără AI, doar calcule verificabile
 
-1. **Motoare Deterministe (Zero decizii AI pe cifre):** Detecția de anomalii, calculul pierderilor și stabilirea părții responsabile sunt calculate determinist, din formule fizice și reguli explicite.
-2. **Guardrail Numeric Binar:** Modelele LLM redactează explicațiile în limba română, dar fiecare cifră, procent sau sumă în RON este verificată automat. Dacă textul conține **măcar un număr** care nu provine din motoare, este respins și înlocuit cu un șablon determinist. Aplicația funcționează complet și fără LLM.
+1. **Motoare Deterministe:** Detecția de anomalii, calculul pierderilor și stabilirea părții responsabile sunt calculate determinist, din formule fizice și reguli explicite. Aceleași date de intrare dau mereu același verdict.
+2. **Fără LLM:** Explicațiile în limba română sunt generate din șabloane deterministe, completate cu cifrele calculate de motoare. Nu folosim modele de limbaj, deci textul nu poate conține cifre inventate, iar fiecare explicație poate fi urmărită până la calculul din care provine.
 3. **GDPR by Design:** Vecinii sunt folosiți exclusiv ca martori anonimizați de tensiune. Niciun prosumator nu vede datele private sau curba de consum a vecinului; sistemul calculează doar indici agregați de simultaneitate pe post.
 
 ---
@@ -141,5 +141,5 @@ cd frontend && npm test
 
 SunProof răspunde celor trei cerințe din Challenge Brief:
 1. **Validate before you build:** Problema opririlor din orele de vârf ale producției solare a fost semnalată spontan în ambele conversații pe care le-am avut (un prosumator și un furnizor) și este confirmată de presă și de APCE. Frecvența problemelor de baterie și factură rămâne de validat în pilot.
-2. **Go beyond one LLM call:** Unim 4 fluxuri distincte de date (Invertor + Contor Inteligent + OPCOM PZU + Vecini de pe post) într-un motor determinist; LLM-ul doar explică cifrele, sub un guardrail numeric.
+2. **Go beyond one LLM call:** Unim 4 fluxuri distincte de date (Invertor + Contor Inteligent + OPCOM PZU + Vecini de pe post) într-un motor determinist. Nu folosim LLM: diagnosticul vine din fizică și reguli, iar explicațiile din șabloane completate cu cifrele calculate.
 3. **Real data & physics:** Folosim PVGIS, OPCOM și StoreNet pentru a calibra un digital twin al rețelei de joasă tensiune din România. Rezultatele sunt obținute în simulare; validarea pe date reale e următorul pas.
