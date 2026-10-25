@@ -282,6 +282,11 @@
   stroke-dasharray: 6 6;
   animation: flow-dash 0.9s linear infinite;
 }
+/* PV house sprites on the map: soft contact shadow + faint sun halo to lift them off busy imagery */
+@utility pv-sprite {
+  filter: drop-shadow(0 1px 1.5px rgb(0 0 0 / 0.45))
+    drop-shadow(0 0 3px color-mix(in oklab, var(--sun) 30%, transparent));
+}
 /* energy pulses on the prosumer scene cables: round dots travelling along the path */
 @keyframes energy-pulse {
   to { stroke-dashoffset: -14; }
