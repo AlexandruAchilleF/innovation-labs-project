@@ -5,22 +5,31 @@ import { LegalFooter } from "./LegalPages";
 import { ProofChain } from "./ProofChain";
 import { ProsumerEntry, SupplierEntry } from "./RoleEntry";
 import { Shot } from "./Shot";
+import { Hero } from "./Hero";
+import { LimitRule } from "./LimitRule";
 
 export function Landing() {
   return (
-    <div className="min-h-screen overflow-x-clip bg-canvas text-bone">
+    <div className="lp min-h-screen overflow-x-clip bg-canvas text-bone">
       <header className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-4 px-6">
         <span className="font-display text-[20px]">SunProof</span>
-        <nav aria-label="Intrare" className="hidden items-center gap-2 sm:flex">
-          <SupplierEntry size="sm" />
-          <ProsumerEntry size="sm" />
+        <nav aria-label="Intrare" className="flex items-center gap-5">
+          <ProsumerEntry
+            size="sm"
+            variant="text"
+            className="hidden h-10 text-[13px] sm:inline-flex"
+          >
+            Sunt prosumator
+          </ProsumerEntry>
+          <SupplierEntry size="sm">Deschide demo-ul</SupplierEntry>
         </nav>
       </header>
 
       <main>
         <Hero />
 
-        <section aria-labelledby="dovezi" className="border-t border-border">
+        <LimitRule />
+        <section aria-labelledby="dovezi">
           <div className="mx-auto max-w-[1200px] px-6 py-20 lg:py-28">
             <h2
               id="dovezi"
@@ -36,6 +45,7 @@ export function Landing() {
           </div>
         </section>
 
+        <LimitRule />
         <ProofChain />
 
         <section aria-labelledby="intrare" className="border-t border-border">
@@ -65,45 +75,6 @@ export function Landing() {
       </main>
 
       <LegalFooter />
-    </div>
-  );
-}
-
-/** Headline, then the real triage screen, flat and readable. */
-function Hero() {
-  return (
-    <section className="relative">
-      <div className="relative mx-auto flex max-w-[1200px] flex-col items-center px-6 pt-20 text-center sm:pt-28">
-        <h1 className="lp-rise font-display text-balance text-[38px] leading-[1.08] sm:text-[56px] lg:text-[72px]">
-          Fiecare reclamație, cu dovada ei
-        </h1>
-        <div
-          className="lp-rise flex w-full justify-center"
-          style={{ "--lp-delay": "0.12s" } as React.CSSProperties}
-        >
-          <RoleEntries />
-        </div>
-      </div>
-      <div className="relative mx-auto mt-14 max-w-[1280px] px-4 pb-20 sm:mt-20 sm:px-6 lg:pb-28">
-        <div className="lp-rise" style={{ "--lp-delay": "0.25s" } as React.CSSProperties}>
-          <Shot
-            priority
-            src="/landing/hero.webp"
-            alt="Analiza detaliată SunProof: portofoliul, cele trei verdicte, tensiunea și producția pierdută"
-            w={2000}
-            h={1354}
-          />
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function RoleEntries() {
-  return (
-    <div className="mt-10 flex w-full max-w-[400px] flex-col gap-3 sm:w-auto sm:max-w-none sm:flex-row">
-      <SupplierEntry size="lg" className="w-full sm:w-40" />
-      <ProsumerEntry size="lg" className="w-full sm:w-40" />
     </div>
   );
 }

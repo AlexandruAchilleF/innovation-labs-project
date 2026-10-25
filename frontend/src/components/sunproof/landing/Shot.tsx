@@ -12,13 +12,15 @@ type ShotProps = {
   overlay?: ReactNode;
   priority?: boolean;
   style?: CSSProperties;
+  /** Show only the top `crop` pixels of the image (overlay coordinates stay the same). */
+  crop?: number;
 };
 
 /** A real app screenshot in a hairline window frame; effects are layered on top, never baked in. */
-export function Shot({ src, alt, w, h, className, overlay, priority, style }: ShotProps) {
+export function Shot({ src, alt, w, h, className, overlay, priority, style, crop }: ShotProps) {
   return (
     <figure
-      style={style}
+      style={crop ? { aspectRatio: `${w} / ${crop}`, ...style } : style}
       className={cn(
         "relative overflow-hidden rounded-[8px] border border-pewter bg-obsidian",
         className,
@@ -31,7 +33,10 @@ export function Shot({ src, alt, w, h, className, overlay, priority, style }: Sh
         height={h}
         loading={priority ? "eager" : "lazy"}
         decoding="async"
-        className="block h-auto w-full select-none"
+        className={cn(
+          "block w-full select-none",
+          crop ? "h-full object-cover object-top" : "h-auto",
+        )}
         draggable={false}
       />
       {overlay}

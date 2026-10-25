@@ -44,7 +44,7 @@ export function ProofChain() {
   const [ref, p] = useScrollProgress<HTMLOListElement>();
   const fill = span(p, 0, 0.95);
   return (
-    <section aria-labelledby="lant" className="border-t border-border">
+    <section aria-labelledby="lant">
       <div className="mx-auto max-w-[1200px] px-6 py-20 lg:py-28">
         <h2
           id="lant"

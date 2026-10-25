@@ -359,6 +359,13 @@
   --ring: var(--voltage);
 }
 
+/* ---------- landing theme: engineering type (Plex) scoped to the public page; the app keeps Inter/Fira ---------- */
+.lp {
+  --font-sans: "IBM Plex Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", "Fira Code", ui-monospace, monospace;
+  font-family: var(--font-sans);
+}
+
 /* ---------- landing effects (base styles are the final, readable state; motion only adds the build-up) ---------- */
 /* (a) voltage wave: a ring leaves the transformer, then every house trips in the same frame */
 @keyframes lp-wave {

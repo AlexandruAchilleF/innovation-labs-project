@@ -3,6 +3,12 @@ import { Landing } from "@/components/sunproof/landing/Landing";
 
 export const Route = createFileRoute("/")({
   head: () => ({
+    links: [
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap",
+      },
+    ],
     meta: [
       { title: "SunProof — Diagnostic pentru furnizori și prosumatori" },
       {

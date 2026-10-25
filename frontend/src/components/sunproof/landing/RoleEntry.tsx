@@ -21,24 +21,32 @@ const solid =
   "inline-flex items-center justify-center gap-2 rounded-[4px] border border-bone bg-bone font-medium text-obsidian transition-colors hover:bg-bone/85";
 const ghost =
   "inline-flex items-center justify-center gap-2 rounded-[4px] border border-bone font-medium text-bone transition-colors hover:bg-slate";
-const sizes = { sm: "h-11 px-4 text-[13px]", lg: "h-11 px-6 text-[14px]" };
-/** Both roles share one weight per size: solid in the page body, ghost in the nav. */
-const look = (size: Size, className?: string) =>
-  cn(size === "lg" ? solid : ghost, sizes[size], className);
+const text =
+  "inline-flex items-center justify-center gap-1.5 font-medium text-fog transition-colors hover:text-bone";
+const looks = { solid, ghost, text };
+const sizes = { sm: "h-10 px-4 text-[13px]", lg: "h-11 px-6 text-[14px]" };
+/** Solid in the page body, ghost in the nav by default; `text` is the quiet secondary action. */
+const look = (size: Size, variant: Variant | undefined, className?: string) =>
+  cn(
+    looks[variant ?? (size === "lg" ? "solid" : "ghost")],
+    variant === "text" ? "h-11 px-1 text-[14px]" : sizes[size],
+    className,
+  );
 
 type Size = "sm" | "lg";
-type EntryProps = { size: Size; className?: string; children?: ReactNode };
+type Variant = keyof typeof looks;
+type EntryProps = { size: Size; variant?: Variant; className?: string; children?: ReactNode };
 
-export function SupplierEntry({ size, className, children = "Furnizor" }: EntryProps) {
+export function SupplierEntry({ size, variant, className, children = "Furnizor" }: EntryProps) {
   return (
-    <Link {...SUPPLIER_ENTRY} className={look(size, className)}>
+    <Link {...SUPPLIER_ENTRY} className={look(size, variant, className)}>
       {children}
     </Link>
   );
 }
 
 /** Prosumer entry: a quick account picker, since every demo account tells a different story. */
-export function ProsumerEntry({ size, className, children = "Prosumator" }: EntryProps) {
+export function ProsumerEntry({ size, variant, className, children = "Prosumator" }: EntryProps) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const hydrated = useHydrated();
@@ -49,9 +57,9 @@ export function ProsumerEntry({ size, className, children = "Prosumator" }: Entr
   };
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger className={look(size, className)}>{children}</PopoverTrigger>
+      <PopoverTrigger className={look(size, variant, className)}>{children}</PopoverTrigger>
       <PopoverContent
-        align={size === "sm" ? "end" : "center"}
+        align={size === "sm" ? "end" : "start"}
         aria-label="Conturi demonstrative de prosumator"
         className="w-[min(320px,calc(100vw-32px))] border-iron bg-slate p-0"
       >
