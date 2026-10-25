@@ -4,7 +4,7 @@ import { Landing } from "@/components/sunproof/landing/Landing";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "SunProof — Diagnostic determinist pentru furnizori și prosumatori" },
+      { title: "SunProof — Diagnostic pentru furnizori și prosumatori" },
       {
         name: "description",
         content:
@@ -12,7 +12,7 @@ export const Route = createFileRoute("/")({
       },
       {
         property: "og:title",
-        content: "SunProof — Diagnostic determinist pentru furnizori și prosumatori",
+        content: "SunProof — Diagnostic pentru furnizori și prosumatori",
       },
       {
         property: "og:description",

@@ -3,80 +3,83 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fmt } from "@/lib/format";
 import { portfolioQuery } from "@/lib/queries";
+import { BatteryFigure, BillingFigure, GridFigure } from "./ProofFigures";
 import { ProsumerEntry, SupplierEntry } from "./RoleEntry";
 
-const OFFERS: [title: string, body: string][] = [
-  [
-    "Rețea vs. instalație locală",
-    "Arătăm matematic dacă oprirea invertorului peste 253 V vine de la transformatorul distribuitorului (vecinii cad în același minut) sau de la cablul intern al casei.",
-  ],
-  [
-    "Deblocarea bateriilor în vârful de seară",
-    "Găsim bateriile ținute la 80% rezervă de avarie, care nu se descarcă seara, și recuperăm diferența de preț PZU dintre prânz și seară.",
-  ],
-  [
-    "Reconcilierea facturilor (Legea 160/2026)",
-    "Comparăm automat invertorul, contorul inteligent (indecșii 1.8.0 și 2.8.0) și factura emisă, înainte să devină o dispută la ANRE.",
-  ],
-];
+const PROOFS = [
+  ["Rețea sau instalație locală", GridFigure],
+  ["Baterie blocată seara", BatteryFigure],
+  ["Factură vs. contor", BillingFigure],
+] as const;
 
 export function Landing() {
   return (
     <div className="min-h-screen bg-canvas text-bone">
-      <header className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-6">
+      <header className="mx-auto flex h-16 max-w-[1200px] items-center justify-between gap-4 px-6">
         <span className="font-display text-[20px]">SunProof</span>
-        <nav aria-label="Intrare" className="flex items-center gap-2">
-          <SupplierEntry size="sm">Intră ca Furnizor</SupplierEntry>
-          <ProsumerEntry size="sm">Intră ca Prosumator</ProsumerEntry>
+        <nav aria-label="Intrare" className="hidden items-center gap-2 sm:flex">
+          <SupplierEntry size="sm" />
+          <ProsumerEntry size="sm" />
         </nav>
       </header>
 
       <main>
-        <section className="relative overflow-hidden">
-          <div className="mx-auto flex max-w-[1200px] flex-col items-center px-6 pb-40 pt-24 text-center sm:pt-32">
-            <h1 className="font-display max-w-[20ch] text-[40px] leading-[1.1] sm:text-[56px] lg:text-[64px]">
-              Diagnostic determinist pentru furnizori de energie și prosumatori
+        <section>
+          <div className="mx-auto flex max-w-[1200px] flex-col items-center px-6 pb-12 pt-20 text-center sm:pt-32">
+            <h1 className="font-display text-balance text-[36px] leading-[1.1] sm:text-[48px] lg:text-[64px]">
+              Fiecare reclamație, cu dovada ei
             </h1>
-            <p className="mt-6 max-w-[60ch] text-[16px] leading-relaxed text-fog sm:text-[18px]">
-              Răspundem instant la cele trei probleme care generează reclamații: de ce se oprește
-              invertorul la prânz, de ce nu se descarcă bateria seara și de ce nu corespunde
-              factura. Fără deplasări inutile în teren, fără dispute la ANRE.
-            </p>
-            <div className="mt-10 flex flex-wrap justify-center gap-3">
-              <SupplierEntry size="lg">Dashboard Furnizor</SupplierEntry>
-              <ProsumerEntry size="lg">Aplicația Prosumatorului</ProsumerEntry>
-            </div>
+            <RoleEntries />
           </div>
-          <Ridge />
+          <Ridge viewBox="0 0 1200 140" className="hidden sm:block" />
+          <Ridge viewBox="380 0 420 140" className="sm:hidden" />
         </section>
 
-        <section aria-labelledby="ce-vindem" className="mx-auto max-w-[1200px] px-6 py-20">
-          <h2 id="ce-vindem" className="font-display text-[32px] leading-tight sm:text-[40px]">
-            Trei răspunsuri, fiecare cu dovada lui
-          </h2>
-          <p className="mt-3 max-w-[60ch] text-[16px] text-fog">
-            Motoarele deterministe decid; textul doar explică cifrele pe care ele le-au calculat.
-          </p>
-          <ol className="mt-12 grid gap-4 md:grid-cols-3">
-            {OFFERS.map(([title, body], i) => (
-              <li key={title} className="rounded-lg border border-border bg-graphite p-6">
-                <span className="num text-[13px] text-fog">{i + 1}</span>
-                <h3 className="mt-4 text-[18px] font-medium leading-snug">{title}</h3>
-                <p className="mt-3 text-[14px] leading-relaxed text-fog">{body}</p>
-              </li>
-            ))}
-          </ol>
+        <section aria-labelledby="dovezi" className="border-t border-border">
+          <div className="mx-auto max-w-[1200px] px-6 py-20">
+            <h2 id="dovezi" className="font-display text-balance text-[32px] leading-tight sm:text-[40px]">
+              Trei întrebări, trei dovezi
+            </h2>
+            <ol className="mt-12 grid divide-y divide-border md:grid-cols-3 md:divide-x md:divide-y-0">
+              {PROOFS.map(([title, Figure]) => (
+                <li key={title} className="py-8 first:pt-0 last:pb-0 md:px-8 md:py-0 md:first:pl-0 md:last:pr-0">
+                  <h3 className="text-balance text-[18px] font-medium leading-snug">{title}</h3>
+                  <div className="mt-6">
+                    <Figure />
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
         </section>
 
         <ImpactFigures />
+
+        <section aria-labelledby="intrare" className="border-t border-border">
+          <div className="mx-auto flex max-w-[1200px] flex-col items-center px-6 py-20 text-center">
+            <h2 id="intrare" className="font-display text-[32px] leading-tight sm:text-[40px]">
+              Alege rolul
+            </h2>
+            <RoleEntries />
+          </div>
+        </section>
       </main>
 
       <footer className="border-t border-graphite bg-obsidian">
         <div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-4 px-6 py-16 text-[13px] text-fog">
           <span className="font-display text-[16px] text-bone">SunProof</span>
-          <span>Prosumer &amp; Grid Intelligence · România · date demonstrative, august 2026</span>
+          <span>România · august 2026</span>
         </div>
       </footer>
+    </div>
+  );
+}
+
+function RoleEntries() {
+  return (
+    <div className="mt-10 flex w-full max-w-[400px] flex-col gap-3 sm:w-auto sm:max-w-none sm:flex-row">
+      <SupplierEntry size="lg" className="w-full sm:w-40" />
+      <ProsumerEntry size="lg" className="w-full sm:w-40" />
     </div>
   );
 }
@@ -86,63 +89,68 @@ function ImpactFigures() {
   const m = useQuery(portfolioQuery()).data?.metrics;
   const figures: [value: string, label: string][] = m
     ? [
-        [fmt(m.monitored_households_count), "gospodării diagnosticate cap-coadă"],
+        [fmt(m.monitored_households_count), "gospodării demonstrative analizate"],
         [
           `${fmt(m.fleet_total_supplier_monthly_value_ron)} RON`,
-          "valoare lunară recuperabilă de furnizor",
+          "valoare lunară demonstrativă pentru furnizor",
         ],
-        [fmt(m.fleet_anre_complaints_prevented), "reclamații ANRE prevenite"],
+        [fmt(m.fleet_anre_complaints_prevented), "reclamații ANRE evitabile, demonstrativ"],
       ]
     : [];
   return (
     <section aria-labelledby="impact" className="border-t border-border">
       <div className="mx-auto max-w-[1200px] px-6 py-20">
-        <h2 id="impact" className="eyebrow text-fog">
-          Pe portofoliul demonstrativ
+        <h2 id="impact" className="font-display text-[32px] leading-tight sm:text-[40px]">
+          Portofoliul demonstrativ
         </h2>
-        <dl className="mt-8 grid gap-10 sm:grid-cols-3">
+        <dl aria-busy={!(hydrated && m)} className="mt-12 grid gap-10 sm:grid-cols-3">
           {hydrated && m
             ? figures.map(([v, l]) => (
                 <div key={l} className="flex flex-col-reverse gap-3">
-                  <dt className="text-[14px] text-fog">{l}</dt>
+                  <dt className="text-pretty text-[14px] text-fog">{l}</dt>
                   <dd className="num text-[36px] leading-none text-bone">{v}</dd>
                 </div>
               ))
             : [0, 1, 2].map((i) => <Skeleton key={i} className="h-16" />)}
         </dl>
-        <p className="mt-10 text-[12px] text-fog">
-          Calculate de motoarele SunProof pe scenariile simulate; nu sunt date de la clienți reali.
-        </p>
       </div>
     </section>
   );
 }
 
-/** Single-line graphic: a clear-sky production day whose midday crest is clipped, like a trip. */
-function Ridge() {
+/** The household's clear-sky day, clipped at 253 V; the neighbours on the same transformer trip in that minute. */
+function Ridge({ viewBox, className }: { viewBox: string; className: string }) {
   return (
     <svg
-      aria-hidden
-      viewBox="0 0 1200 120"
-      preserveAspectRatio="none"
-      className="pointer-events-none absolute inset-x-0 bottom-0 h-[120px] w-full"
+      role="img"
+      aria-label="Producția se oprește la 253 V, în același minut cu vecinii"
+      viewBox={viewBox}
+      className={`pointer-events-none h-auto w-full ${className}`}
     >
-      <path
-        d="M0 112 L180 110 C300 106 360 80 430 56 C480 40 520 30 548 28 L556 28 L560 70 L566 70 L570 26 C600 22 640 22 680 30 C760 46 820 84 900 102 C980 112 1080 112 1200 112"
-        fill="none"
-        stroke="var(--fog)"
-        strokeWidth={1}
-        vectorEffect="non-scaling-stroke"
-      />
-      <line
-        x1="0"
-        x2="1200"
-        y1="24"
-        y2="24"
-        stroke="var(--smoke)"
-        strokeDasharray="2 6"
-        vectorEffect="non-scaling-stroke"
-      />
+      <g transform="translate(0 16)">
+        <path
+          d="M0 112 L180 110 C300 106 360 80 430 56 C480 40 520 30 548 28 L556 28 L560 70 L566 70 L570 26 C600 22 640 22 680 30 C760 46 820 84 900 102 C980 112 1080 112 1200 112"
+          fill="none"
+          stroke="var(--fog)"
+          strokeWidth={1}
+          vectorEffect="non-scaling-stroke"
+        />
+        <line
+          x1="0"
+          x2="1200"
+          y1="24"
+          y2="24"
+          stroke="var(--voltage)"
+          strokeDasharray="2 6"
+          vectorEffect="non-scaling-stroke"
+        />
+        <text x="396" y="16" fill="var(--voltage)" fontSize="12" className="num">
+          253 V
+        </text>
+        {[-36, -24, -12, 24, 36, 48].map((dx) => (
+          <circle key={dx} cx={556 + dx} cy="70" r="2.5" fill="var(--bone)" />
+        ))}
+      </g>
     </svg>
   );
 }

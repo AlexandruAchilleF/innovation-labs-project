@@ -21,18 +21,23 @@ const solid =
   "inline-flex items-center justify-center gap-2 rounded-[4px] border border-bone bg-bone font-medium text-obsidian transition-colors hover:bg-bone/85";
 const ghost =
   "inline-flex items-center justify-center gap-2 rounded-[4px] border border-bone font-medium text-bone transition-colors hover:bg-slate";
-const sizes = { sm: "h-9 px-4 text-[13px]", lg: "h-11 px-6 text-[14px]" };
+const sizes = { sm: "h-11 px-4 text-[13px]", lg: "h-11 px-6 text-[14px]" };
+/** Both roles share one weight per size: solid in the page body, ghost in the nav. */
+const look = (size: Size, className?: string) => cn(size === "lg" ? solid : ghost, sizes[size], className);
 
-export function SupplierEntry({ size, children }: { size: "sm" | "lg"; children: ReactNode }) {
+type Size = "sm" | "lg";
+type EntryProps = { size: Size; className?: string; children?: ReactNode };
+
+export function SupplierEntry({ size, className, children = "Furnizor" }: EntryProps) {
   return (
-    <Link {...SUPPLIER_ENTRY} className={cn(size === "lg" ? solid : ghost, sizes[size])}>
+    <Link {...SUPPLIER_ENTRY} className={look(size, className)}>
       {children}
     </Link>
   );
 }
 
 /** Prosumer entry: a quick account picker, since every demo account tells a different story. */
-export function ProsumerEntry({ size, children }: { size: "sm" | "lg"; children: ReactNode }) {
+export function ProsumerEntry({ size, className, children = "Prosumator" }: EntryProps) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const hydrated = useHydrated();
@@ -43,13 +48,14 @@ export function ProsumerEntry({ size, children }: { size: "sm" | "lg"; children:
   };
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger className={cn(ghost, sizes[size])}>{children}</PopoverTrigger>
-      <PopoverContent align="end" className="w-[320px] border-iron bg-slate p-0">
-        <div className="border-b border-iron px-4 py-3">
-          <div className="text-[13px] font-medium text-bone">Alege un cont de prosumator</div>
-          <p className="mt-0.5 text-[12px] text-fog">
-            Conturi demonstrative, câte o problemă fiecare.
-          </p>
+      <PopoverTrigger className={look(size, className)}>{children}</PopoverTrigger>
+      <PopoverContent
+        align={size === "sm" ? "end" : "center"}
+        aria-label="Conturi demonstrative de prosumator"
+        className="w-[min(320px,calc(100vw-32px))] border-iron bg-slate p-0"
+      >
+        <div className="border-b border-iron px-4 py-3 text-[13px] font-medium text-bone">
+          Cont demonstrativ
         </div>
         <ul className="divide-y divide-iron">
           {PROSUMER_ACCOUNTS.map(([id, story]) => (
@@ -59,11 +65,11 @@ export function ProsumerEntry({ size, children }: { size: "sm" | "lg"; children:
                   setOpen(false);
                   void navigate({ to: "/prosumator", search: { household: id } });
                 }}
-                className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-iron"
+                className="flex min-h-11 w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-iron"
               >
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13px] text-bone">{who(id)}</span>
-                  <span className="block text-[12px] text-fog">{story}</span>
+                  <span className="block text-[13px] text-bone">{story}</span>
+                  <span className="block truncate text-[12px] text-fog">{who(id)}</span>
                 </span>
                 <ChevronRight className="size-3.5 shrink-0 text-fog" />
               </button>
