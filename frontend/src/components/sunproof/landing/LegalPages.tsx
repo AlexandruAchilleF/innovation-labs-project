@@ -380,18 +380,12 @@ export function LegalFooter() {
     <footer className="border-t border-graphite bg-obsidian">
       <div className="mx-auto max-w-[1200px] px-6 py-16">
         <div className="flex flex-col justify-between gap-10 md:flex-row md:items-start">
-          <div className="max-w-sm space-y-3">
-            <Link
-              to="/"
-              className="font-display text-[18px] text-bone transition-colors hover:text-bone/80"
-            >
-              SunProof
-            </Link>
-            <p className="text-[13px] leading-relaxed text-fog">
-              Diagnostic determinist pentru rețele de joasă tensiune, baterii de stocare și
-              reconcilierea facturilor de prosumator (Legea 160/2026 · SR EN 50549-1).
-            </p>
-          </div>
+          <Link
+            to="/"
+            className="font-display text-[18px] text-bone transition-colors hover:text-bone/80"
+          >
+            SunProof
+          </Link>
 
           <div className="flex flex-wrap gap-12 text-[13px]">
             <div className="space-y-3">
@@ -423,8 +417,7 @@ export function LegalFooter() {
         </div>
 
         <div className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-graphite pt-8 text-[12px] text-fog">
-          <span>© 2026 SunProof · România · august 2026</span>
-          <span>Motoarele deterministe decid; textul doar explică cifrele deja calculate.</span>
+          <span>© 2026 SunProof · România</span>
         </div>
       </div>
     </footer>
@@ -450,9 +443,15 @@ export function LegalDocumentPage({ docKey }: { docKey: LegalDocKey }) {
             <span className="text-[13px] text-bone">{doc.shortTitle}</span>
           </div>
 
-          <nav aria-label="Intrare" className="hidden items-center gap-2 sm:flex">
-            <SupplierEntry size="sm" />
-            <ProsumerEntry size="sm" />
+          <nav aria-label="Intrare" className="flex items-center gap-5">
+            <ProsumerEntry
+              size="sm"
+              variant="text"
+              className="hidden h-10 text-[13px] sm:inline-flex"
+            >
+              Sunt prosumator
+            </ProsumerEntry>
+            <SupplierEntry size="sm">Deschide demo-ul</SupplierEntry>
           </nav>
         </div>
       </header>

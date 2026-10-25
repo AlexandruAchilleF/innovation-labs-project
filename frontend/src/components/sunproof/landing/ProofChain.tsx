@@ -50,7 +50,7 @@ export function ProofChain() {
         >
           De la minut la dosar
         </h2>
-        <ol className="mt-14 divide-y divide-iron border-y border-iron">
+        <ol className="mt-14 divide-y divide-iron border-t border-iron">
           {STEPS.map(([label, Body], i) => (
             <Step key={label} index={i} label={label}>
               <Body />
