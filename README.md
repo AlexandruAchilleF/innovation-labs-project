@@ -5,7 +5,7 @@
 
 [![Innovation Labs 2026](https://img.shields.io/badge/Innovation%20Labs-2026%20Challenge%201-FF6B00?style=for-the-badge&logo=rocket)](https://docs.google.com/document/d/1IPJvOmaBwrPZeOkEAt2mUe2IOyT_wOXSl8bA7UVBSBA/edit?tab=t.0)
 [![Dataset & APIs](https://img.shields.io/badge/Resurse%20Oficiale-PVGIS%20%7C%20OPCOM%20%7C%20StoreNet%20%7C%20OPSD-0A84FF?style=for-the-badge)](docs/research/2026-10-24-surse-date.md)
-[![Tests Passing](https://img.shields.io/badge/Pytest-892%20passed%20(100%25)-30D158?style=for-the-badge&logo=pytest)](scripts/evaluate_proof.py)
+[![Tests Passing](https://img.shields.io/badge/Pytest-900%20passed%20(100%25)-30D158?style=for-the-badge&logo=pytest)](docs/pitch/2026-10-24-dovada-evaluare-81-scenarii.md)
 [![Fleet Validation](https://img.shields.io/badge/Flot%C4%83%20Validat%C4%83-81%2F81%20Gospod%C4%83rii-BF5AF2?style=for-the-badge)](#validare-pe-date--cifre-de-impact)
 
 ---
@@ -16,7 +16,7 @@ Pentru a răspunde cerinței juriului de a **depăși un simplu apel LLM** și d
 
 | Resursă din Brief | Sursa & Format | Rolul în SunProof | Unde se regăsește în Cod |
 |---|---|---|---|
-| **PVGIS** *(Comisia Europeană / JRC)* | API public (`seriescalc`) & modele orare de radiație solară per kWp | Calibrarea etalonului de producție fotovoltaică curată (`pvgis_expected_kw`) pe coordonatele reale ale României (București, Cluj, Timișoara, Brașov, Constanța, Iași), cu corecție de orientare (S/E/V) și decalaj longitudinal. | [`scripts/download_data.sh`](scripts/download_data.sh)<br>[`sunproof/grid.py`](sunproof/grid.py#L115) |
+| **PVGIS** *(Comisia Europeană / JRC)* | API public (`seriescalc`) & modele orare de radiație solară per kWp | Calibrarea etalonului de producție fotovoltaică curată (`pvgis_expected_kw`) pe coordonatele reale ale României (București, Cluj, Timișoara, Brașov, Constanța, Iași), cu corecție de orientare (S/E/V) și decalaj longitudinal. | [`sunproof/grid.py`](sunproof/grid.py#L115) |
 | **OPCOM PZU** *(Bursa de Energie din România)* | Prețuri orare Piața pentru Ziua Următoare (PZU) | Curba de preț 24h pentru august 2026 (scăderea în orele de vârf ale producției solare la **85–135 RON/MWh** vs. vârful de seară la **940–1.120 RON/MWh**). Folosită pentru calculul pierderilor financiare reale din bateriile blocate și arbitrajul de seară. | [`sunproof/data/opcom_and_physics.py`](sunproof/data/opcom_and_physics.py#L32)<br>[`sunproof/engine/arbitrage.py`](sunproof/engine/arbitrage.py) |
 | **StoreNet Dataset** *(Irlanda, 2020 / Scientific Data)* | 20 case cu PV + baterii 10 kWh, telemetrie la 1 minut | Modelarea comportamentului realist al bateriei (BMS, randament 96%, curbe de încărcare/descărcare) și tipare dinamice de consum (electrocasnice, AC, vârf de consum). | [`sunproof/grid.py`](sunproof/grid.py#L170)<br>[`docs/research/2026-10-24-surse-date.md`](docs/research/2026-10-24-surse-date.md) |
 | **Open Power System Data (OPSD)** | Date reale de consum rezidențial și profiluri la 15 minute | Validarea curbei de sarcină a contorului inteligent (seria 15-min specifică distribuitorilor) și corelarea cu producția proprie. | [`sunproof/data/archetypes.py`](sunproof/data/archetypes.py) |
@@ -99,7 +99,7 @@ Eficiența algoritmilor noștri este dovedită prin evaluarea automată pe **toa
 
 ## Tech Stack
 
-* **Backend Engine:** Python 3.12+, FastAPI, Uvicorn (cache thread-safe în memorie, răspuns < 5ms), Pydantic v2, FPDF2 (generare PDF securizat latin-1), HTTPX (Telegram bot), Pytest (**892 teste automate, 100% green**).
+* **Backend Engine:** Python 3.12+, FastAPI, Uvicorn (cache thread-safe în memorie, răspuns < 5ms), Pydantic v2, FPDF2 (generare PDF securizat latin-1), HTTPX (Telegram bot), Pytest (**900 teste automate, 100% green**).
 * **Frontend Web:** React 19, TanStack Start / Router, Tailwind CSS, Lucide React, Recharts, Vite. Interfață responsive cu mod live, hartă stradală 2D interactivă și suport complet offline.
 
 ---
@@ -126,11 +126,10 @@ cd frontend && npm install && npm run dev
 
 3. **Verificare Teste & Raport de Evaluare:**
 ```bash
-# 892 teste backend automate (100% passed)
+# 900 teste backend automate (100% passed)
 .venv/bin/pytest -q
 
-# Raportul complet de acuratețe pe 81 de scenarii
-.venv/bin/python scripts/evaluate_proof.py
+# Raportul de acuratețe pe 81 de scenarii: docs/pitch/2026-10-24-dovada-evaluare-81-scenarii.md
 
 # Teste frontend
 cd frontend && npm test
