@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
-import { fmt } from "@/lib/format";
-import type { HouseholdSummary, PortfolioSummaryMetrics, Severity } from "@/lib/types";
+import type { HouseholdSummary, Severity } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { StatusDot } from "./SeverityTag";
 
@@ -26,12 +25,10 @@ const RANK: Record<Severity, number> = { CRITICAL: 0, WARNING: 1, INFO: 2, OK: 3
 
 export function PortfolioList({
   households,
-  metrics,
   selected,
   onSelect,
 }: {
   households: HouseholdSummary[] | undefined;
-  metrics?: PortfolioSummaryMetrics | undefined;
   selected: string;
   onSelect: (id: string) => void;
 }) {
@@ -53,14 +50,6 @@ export function PortfolioList({
   return (
     <>
       <div className="shrink-0 space-y-3 border-b border-border px-4 py-3">
-        {metrics && (
-          <p className="num text-[12px] text-fog">
-            <span className="text-[15px] text-bone">
-              {fmt(metrics.fleet_total_supplier_monthly_value_ron)}
-            </span>{" "}
-            RON/lună recuperabili
-          </p>
-        )}
         <div role="group" aria-label="Abateri în portofoliu" className="grid grid-cols-3 gap-1.5">
           {TILES.map((t, i) => {
             const n = (households ?? []).filter(t.test).length;

@@ -7,9 +7,8 @@ import { cn } from "@/lib/utils";
 import { sevText } from "../workspace/SeverityTag";
 import { BatterySimulator } from "./BatterySimulator";
 import { BillingPanel } from "./BillingPanel";
-import { GuardrailPanel } from "./GuardrailPanel";
 import { DisclosureChevron } from "../primitives";
-import { OmTicketLifecycleCard, ProofBenchmarkPanel } from "./OmLifecycleAndProof";
+import { OmTicketLifecycleCard } from "./OmLifecycleAndProof";
 import { ProductionChart } from "./ProductionChart";
 import { VoltageChart } from "./VoltageChart";
 import { Spark } from "../spark";
@@ -108,14 +107,7 @@ export function DiagnosticTabs({ d }: { d: HouseholdDetail }) {
       </>
     ),
     battery: <BatterySimulator d={d} />,
-    billing: (
-      <>
-        <BillingPanel d={d} />
-        <Fold title="Texte generate și validarea numerică">
-          <GuardrailPanel d={d} />
-        </Fold>
-      </>
-    ),
+    billing: <BillingPanel d={d} />,
   };
 
   return (
@@ -172,12 +164,6 @@ export function DiagnosticTabs({ d }: { d: HouseholdDetail }) {
         </section>
       ))}
 
-      <Fold
-        title="Acuratețea motoarelor pe toate scenariile"
-        className="border-t border-border pt-3"
-      >
-        <ProofBenchmarkPanel />
-      </Fold>
     </div>
   );
 }

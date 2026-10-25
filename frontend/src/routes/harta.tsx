@@ -91,7 +91,6 @@ function HartaPage() {
     <div className="flex h-full min-h-0">
       <CasePanel
         households={portfolio.data?.households}
-        metrics={portfolio.data?.metrics}
         selected={household}
         detail={detail.data}
         open={side === "left"}

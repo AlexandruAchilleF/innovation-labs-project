@@ -12,11 +12,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { api, useApiMode } from "@/lib/api";
-import { fmt, plainText } from "@/lib/format";
+import { plainText } from "@/lib/format";
+import { technicianAlertText } from "@/lib/technician-alert";
 import type { HouseholdDetail } from "@/lib/types";
-
-const headline = (o: object, fallback: string) =>
-  (o as { headline_ro?: string }).headline_ro || fallback;
 
 export function AlertConfirm({
   d,
@@ -30,28 +28,13 @@ export function AlertConfirm({
   onSent?: (text: string) => void;
 }) {
   const a = d.analysis;
-  const g = a.grid_verdict;
   const hydrated = useHydrated();
   const mode = useApiMode();
   const isDemo = hydrated && mode !== "live";
   const [sending, setSending] = useState(false);
   const [sentByHouse, setSentByHouse] = useState<Record<string, string>>({});
 
-  const verdictHeadline = headline(g, g.verdict_text_ro || a.one_line_triage_ro);
-  const defaultPreview = [
-    `⚡ SunProof · Alertă O&M — ${a.household_id}`,
-    `Client: ${a.customer_name}, ${a.street_address}`,
-    `Invertor: ${a.inverter_brand} ${a.inverter_model} · ${fmt(a.installed_pv_kw, 1)} kWp · ${a.phase}`,
-    ``,
-    `Diagnostic: ${a.one_line_triage_ro}`,
-    `Verdict: ${verdictHeadline}`,
-    ``,
-    `Tensiune contor (PCC): ${fmt(g.max_meter_voltage_v, 1)} V`,
-    `Tensiune invertor: ${fmt(g.max_inverter_voltage_v, 1)} V`,
-    `Creștere pe cablu intern: +${fmt(g.voltage_rise_internal_cable_v, 1)} V (${fmt(g.cable_mm2, 1)} mm² × ${g.cable_length_m} m)`,
-    `Prag invertor: ${g.inverter_threshold_v} V (legal: ${g.legal_limit_v} V)`,
-    `Echipamente declanșate: ${g.neighbors_affected_simultaneously}/${g.neighbors_total}`,
-  ].join("\n");
+  const defaultPreview = technicianAlertText(d);
 
   const preview = sentByHouse[a.household_id] ?? defaultPreview;
 
@@ -92,9 +75,17 @@ export function AlertConfirm({
             <span className="num">{a.household_id}</span> ({a.customer_name})
           </DialogDescription>
         </DialogHeader>
-        <pre className="num max-h-[55vh] overflow-auto whitespace-pre-wrap rounded-[4px] border border-border bg-obsidian p-3 text-[12px] leading-relaxed text-bone">
-          {preview}
-        </pre>
+        <div className="max-h-[55vh] space-y-5 overflow-y-auto break-words rounded-[4px] border border-border bg-obsidian p-5 text-[13px] leading-6 text-bone">
+          {preview.split(/\n\s*\n/).map((block, index) => {
+            const [title, ...lines] = block.split("\n");
+            return (
+              <section key={index}>
+                <h3 className="mb-1 font-medium">{title}</h3>
+                <p className="whitespace-pre-wrap text-fog">{lines.join("\n")}</p>
+              </section>
+            );
+          })}
+        </div>
         <DialogFooter className="gap-2 sm:gap-2">
           <Button
             type="button"

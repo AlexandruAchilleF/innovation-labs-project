@@ -14,7 +14,6 @@ import type {
   HouseholdDetail,
   HouseholdSummary,
   Neighborhood,
-  PortfolioSummaryMetrics,
 } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { CaseDetail } from "./CaseDetail";
@@ -27,7 +26,6 @@ import { SidePanel } from "./SidePanel";
 /** Left panel: the portfolio (problems, list) and the selected client's general picture. */
 export function CasePanel({
   households,
-  metrics,
   selected,
   detail,
   open,
@@ -37,7 +35,6 @@ export function CasePanel({
   onDetail,
 }: {
   households: HouseholdSummary[] | undefined;
-  metrics: PortfolioSummaryMetrics | undefined;
   selected: string;
   detail: HouseholdDetail | undefined;
   open: boolean;
@@ -66,7 +63,6 @@ export function CasePanel({
       <div className="flex min-h-0 flex-1 flex-col">
         <PortfolioList
           households={households}
-          metrics={metrics}
           selected={selected}
           onSelect={onSelect}
         />

@@ -1,3 +1,4 @@
+import { technicianAlertText } from "./technician-alert";
 import { useSyncExternalStore } from "react";
 import { fmt } from "./format";
 import { mockHouseholdDetail, mockPortfolio } from "./mock/households";
@@ -161,22 +162,7 @@ export function mockWhatIfBattery(id: string, min_soc: number): WhatIfBatteryRes
 }
 
 function mockTelegram(id: string): TelegramResult {
-  const { analysis: a, scenario: s } = mockHouseholdDetail(id);
-  const g = a.grid_verdict;
-  const msg = [
-    `⚡ SunProof · Alertă O&M — ${a.household_id}`,
-    `Client: ${a.customer_name}, ${a.street_address}`,
-    `Coordonate: ${s.coordinates.lat.toFixed(5)}, ${s.coordinates.lon.toFixed(5)}`,
-    `Invertor: ${a.inverter_brand} ${a.inverter_model} · ${fmt(a.installed_pv_kw, 1)} kWp · ${a.phase}`,
-    ``,
-    `Diagnostic: ${a.one_line_triage_ro}`,
-    ``,
-    `Tensiune contor (PCC): ${fmt(g.max_meter_voltage_v, 1)} V`,
-    `Tensiune invertor: ${fmt(g.max_inverter_voltage_v, 1)} V`,
-    `Creștere pe cablu intern: +${fmt(g.voltage_rise_internal_cable_v, 1)} V (${fmt(g.cable_mm2, 1)} mm² × ${g.cable_length_m} m)`,
-    `Prag invertor: ${g.inverter_threshold_v} V (legal: ${g.legal_limit_v} V)`,
-    `Echipamente declanșate: ${g.neighbors_affected_simultaneously}/${g.neighbors_total}`,
-  ].join("\n");
+  const msg = technicianAlertText(mockHouseholdDetail(id));
   return { sent: true, simulated: true, message_text: msg, chat_id: "-1002026160" };
 }
 
