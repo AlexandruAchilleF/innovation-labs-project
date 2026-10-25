@@ -11,4 +11,6 @@ Fișierele de aici se urcă direct în Google Drive-ul echipei.
 | `04_Pitch_2_Minute_2_Persoane.md` | Sursa editabilă a pitch-ului, cu indicații de prezentare și surse |
 | `demo-sunproof.mp4` | Video demo SunProof (~60 secunde, 1080p, audio stereo): flux complet (Landing → Hartă & portofoliu → Analiză detaliată & simulare → Aplicația prosumatorului la avarie) |
 
+![Titlul știrii PRO TV](Stire_PRO_TV.png)
+
 Rezultatele din documentul 01 provin din evaluarea prototipului pe date simulate (81 de locuințe, 8 cartiere).
