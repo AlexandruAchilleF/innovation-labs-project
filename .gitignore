@@ -37,3 +37,8 @@ frontend/.nitro/
 frontend/.wrangler/
 .vercel
 .env*
+
+# Demo recorder
+scripts/node_modules/
+demo-sunproof.webm
+demo-sunproof.mp4

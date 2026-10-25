@@ -1,0 +1,9 @@
+{
+  "name": "sunproof-scripts",
+  "private": true,
+  "type": "module",
+  "description": "Tooling for scripts/record-demo.mjs (install: npm --prefix scripts install)",
+  "devDependencies": {
+    "playwright": "^1.56.0"
+  }
+}
