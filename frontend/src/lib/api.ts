@@ -175,7 +175,7 @@ function mockTelegram(id: string): TelegramResult {
     `Tensiune invertor: ${fmt(g.max_inverter_voltage_v, 1)} V`,
     `Creștere pe cablu intern: +${fmt(g.voltage_rise_internal_cable_v, 1)} V (${fmt(g.cable_mm2, 1)} mm² × ${g.cable_length_m} m)`,
     `Prag invertor: ${g.inverter_threshold_v} V (legal: ${g.legal_limit_v} V)`,
-    `Vecini declanșați: ${g.neighbors_affected_simultaneously}/${g.neighbors_total}`,
+    `Echipamente declanșate: ${g.neighbors_affected_simultaneously}/${g.neighbors_total}`,
   ].join("\n");
   return { sent: true, simulated: true, message_text: msg, chat_id: "-1002026160" };
 }
@@ -215,7 +215,7 @@ function openPrintableDossier(id: string) {
 <tr><td>Tensiune maximă contor (PCC)</td><td>${fmt(a.grid_verdict.max_meter_voltage_v, 1)} V</td></tr>
 <tr><td>Tensiune maximă invertor</td><td>${fmt(a.grid_verdict.max_inverter_voltage_v, 1)} V</td></tr>
 <tr><td>Limita legală EN 50549-1</td><td>${a.grid_verdict.legal_limit_v} V</td></tr>
-<tr><td>Vecini declanșați simultan</td><td>${a.grid_verdict.neighbors_affected_simultaneously}/${a.grid_verdict.neighbors_total}</td></tr>
+<tr><td>Echipamente declanșate simultan</td><td>${a.grid_verdict.neighbors_affected_simultaneously}/${a.grid_verdict.neighbors_total}</td></tr>
 <tr><td>Minute deconectare / zi</td><td>${a.grid_verdict.trip_minutes}</td></tr></table>
 <h2>Sesizare către distribuitor</h2><p>${esc(a.distributor_complaint_text)}</p>
 <p style="margin-top:40px;color:#64748b;font-size:11px">Generat de SunProof · mod demonstrativ</p>

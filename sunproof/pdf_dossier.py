@@ -150,7 +150,7 @@ def build_distributor_pdf_bytes(scenario: HouseholdScenario, analysis: Household
                      f"{_f(g.max_meter_voltage_v)} V; crestere pe cablul intern: {_f(g.voltage_rise_internal_cable_v)} V.",
                      f"Esantioane invertor / durata intervalelor contor cu media > {_f(LIMIT_V, 0)} V: {stats['inverter_minutes_over']} la invertor (telemetrie "
                      f"1 min), {stats['meter_minutes_over']} la contor (medii 15 min).",
-                     f"Vecini afectati simultan: {g.neighbors_affected_simultaneously} din {g.neighbors_total} "
+                     f"Echipamente afectate simultan: {g.neighbors_affected_simultaneously} din {g.neighbors_total} "
                      f"(raport de simultaneitate {_f(g.simultaneity_ratio)}).",
                      f"Minute deconectat azi: {g.total_trip_minutes_today}; productie pierduta: "
                      f"{_f(g.lost_production_today_kwh)} kWh azi, {_f(g.lost_production_month_est_kwh)} kWh/luna "
@@ -171,13 +171,13 @@ def build_distributor_pdf_bytes(scenario: HouseholdScenario, analysis: Household
     elif not rows:
         rows = [["Nicio fereastra de declansare in ziua analizata"]]
     pdf.grid_table(["Start", "Sfarsit", "Durata min", "Umax inv. V", "Max med.15m V", "Cadere cablu V",
-               "Vecini declansati", "Vecini >250V", "kWh pierduti", ">253V"],
+               "Echipamente declansate", "Echipamente >250V", "kWh pierduti", ">253V"],
               [17, 17, 16, 21, 22, 21, 20, 20, 19, 17], rows)
 
-    pdf.section(f"4. Tabel 2 - corelare cu vecinii anonimizati de pe acelasi PT ({s.transformer_id})")
-    pdf.grid_table(["Vecin", "Distanta m", "Faza", "kW instalat", "Umax V", "Min >253V", "Min declansat",
+    pdf.section(f"4. Tabel 2 - corelare cu echipamentele anonimizate de pe acelasi PT ({s.transformer_id})")
+    pdf.grid_table(["Echipament", "Distanta m", "Faza", "kW instalat", "Umax V", "Min >253V", "Min declansat",
                "Simultan cu clientul"], [42, 18, 16, 18, 20, 20, 22, 34],
-              stats["neighbors"] or [["Nu exista vecini monitorizati cu consimtamant"]])
+              stats["neighbors"] or [["Nu exista echipamente monitorizate cu consimtamant"]])
 
     pdf.section("5. Solicitari propuse (netrimise)" if is_grid else "5. Concluzie informativa")
     if is_grid:

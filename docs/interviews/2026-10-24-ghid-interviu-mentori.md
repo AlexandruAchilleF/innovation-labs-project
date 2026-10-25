@@ -20,7 +20,7 @@ Mentorii răspund ca **potențiali utilizatori sau clienți**. Noi nu vindem. Af
 2. Din apelurile prosumatorilor, câte sunt despre factură și câte despre „nu-mi merge sistemul”? Aproximativ, pe lună.
 3. Când clientul spune „mi s-a oprit sistemul”, ce faceți? Cum aflați dacă e rețeaua sau instalația? Cât durează?
 4. V-ați pregătit de facturarea lunară din Legea 160? Ce vă îngrijorează cel mai mult?
-5. Ce vă costă cel mai mult la prosumatori: energia de la prânz, dezechilibrul sau altceva? Puteți da o cifră?
+5. Ce vă costă cel mai mult la prosumatori: energia din orele de vârf ale producției solare, dezechilibrul sau altceva? Puteți da o cifră?
 6. Ați avut un program pentru baterii, ca cel al Electrica din august? Cum ați verificat că bateriile livrează seara? Câți s-au înscris?
 7. Ce ați încercat deja ca să rezolvați asta? De ce nu a mers?
 8. Cine din firmă ar decide să plătească pentru o soluție și din ce buget?

@@ -28,10 +28,10 @@ def test_seeded_tickets_use_the_customer_question(client):
 
 def test_create_is_idempotent_on_client_id_and_resolve(client):
     body = {"household_id": "RO-IF-002", "message_ro": "  De ce se oprește invertorul?  ", "ticket_id": "SP-9001",
-            "topic_ro": "Invertorul se oprește la prânz"}
+            "topic_ro": "Invertorul se oprește în orele de vârf ale producției solare"}
     first = client.post("/api/tickets", json=body).json()
     assert first["ticket_id"] == "SP-9001" and first["message_ro"] == "De ce se oprește invertorul?"
-    assert first["topic_ro"] == "Invertorul se oprește la prânz"
+    assert first["topic_ro"] == "Invertorul se oprește în orele de vârf ale producției solare"
     assert client.post("/api/tickets", json=body).json() == first
     assert len(client.get("/api/tickets").json()) == 3
 

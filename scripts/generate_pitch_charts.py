@@ -93,10 +93,10 @@ def chart2():
     if over:
         b += rect(X(over[0]), T, X(over[-1]) - X(over[0]), B - T, RED, 0).replace('fill="#ef4444"', 'fill="#ef4444" fill-opacity="0.08"')
     lx = 130
-    for lab, c in [("PVGIS (așteptat)", AMBER), ("Producție reală (tăiată la prânz)", NAVY), ("Tensiune AC invertor", BLUE)]:
+    for lab, c in [("PVGIS (așteptat)", AMBER), ("Producție reală (limitată la amiază)", NAVY), ("Tensiune AC invertor", BLUE)]:
         b += line(lx, 612, lx + 30, 612, c, 4) + t(lx + 38, 617, lab, 14)
         lx += 340
-    return frame("2. Prânzul e și cel mai bun moment, și cel mai riscant.",
+    return frame("2. Amiaza: producție maximă și risc de supratensiune.",
                  "Producție solară reală (PVGIS) vs. Tensiune AC la invertor și pragul legal EN 50549-1 (253 V) — RO-TM-001", b)
 
 
@@ -132,7 +132,7 @@ def chart4():
     for x, lab, v, c in [(110, "Setat acum", got, RED), (300, "Dorit de client", want, GREEN)]:
         b += rect(x, base - v * sc, bw, v * sc, c) + t(x + bw / 2, base - v * sc - 12, f"{v}%", 26, anchor="middle", weight=700, mono=True)
         b += t(x + bw / 2, base + 28, lab, 15, anchor="middle")
-    b += t(290, 215, "→", 30, GREY, "middle") + t(70, 612, f"Baterie blocată la {got}% în loc de {want}% dorit; PZU seară ≈ 8× prânz.", 14, GREY)
+    b += t(290, 215, "→", 30, GREY, "middle") + t(70, 612, f"Baterie blocată la {got}% în loc de {want}% dorit; PZU seară ≈ 8× amiază.", 14, GREY)
     cards = [("81/81 · 80/81", "rețea vs. echipament · 1 min / 5 min", GREEN), ("0/60", "alarme false", GREEN),
              (f"{ro(pm.fleet_avoided_truck_rolls_ron)} RON/lună", "deplasări evitate", BLUE),
              (f"{ro(pm.fleet_monthly_pzu_savings_ron, 2)} RON/lună", f"pierdere PZU pe {pm.misconfigured_batteries_count} baterii", AMBER),
@@ -142,7 +142,7 @@ def chart4():
         b += rect(600, y, 550, 76, "#f8fafc") + rect(600, y, 8, 76, c, 2)
         b += t(630, y + 36, big, 26, c if c != AMBER else "#b45309", weight=700, mono=True) + t(630, y + 61, small, 15, GREY)
     return frame("4. Ce pierd prosumatorul și furnizorul, și dovada că detecția merge.",
-                 f"RO-CJ-003 (baterie blocată la {got}% vs. {want}% dorit, PZU seară 8× prânz) + evaluare pe 81 de case (0 alarme false)", b)
+                 f"RO-CJ-003 (baterie blocată la {got}% vs. {want}% dorit, PZU seară 8× amiază) + evaluare pe 81 de case (0 alarme false)", b)
 
 
 FACTS = ["+23.956 baterii în 2 luni", "60% din 460 invertoare DEO setate greșit", "253 V prag EN 50549-1", "81/81 scenarii · 0 alarme false", "≈713.000 EUR/an la 25.000 prosumatori"]

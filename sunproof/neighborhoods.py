@@ -820,7 +820,7 @@ def _plans(ids: _IdAllocator) -> List[NeighborhoodPlan]:
         longitude=23.4880,
         description_ro=(
             "Cea mai mare comună-dormitor de lângă Cluj. Transformatorul a fost reglat pe plotul +5% ca să ajungă "
-            "tensiune suficientă seara la capăt de linie; acum, la prânz, toată rețeaua pornește deja de sus."
+            "tensiune suficientă seara la capăt de linie; acum, în orele de vârf ale producției solare, toată rețeaua pornește deja de sus."
         ),
         stress=GridStressCause.TRANSFORMER_TAP_HIGH,
         transformer=TransformerStation(
@@ -855,7 +855,7 @@ def _plans(ids: _IdAllocator) -> List[NeighborhoodPlan]:
         longitude=25.9750,
         description_ro=(
             "Ansamblu rezidențial cu sisteme mari de 8-12 kW pe aproape fiecare casă, alimentat de un singur "
-            "transformator de 160 kVA dimensionat acum 15 ani pentru consum. La prânz puterea curge invers prin "
+            "transformator de 160 kVA dimensionat acum 15 ani pentru consum. În orele de vârf ale producției solare puterea curge invers prin "
             "transformator, peste puterea lui nominală."
         ),
         stress=GridStressCause.TRANSFORMER_REVERSE_OVERLOAD,
@@ -1019,7 +1019,7 @@ def describe_neighborhood(nb: Neighborhood, analysis, what_ifs: Dict[str, object
         )
         if tripped_local:
             explanation += (
-                f" {len(tripped_local)} invertor(oare) s-au oprit totuși, fără ca vecinii să fie afectați: "
+                f" {len(tripped_local)} invertor(oare) s-au oprit totuși, fără ca echipamentele să fie afectate: "
                 "cauza e în instalația locală, nu în rețea."
             )
         return headline, explanation, "Nicio intervenție necesară în rețeaua de distribuție."
@@ -1032,7 +1032,7 @@ def describe_neighborhood(nb: Neighborhood, analysis, what_ifs: Dict[str, object
         )
         explanation = common + (
             f" Plecarea {wf.feeder_id} ({wf.cable_code}, {wf.length_m} m) are {wf.pv_houses_count} prosumatori "
-            f"cu {_fmt(wf.installed_pv_kw)} kW. La prânz curentul injectat ({_fmt(wf.peak_reverse_current_a)} A) "
+            f"cu {_fmt(wf.installed_pv_kw)} kW. În orele de vârf ale producției solare curentul injectat ({_fmt(wf.peak_reverse_current_a)} A) "
             f"ridică tensiunea spre capătul liniei: {wf.minutes_above_253v} minute peste 253 V, "
             f"{t.trip_events_total} deconectări de invertor și {_fmt(t.lost_energy_kwh)} kWh pierduți azi. "
             f"Seara, aceeași linie coboară la {_fmt(wf.min_voltage_v)} V: conductorul e subdimensionat în ambele sensuri."
@@ -1067,12 +1067,12 @@ def describe_neighborhood(nb: Neighborhood, analysis, what_ifs: Dict[str, object
         bus = max(s.busbar_voltage_v for s in t.transformer_timeseries)
         headline = (
             f"Plot transformator {t.tap_setting_pct:+.1f}%: rețeaua {t.transformer_id} pornește de la "
-            f"{_fmt(bus)} V la prânz, {t.houses_tripped} case deconectate"
+            f"{_fmt(bus)} V în orele de vârf ale producției solare, {t.houses_tripped} case deconectate"
         )
         high_feeders = sum(1 for f in t.feeders if f.max_voltage_v > 250.0)
         explanation = common + (
             f" Transformatorul e reglat pe plotul {t.tap_setting_pct:+.1f}%, ca să compenseze căderea de tensiune "
-            f"seara. La prânz bara de joasă tensiune ajunge deja la {_fmt(bus)} V, iar pe {high_feeders} din "
+            f"seara. În orele de vârf ale producției solare bara de joasă tensiune ajunge deja la {_fmt(bus)} V, iar pe {high_feeders} din "
             f"{len(t.feeders)} plecări tensiunea trece de 250 V: {t.minutes_above_253v} minute peste 253 V, "
             f"{t.trip_events_total} deconectări, {_fmt(t.lost_energy_kwh)} kWh pierduți azi."
         )
@@ -1088,7 +1088,7 @@ def describe_neighborhood(nb: Neighborhood, analysis, what_ifs: Dict[str, object
         f"în sens invers la ora {t.peak_reverse_time}"
     )
     explanation = common + (
-        f" La prânz {t.transformer_id} trimite {_fmt(t.peak_reverse_power_kw)} kW înapoi în rețeaua de medie "
+        f" În orele de vârf ale producției solare {t.transformer_id} trimite {_fmt(t.peak_reverse_power_kw)} kW înapoi în rețeaua de medie "
         f"tensiune, peste puterea lui nominală. Tensiunea rămâne sub 253 V (maxim {_fmt(t.max_voltage_v)} V), "
         "deci invertoarele nu se opresc. Riscul e termic: transformatorul se supraîncălzește în orele de vârf "
         "solar, iar o arsură lasă tot cartierul fără curent."

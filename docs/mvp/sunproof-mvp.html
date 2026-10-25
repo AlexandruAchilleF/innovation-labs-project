@@ -918,7 +918,7 @@ html,body{font-feature-settings:"tnum" 1,"cv11" 1}
         <div class="snip">
           <div class="sn-head">Casa ta, azi<small>alerte 1</small></div>
           <svg class="mini-spark" viewBox="0 0 300 78" aria-hidden="true"><rect x="138" y="8" width="13" height="64" fill="#a497ff" fill-opacity=".22"/><rect x="167" y="8" width="10" height="64" fill="#a497ff" fill-opacity=".22"/><path d="M8 70H292" stroke="#4a4844"/><polyline points="8.0,70.0 12.7,69.1 17.5,67.6 22.2,65.8 26.9,63.8 31.7,61.6 36.4,59.2 41.1,56.7 45.9,54.1 50.6,51.5 55.3,48.8 60.1,46.1 64.8,43.4 69.5,40.7 74.3,38.1 79.0,35.5 83.7,33.0 88.5,30.7 93.2,28.4 97.9,26.2 102.7,24.2 107.4,22.4 112.1,20.7 116.9,19.1 121.6,17.8 126.3,16.7 131.1,15.7 135.8,15.0 140.5,70.0 145.3,70.0 150.0,14.0 154.7,14.1 159.5,14.4 164.2,15.0 168.9,70.0 173.7,70.0 178.4,17.8 183.1,19.1 187.9,20.7 192.6,22.4 197.3,24.2 202.1,26.2 206.8,28.4 211.5,30.7 216.3,33.0 221.0,35.5 225.7,38.1 230.5,40.7 235.2,43.4 239.9,46.1 244.7,48.8 249.4,51.5 254.1,54.1 258.9,56.7 263.6,59.2 268.3,61.6 273.1,63.8 277.8,65.8 282.5,67.6 287.3,69.1 292.0,70.0" fill="none" stroke="#f2c45a" stroke-width="2" stroke-linejoin="round"/><path d="M8 62C60 60 90 58 120 60S200 64 230 52 270 30 292 34" fill="none" stroke="#ebe8e1" stroke-opacity=".7" stroke-width="1.4"/></svg>
-          <div class="sn-tk"><i style="background:#a497ff"></i><span><b>Invertorul s-a oprit la prânz</b><small>supratensiune în rețea, nu defect</small></span></div>
+          <div class="sn-tk"><i style="background:#a497ff"></i><span><b>Invertorul s-a oprit în orele de vârf ale producției solare</b><small>supratensiune în rețea, nu defect</small></span></div>
           <div class="sn-field"><span>Invertorul se oprește</span><span aria-hidden="true">▾</span></div>
           <span class="sn-btn">Trimite tichetul</span>
         </div>
@@ -1104,7 +1104,7 @@ function simulate(opts) {
       if (surplus > 0) return Math.min(kw, surplus, room);
       return -Math.min(kw, -surplus, avail);
     }
-    // self11 / evening: încarcă 11–16 din surplus, eșalonat, ca să absoarbă vârful de la prânz
+    // self11 / evening: încarcă 11–16 din surplus, eșalonat, ca să absoarbă vârful producției solare
     if (m >= CFG.CHG[0] && m < CFG.CHG[1] && surplus > 0) {
       const left = Math.max(DT, (CFG.CHG[1] - m) / 60);
       return Math.min(kw, surplus, room, (1 - soc) * cap / left * 1.1);
@@ -1705,7 +1705,7 @@ function vVecini() {
       ${srcChips(['Invertor · alarme, tensiune la 5 min', 'Vecini PT 2041 · anonim', 'SR EN 50160'])}</div>`;
   } else {
     card = `<div class="card verdict ok"><span class="badge ok">Fără opriri azi</span><div class="big">Azi n-ai avut nicio oprire din supratensiune.</div>
-      <p>${y.vmax >= 253 ? `Tensiunea a atins <b>${nf(y.vmax)} V</b> doar câteva minute. Media pe 10 minute a rămas sub 253 V, deci invertorul n-a declanșat.` : `Tensiunea maximă la casa ta: <b>${nf(y.vmax)} V</b>, sub pragul de 253 V.`}${(() => { const tp = SIM.byF.A.filter(h => h.trips.length && !h.you); return tp.length ? ` Vecinii ${tp.map(h => h.id).join(', ')}, mai departe de post, s-au oprit de ${tp.reduce((a, h) => a + h.trips.length, 0)} ori: tu ești chiar sub prag.` : ''; })()}${S.opts.batSet < 0.5 ? ' Bateria, încărcată la prânz, a absorbit vârful de export.' : ''}${S.opts.boiler ? ' Boilerul pornit la tensiune mare a ținut energia în casă.' : ''}</p>
+      <p>${y.vmax >= 253 ? `Tensiunea a atins <b>${nf(y.vmax)} V</b> doar câteva minute. Media pe 10 minute a rămas sub 253 V, deci invertorul n-a declanșat.` : `Tensiunea maximă la casa ta: <b>${nf(y.vmax)} V</b>, sub pragul de 253 V.`}${(() => { const tp = SIM.byF.A.filter(h => h.trips.length && !h.you); return tp.length ? ` Vecinii ${tp.map(h => h.id).join(', ')}, mai departe de post, s-au oprit de ${tp.reduce((a, h) => a + h.trips.length, 0)} ori: tu ești chiar sub prag.` : ''; })()}${S.opts.batSet < 0.5 ? ' Bateria, încărcată în orele de vârf ale producției solare, a absorbit vârful de export.' : ''}${S.opts.boiler ? ' Boilerul pornit la tensiune mare a ținut energia în casă.' : ''}</p>
       ${srcChips(['Invertor · tensiune la 5 min', 'Vecini PT 2041 · anonim'])}</div>`;
   }
   const rows = SIM.byF.A.map(h => {
@@ -1763,10 +1763,10 @@ function vBateria() {
     <p>Ai vrut rezervă <b>${pct(S.intent)}</b>, iar invertorul e setat la <b>${pct(bc.setting)}</b>. Între 18:00 și 23:00 ai luat ${nf(bc.eveImpAtRes)} kWh din rețea cât bateria stătea la rezerva setată: <b>≈${nf(mm.lei, 2)} lei pe zi</b>.</p>${srcChips(['Invertor · setări citite', 'Baterie · SoC la 5 min', 'Contor · import'])}</div>`;
   else if (hold) card = `<div class="card verdict"><span class="badge mute">Fără alertă</span><div class="big">Bateria îți păstrează rezerva aleasă.</div>
     <p>Ai vrut ${pct(S.intent)} pentru pană de curent, iar setarea e ${pct(bc.setting)}. Importul de seară (${nf(bc.eveImpAtRes)} kWh) e prețul rezervei, nu o greșeală.</p>${srcChips(['Invertor · setări citite', 'Intenția ta'])}</div>`;
-  else card = `<div class="card verdict ok"><span class="badge ok">Face ce ai vrut</span><div class="big">Bateria se încarcă la prânz și te ajută seara.</div>
+  else card = `<div class="card verdict ok"><span class="badge ok">Face ce ai vrut</span><div class="big">Bateria se încarcă în orele de vârf ale producției solare și te ajută seara.</div>
     <p>Rezervă ${pct(bc.setting)}, încărcare între 11 și 16.${S.opts.program ? ` În fereastra 19–21 a livrat ${nf(bc.delivered)} kWh: <b>${nf(bc.bonus, 2)} lei</b> bonus.` : ''}</p>${srcChips(['Invertor · setări (simulare)', 'Baterie · SoC la 5 min'])}</div>`;
   const fl = bc.findings.filter(x => x.k !== 'reserve_mismatch' && x.k !== 'holding_owner_reserve').map(x => x.k === 'full_before_noon'
-    ? `<li><span class="dot" style="background:var(--accent)"></span><span class="grow">Plină la ${hh(x.at)}, înainte de prânz. Surplusul de la prânz merge în rețea și urcă tensiunea pe stradă.</span></li>`
+    ? `<li><span class="dot" style="background:var(--accent)"></span><span class="grow">Plină la ${hh(x.at)}, înainte de vârful producției solare. Surplusul din orele de vârf ale producției solare merge în rețea și urcă tensiunea pe stradă.</span></li>`
     : `<li><span class="dot grid"></span><span class="grow">În 19–21 a livrat ${nf(bc.delivered)} kWh din ${nf(bc.possible)} posibili: bonus ratat <b>${nf(x.lei, 2)} lei</b>.</span></li>`).join('');
   const socW = Array.from(cur.H.find(h => h.you).soc, v => v * 100), socO = Array.from(other.H.find(h => h.you).soc, v => v * 100);
   return head('Baterie de 10 kWh pe invertor hibrid (demo)', 'Bateria ta face ce ai vrut?', 'Comparăm ce ai vrut cu ce e setat și cu ce s-a măsurat. Aceleași date pot da alt verdict dacă intenția e alta.') +
@@ -1778,12 +1778,12 @@ function vBateria() {
       <div class="legend-mini"><span><i style="background:var(--ok)"></i>${fixed ? 'Setarea corectată' : 'Setarea actuală'}</span><span><i style="background:var(--ink-3)"></i>${fixed ? 'Setarea actuală' : 'Cu setarea corectată'}</span><span><i class="box" style="background:var(--accent);opacity:.3"></i>Încărcare 11–16</span><span><i class="box" style="background:var(--grid);opacity:.3"></i>Program 19–21</span></div></div>
     ${fl ? `<div class="card"><h3>Ce am mai găsit</h3><ul class="list">${fl}</ul></div>` : ''}
     <div class="card"><h3>Setarea actuală vs. corectată</h3><table class="t"><thead><tr><th></th><th class="n">80% acum</th><th class="n">20% corectat</th></tr></thead><tbody>
-      <tr><td>Opriri la prânz (tu)</td><td class="n">${yw.trips.length}</td><td class="n">${yf.trips.length}</td></tr>
-      <tr><td>Energie pierdută la prânz</td><td class="n">${nf(yw.lost)} kWh</td><td class="n">${nf(yf.lost)} kWh</td></tr>
+      <tr><td>Opriri în orele de vârf ale producției solare (tu)</td><td class="n">${yw.trips.length}</td><td class="n">${yf.trips.length}</td></tr>
+      <tr><td>Energie pierdută în orele de vârf ale producției solare</td><td class="n">${nf(yw.lost)} kWh</td><td class="n">${nf(yf.lost)} kWh</td></tr>
       <tr><td>Import seara, la rezervă</td><td class="n">${nf(bw.eveImpAtRes)} kWh</td><td class="n">${nf(bf.eveImpAtRes)} kWh</td></tr>
       ${S.opts.program ? `<tr><td>Bonus program 19–21</td><td class="n">${nf(bw.bonus, 2)} lei</td><td class="n">${nf(bf.bonus, 2)} lei</td></tr>` : ''}
       <tr><td>Opriri vecini A11 + A12</td><td class="n">${nb(w)}</td><td class="n">${nb(f)}</td></tr></tbody></table>
-      <p class="hint">Bateria setată bine ajută și rețeaua: absoarbe vârful de la prânz, deci scad opririle pe toată strada.</p></div>
+      <p class="hint">Bateria setată bine ajută și rețeaua: absoarbe vârful producției solare, deci scad opririle pe toată strada.</p></div>
     <div class="card"><div class="toggle"><span class="tl">Sunt într-un program de furnizor<small>de tip Electrica, pilot august 2026 · 0,40 lei/kWh livrat 19–21 (valori demo)</small></span><button class="sw" role="switch" aria-checked="${S.opts.program}" data-act="opt" data-k="program" aria-label="Program de furnizor"></button></div></div>
     <div class="note">SunProof nu schimbă setările invertorului. Trimitem instalatorului recomandarea, cu graficul și cifrele de mai sus.</div>
     <div class="actions" style="margin-top:0;margin-bottom:12px"><button class="btn primary" data-act="installer">Trimite recomandarea instalatorului</button></div>`;
@@ -1884,7 +1884,7 @@ function vRaport() {
   const A = SIM.byF.A, pv = A.filter(h => h.kwp), tr = pv.filter(h => h.trips.length), tot = tr.reduce((a, h) => a + h.trips.length, 0);
   const noon = idxOf(13 * 60 + 20), rise = Math.max(...A.map(h => h.v[noon])) - SIM.VT.A[noon], vB = Math.max(...SIM.byF.B.map(h => h.vmax));
   return head(`${STREET.A.ptId}, strada A, 15 iulie 2026`, 'Raport pentru distribuitor', 'Dovezi agregate pe stradă, fără acces la invertoare. Casele incluse și-au dat acordul.') +
-    `<div class="card verdict"><p>La prânz, tensiunea crește cu <b>${nf(rise)} V</b> de la post până la capătul străzii. ${tr.length} din ${pv.length} locuințe cu panouri s-au oprit de <b>${tot} ori</b> în total, cu tensiuni de până la ${nf(Math.max(...A.map(h => h.vmax)))} V.</p>
+    `<div class="card verdict"><p>În orele de vârf ale producției solare, tensiunea crește cu <b>${nf(rise)} V</b> de la post până la capătul străzii. ${tr.length} din ${pv.length} locuințe cu panouri s-au oprit de <b>${tot} ori</b> în total, cu tensiuni de până la ${nf(Math.max(...A.map(h => h.vmax)))} V.</p>
       <p>Cerem verificarea reglajului transformatorului de la ${STREET.A.ptId} și a secțiunii cablului pe strada A.</p></div>
     <div class="card"><h3>Tensiunea maximă, casă cu casă</h3>${streetBars('A')}</div>
     <div class="card"><h3>Detaliu pe locuințe</h3><table class="t"><thead><tr><th>Casa</th><th class="n">kWp</th><th class="n">Opriri</th><th class="n">Vmax</th><th class="n">kWh pierduți</th></tr></thead><tbody>
@@ -2130,7 +2130,7 @@ function vActiuni() {
     <div class="card" id="tkForm"><h3>Raportează o problemă</h3>
       <p class="hint" style="margin:0 0 4px">Pentru ce nu se vede în date: un panou spart, un cablu ars, un zgomot ciudat.</p>
       <label class="fl">Ce se întâmplă<select id="tkType">${Object.entries(TK_TYPES).map(([k, t]) => `<option value="${k}">${t}</option>`).join('')}</select></label>
-      <label class="fl">Detalii (opțional)<textarea id="tkTxt" rows="2" placeholder="Ex.: de câteva zile se oprește la prânz"></textarea></label>
+      <label class="fl">Detalii (opțional)<textarea id="tkTxt" rows="2" placeholder="Ex.: de câteva zile se oprește în orele de vârf ale producției solare"></textarea></label>
       <p class="hint" style="margin:8px 0 0">Atașăm automat datele zilei (producție, tensiune, alarme). Tehnicianul vede și ce a găsit SunProof înainte să plece de acasă.</p>
       <div class="actions"><button class="btn primary" data-act="tk-send">Trimite echipei O&amp;M</button></div></div></div></div>`;
 }
@@ -2363,7 +2363,7 @@ document.addEventListener('click', e => {
 
 // ---------- asistent: unelte, Claude, verificarea cifrelor ----------
 const SUGG = {
-  pros: ['De ce s-a oprit invertorul azi la prânz?', 'Bateria mea face ce am vrut?', 'E corectă factura din august?', 'Cine mi-a văzut datele?'],
+  pros: ['De ce s-a oprit invertorul azi în orele de vârf ale producției solare?', 'Bateria mea face ce am vrut?', 'E corectă factura din august?', 'Cine mi-a văzut datele?'],
   om: ['Ce trimit azi pe teren?', 'Care stradă are probleme de rețea?', 'De ce B9 apare gri?'],
 };
 function renderSugg() { $('#sugg').innerHTML = SUGG[S.mode].map(q => `<button type="button" data-act="sugg" data-q="${esc(q)}">${esc(q)}</button>`).join(''); }
@@ -2557,7 +2557,7 @@ async function askTemplate(q, m) {
   } else if (/bateri|rezerv|incarc|descarc|setat|setar/.test(n)) {
     const b = await step('get_battery_check'); await step('show_on_map', { ids: ['A10'] });
     const mm = b.constatari.find(c => c.tip === 'reserve_mismatch'), full = b.constatari.find(c => c.tip === 'full_before_noon');
-    text = mm ? `Nu chiar. Ai vrut rezervă **${b.intentie_rezerva}**, dar invertorul e setat la **${b.setare_rezerva}**. Seara, bateria stă la rezervă și casa ia ${nf(b.import_seara_la_rezerva_kWh)} kWh din rețea: ≈${nf(mm.lei, 2)} lei pe zi.${full ? ` În plus, e plină de la ${full.ora}, deci la prânz nu mai absoarbe nimic.` : ''}${b.in_program ? ` În programul de tip Electrica (pilot august 2026) ai livrat ${nf(b.livrat_19_21_kWh)} kWh din ${nf(b.posibil_19_21_kWh)} posibili, adică ai ratat ${nf(b.bonus_ratat_lei, 2)} lei.` : ''}\n\nTrimite recomandarea instalatorului din ecranul Bateria.\n\nSurse: ${b.sursa}`
+    text = mm ? `Nu chiar. Ai vrut rezervă **${b.intentie_rezerva}**, dar invertorul e setat la **${b.setare_rezerva}**. Seara, bateria stă la rezervă și casa ia ${nf(b.import_seara_la_rezerva_kWh)} kWh din rețea: ≈${nf(mm.lei, 2)} lei pe zi.${full ? ` În plus, e plină de la ${full.ora}, deci în orele de vârf ale producției solare nu mai absoarbe nimic.` : ''}${b.in_program ? ` În programul de tip Electrica (pilot august 2026) ai livrat ${nf(b.livrat_19_21_kWh)} kWh din ${nf(b.posibil_19_21_kWh)} posibili, adică ai ratat ${nf(b.bonus_ratat_lei, 2)} lei.` : ''}\n\nTrimite recomandarea instalatorului din ecranul Bateria.\n\nSurse: ${b.sursa}`
       : b.constatari.find(c => c.tip === 'holding_owner_reserve') ? `Da. Ai vrut ${b.intentie_rezerva} pentru pană de curent și setarea e ${b.setare_rezerva}. Importul de seară, ${nf(b.import_seara_la_rezerva_kWh)} kWh, e prețul rezervei, nu o greșeală.\n\nSurse: ${b.sursa}`
       : `Da. Setarea (${b.setare_rezerva}) e cea pe care ai vrut-o.${b.in_program ? ` În fereastra 19–21 a livrat ${nf(b.livrat_19_21_kWh)} kWh: ${nf(b.bonus_lei, 2)} lei bonus.` : ''}\n\nSurse: ${b.sursa}`;
     m.links.push('bateria');
@@ -2570,7 +2570,7 @@ async function askTemplate(q, m) {
     const ref = a.jurnal.filter(j => j.rezultat === 'refuzat');
     text = `Ultimele accese: ${a.jurnal.slice(0, 3).map(j => `${j.cine} (${j.ce}, ${j.rezultat})`).join('; ')}.${ref.length ? ` Refuzate: ${ref.length}.` : ''} Distribuitorul vede acum: ${a.permisiuni['Distribuitor'].join(', ') || 'nimic'}. Parola invertorului nu se partajează niciodată.\n\nSurse: ${a.sursa}`;
     m.links.push('acces');
-  } else if (/opr|pranz|supraten|tensiun|produs|produc|vecin|pierd/.test(n)) {
+  } else if (/opr|pranz|amiaza|varf|supraten|tensiun|produs|produc|vecin|pierd/.test(n)) {
     const d = await step('get_my_day'); await step('get_street', { street: 'A' });
     const o = d.opriri_supratensiune;
     await step('show_on_map', { ids: ['A10', ...d.vecini_opriti_in_aceleasi_minute], time: o[0] ? o[0].start : undefined });
@@ -2672,7 +2672,7 @@ function renderLanding() {
   const want = Math.round(S.intent * 100), set = Math.round(bc.setting * 100);
   const foot2 = mm ? `Seara iei din rețea cât bateria stă la ${set}%: <b>≈${nf(mm.lei, 2)} lei pe zi</b>.`
     : hold ? `Rezerva e cea aleasă de tine. Importul de seară e prețul ei, nu o greșeală.`
-    : S.opts.program ? `Între 19 și 21 a livrat ${nf(bc.delivered)} kWh: <b>${nf(bc.bonus, 2)} lei</b> bonus.` : 'Se încarcă la prânz și te ajută seara.';
+    : S.opts.program ? `Între 19 și 21 a livrat ${nf(bc.delivered)} kWh: <b>${nf(bc.bonus, 2)} lei</b> bonus.` : 'Se încarcă în orele de vârf ale producției solare și te ajută seara.';
   const lab = (p, t, right) => `<span class="mk" style="left:${p}%;background:${t[1]}"><em style="${right ? 'left:auto;right:7px' : ''}">${t[0]} ${p}%</em></span>`;
   const bar = want === set ? lab(set, ['ai cerut și e setat', '#b6dcb1'], set > 50)
     : lab(want, ['ai cerut', '#b6dcb1'], want > set) + lab(set, ['setat', '#ffaaa2'], set > want);
@@ -3056,7 +3056,7 @@ function goZone(k) {
 // ---------- Baterii, Facturi, Inbox ----------
 const BAT_DEMO = [
   { id: 'C-2210', z: 'buc', post: 'PT 0932', st: ['SETARE GREȘITĂ', 'tg-r'], want: 20, set: 80, lei: 3.6, txt: 'Rezervă 80%, clientul a cerut 20%' },
-  { id: 'C-2231', z: 'buc', post: 'PT 1510', st: ['PLINĂ LA 10:40', 'tg-a'], want: 20, set: 20, lei: 1.9, txt: 'Se încarcă din primul surplus, plină înainte de prânz' },
+  { id: 'C-2231', z: 'buc', post: 'PT 1510', st: ['PLINĂ LA 10:40', 'tg-a'], want: 20, set: 20, lei: 1.9, txt: 'Se încarcă din primul surplus, plină înainte de vârful producției solare' },
   { id: 'C-2307', z: 'buc', post: 'PT 3307', st: ['SETARE GREȘITĂ', 'tg-r'], want: 30, set: 100, lei: 4.1, txt: 'Rezervă 100%: nu descarcă deloc seara' },
   { id: 'C-2318', z: 'buc', post: 'PT 3120', st: ['ÎN PROGRAM', 'tg-g'], want: 20, set: 20, lei: 0, txt: 'Livrează seara cum a vrut clientul' },
 ];

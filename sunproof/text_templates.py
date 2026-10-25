@@ -52,7 +52,7 @@ def _distributor_template(a: HouseholdCompleteAnalysis, f: dict, n) -> str:
             f"la invertor: {n('grid_max_inverter_voltage_v')} V; limita EN 50549-1: {n('grid_en50549_legal_limit_v')} V.\n"
             f"• Creștere de tensiune pe cablul AC intern: {n('grid_voltage_rise_internal_cable_v')} V "
             f"(prag declanșare configurat: {n('grid_configured_trip_threshold_v')} V).\n"
-            f"• Vecini pe același post afectați simultan: {n('grid_neighbors_affected_simultaneously')} din "
+            f"• Echipamente pe același post afectate simultan: {n('grid_neighbors_affected_simultaneously')} din "
             f"{n('grid_neighbors_total')} (raport de simultaneitate {n('grid_simultaneity_ratio')}).\n"
             f"• Deconectări: {n('grid_total_trip_minutes_today')} minute în {n('grid_events_count')} ferestre; "
             f"producție pierdută {n('grid_lost_production_today_kwh')} kWh azi, estimat "
@@ -62,11 +62,11 @@ def _distributor_template(a: HouseholdCompleteAnalysis, f: dict, n) -> str:
         k = f"grid_event_{i}_"
         if k + "start_time" in f:
             data += (f"• Fereastra {f[k + 'start_time']}–{f[k + 'end_time']}: contor {n(k + 'peak_meter_voltage_v')} V, "
-                     f"invertor {n(k + 'peak_inverter_voltage_v')} V, vecini declanșați {n(k + 'neighbors_tripped_count')}.\n")
+                     f"invertor {n(k + 'peak_inverter_voltage_v')} V, echipamente declanșate {n(k + 'neighbors_tripped_count')}.\n")
     if cause == "GRID_OVERVOLTAGE":
         return head + "\nConstatări:\n" + data + (
-            "\nCauza: tensiunea depășește limita direct la punctul de racordare, iar mai mulți vecini de pe același "
-            "post sunt afectați în același timp; instalația interioară nu explică fenomenul.\nSolicităm: reglajul "
+            "\nCauza: tensiunea depășește limita direct la punctul de racordare, iar mai multe echipamente de pe același "
+            "post sunt afectate în același timp; instalația interioară nu explică fenomenul.\nSolicităm: reglajul "
             "plotului transformatorului, echilibrarea fazelor, verificarea impedanței plecării, monitorizarea "
             "tensiunii timp de o săptămână și un răspuns în termenul din standardul de performanță ANRE "
             "(Ordinul ANRE nr. 46/2021). Document pregătit; sesizarea nu a fost trimisă.")
@@ -114,13 +114,13 @@ def _battery_template(a: HouseholdCompleteAnalysis, f: dict, n) -> str:
                   "UNDERPERFORMING_CAPACITY"} or (st == "MISCONFIGURED_SOC_RESERVE" and
                                                 b.configured_min_soc_pct < b.desired_min_soc_pct):
         return status_template(a, "battery_guide")
-    value = (f"• Prețul PZU: {n('battery_avg_midday_pzu_ron_mwh')} RON/MWh la prânz față de "
+    value = (f"• Prețul PZU: {n('battery_avg_midday_pzu_ron_mwh')} RON/MWh în orele de vârf ale producției solare față de "
              f"{n('battery_avg_evening_pzu_ron_mwh')} RON/MWh seara (diferență {n('battery_pzu_spread_ron_mwh')} RON/MWh).\n"
-             f"• Azi: {n('battery_midday_grid_export_kwh_today')} kWh exportați la prânz și "
+             f"• Azi: {n('battery_midday_grid_export_kwh_today')} kWh exportați în orele de vârf ale producției solare și "
              f"{n('battery_evening_peak_grid_import_kwh_today')} kWh luați din rețea la vârful de seară.\n")
     if st == "NO_BATTERY":
         return ("Ghid baterie — nu aveți baterie instalată.\n\n" + value +
-                "• O baterie ar stoca surplusul de la prânz și l-ar folosi seara, când energia este scumpă. "
+                "• O baterie ar stoca surplusul din orele de vârf ale producției solare și l-ar folosi seara, când energia este scumpă. "
                 "Discutați cu furnizorul despre bonusul pentru stocare.")
     cfg = (f"Ghid configurare baterie: {b.battery_model}\n\nSituație: {b.headline_ro}\n"
            f"• Capacitate utilă: {n('battery_usable_capacity_kwh')} kWh.\n"

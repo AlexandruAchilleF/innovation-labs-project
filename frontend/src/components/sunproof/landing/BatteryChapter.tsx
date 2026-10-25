@@ -36,7 +36,7 @@ export function BatteryChapter() {
   const facts: Fact[] | undefined = b && [
     ["Rezervă setată", `${fmt(fixed ? b.desired_min_soc_pct : b.configured_min_soc_pct)} %`],
     ["Energie blocată seara", `${fmt(fixed ? 0 : b.locked_kwh, 1)} kWh`],
-    ["PZU seară / prânz", `${fmt(b.pzu_evening_ron_mwh)} / ${fmt(b.pzu_midday_ron_mwh)} RON/MWh`],
+    ["PZU seară / amiază", `${fmt(b.pzu_evening_ron_mwh)} / ${fmt(b.pzu_midday_ron_mwh)} RON/MWh`],
   ];
   return (
     <Chapter

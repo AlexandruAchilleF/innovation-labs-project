@@ -18,11 +18,11 @@ De spus cu voce tare (30 de secunde):
 
 Am pornit de la analiza de piață (legi, ordine ANRE, prețuri, presă, forumuri) și am vorbit deja cu **doi oameni: un prosumator și un furnizor**.
 
-**Problema 1: la prânz invertoarele se opresc singure, iar reclamația ajunge la furnizor.**
+**Problema 1: în orele de vârf ale producției solare invertoarele se opresc singure, iar reclamația ajunge la furnizor.**
 Pe străzile cu multe panouri, toate casele dau curent în rețea în același timp. Tensiunea crește peste limită, iar invertorul se oprește ca să se protejeze. Prosumatorul pierde producția exact în orele cele mai bune. **Asta ne-au spus, separat și fără să le sugerăm noi, atât prosumatorul, cât și furnizorul.** Presa confirmă la scară mare: din martie 2026, „zeci de mii” de prosumatori afectați. Nimeni nu are dovezi, așa că toți își pasează vina: instalatorul zice că e rețeaua, distribuitorul zice că e instalația. Uneori chiar e instalația: un distribuitor a găsit 60% din invertoarele verificate setate greșit. Clientul sună însă la furnizor, pentru că de la el primește factura. Furnizorul e obligat să preia reclamația, iar dacă i-a vândut și panourile, trimite un tehnician, adesea degeaba.
 
 **Problema 2: bateriile setate greșit îl costă pe furnizor.**
-Clientul cu panouri dă curent în rețea la prânz, când curentul e ieftin, și ia înapoi la fel de mult seara, când curentul e scump. Legea spune că e schimb unu la unu, deci furnizorul trebuie să cumpere scump curentul de seară și nu primește nimic pentru el. Bateria ar rezolva asta: păstrează curentul de la prânz pentru seară. Dar multe baterii sunt setate greșit, de exemplu „păstrează 80% mereu”, și nu dau nimic seara. Clientul de obicei nici nu știe.
+Clientul cu panouri dă curent în rețea în orele de vârf ale producției solare, când curentul e ieftin, și ia înapoi la fel de mult seara, când curentul e scump. Legea spune că e schimb unu la unu, deci furnizorul trebuie să cumpere scump curentul de seară și nu primește nimic pentru el. Bateria ar rezolva asta: păstrează curentul din orele de vârf ale producției solare pentru seară. Dar multe baterii sunt setate greșit, de exemplu „păstrează 80% mereu”, și nu dau nimic seara. Clientul de obicei nici nu știe.
 
 **Problema 3: facturile de prosumator aduc reclamații.**
 De la 1 ianuarie 2027 se schimbă complet felul în care se facturează prosumatorii, iar ANRE a aprobat un clasament public al furnizorilor după numărul de reclamații. Fiecare factură pe care clientul n-o înțelege devine un apel la call center sau o reclamație. Pentru client, chiar și oprirea invertorului arată ca o „factură mare”: PPC însuși o trece printre cauze.
@@ -54,7 +54,7 @@ De la 1 ianuarie 2027 se schimbă complet felul în care se facturează prosumat
 2. Care sunt primele trei motive pentru care sună clienții cu panouri? Cât durează un apel?
 3. Când clientul spune „mi s-au oprit panourile” sau „factura e prea mare”, cum aflați dacă e rețeaua, instalația sau factura?
 4. Ce vă îngrijorează cel mai mult la facturarea nouă din 1 ianuarie 2027?
-5. Vă costă faptul că clienții dau curent la prânz și iau seara? Cât, aproximativ?
+5. Vă costă faptul că clienții dau curent în orele de vârf ale producției solare și iau seara? Cât, aproximativ?
 6. Ați plăti un bonus clienților ca să-și seteze bateria să dea curent seara? Cum ați verifica că o fac?
 7. Ce date primiți lunar de la distribuitor despre clienții cu panouri?
 8. Cine din firmă are bugetul pentru așa ceva: facturarea, relația cu clienții, trading-ul sau echipa tehnică?
@@ -150,7 +150,7 @@ Nicio sursă singură nu răspunde la întrebare. Răspunsul e diferența dintre
 - **Ce a vrut clientul + setarea + ce s-a întâmplat:** „a vrut 20%, e setat 80%”, deci bateria nu dă curent seara. Calculăm cât pierde clientul și cât câștigă furnizorul dacă se corectează.
 - **Invertor + contor + factură:** fie „factura e corectă, iată de ce”, fie „lipsește indexul de export din august”.
 - **Producția de referință (PVGIS) + invertor:** cât ar fi trebuit să producă instalația în ziua aceea, deci câtă energie lipsește.
-- **Prețul pe ore (prânz vs. seară):** cât valorează pentru furnizor o baterie setată corect.
+- **Prețul pe ore (amiază vs. seară):** cât valorează pentru furnizor o baterie setată corect.
 
 ## Cele trei verificări, tehnic
 
@@ -187,7 +187,7 @@ Da, fără module noi. Tot ce e mai sus e deja în plan, cu teste. Adăugăm doa
 | Ce susținem | Dovada | Sursa |
 | --- | --- | --- |
 | Schimbul unu la unu (compensare cantitativă lunară până în 2030); dezechilibrele rămân la furnizor | Legea 160/2026 | [BPV Grigorescu](https://bpv-grigorescu.com/latest/publications/amendments-to-the-legal-framework-on-prosumers) |
-| Seara curentul e mult mai scump decât la prânz | Vara 2026: ~90–100 vs. peste 800 EUR/MWh | [Puterea.ro](https://www.puterea.ro/cel-mai-scump-kilowatt-e-cel-pe-care-nu-l-poti-muta/) |
+| Seara curentul e mult mai scump decât în orele de vârf ale producției solare | Vara 2026: ~90–100 vs. peste 800 EUR/MWh | [Puterea.ro](https://www.puterea.ro/cel-mai-scump-kilowatt-e-cel-pe-care-nu-l-poti-muta/) |
 | Furnizorii simt deja costul | Hidroelectrica bugetează pentru 2026 cu 152 mil. lei mai mult pentru energia de la prosumatori | [ZF](https://www.zf.ro/burse-fonduri-mutuale/hidroelectrica-bugeteaza-un-profit-net-de-3-6-miliarde-lei-in-2026-23139638) |
 | Un furnizor a plătit deja pentru curentul din baterii seara | Electrica, august 2026: bonus de 0,40 lei, verificat doar pe factură | [InvesTenergy](https://www.investenergy.ro/tinem-romania-aprinsa-cu-prosumatorii-cu-baterii-electrica-ofera-bonus-de-040-lei-kwh-in-luna-august-pentru-energia-livrata-seara-in-retea/) |
 | Tot mai mulți au baterie | 151.040 de prosumatori cu baterie (39%) la 31 august 2026 | ANRE, prin brief-ul Challenge 1 |

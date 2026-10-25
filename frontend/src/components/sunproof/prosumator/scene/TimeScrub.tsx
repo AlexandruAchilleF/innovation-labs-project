@@ -82,7 +82,7 @@ export function TimeScrub({
       {/* wraps under the slider on phones */}
       <div className="flex shrink-0 gap-1.5 max-sm:w-full">
         {trips[0] && <Jump label="Avarie" to={trips[0].minute_of_day} critical go={jump} />}
-        <Jump label="Prânz" to={13 * 60} go={jump} />
+        <Jump label="Amiază" to={13 * 60} go={jump} />
         <Jump label="Seară" to={20 * 60} go={jump} />
       </div>
     </div>

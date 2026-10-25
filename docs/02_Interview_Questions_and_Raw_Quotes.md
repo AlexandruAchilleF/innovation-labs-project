@@ -4,6 +4,8 @@ Acest document conține:
 1. **Ghidul de interviu (Interview Guide)** folosit de echipă (structurat pe roluri, fără întrebări sugestive și fără prezentarea soluției la început);
 2. **Citatele brute, cuvânt cu cuvânt (Raw Verbatim Quotes)** colectate din interviurile cu mentorii, specialiștii din energie (furnizor) și prosumatorii, plus mărturiile publice documentate.
 
+**Notă editorială:** Formulările temporale dintre paranteze drepte au fost adaptate pentru consecvența terminologiei; aceste fragmente nu reproduc cuvintele exacte ale interlocutorilor.
+
 ---
 
 # Partea 1: Interview Guide (Ghidul de Interviu)
@@ -15,13 +17,13 @@ Acest document conține:
 
 ### A. Întrebări pentru Mentori & Reprezentanți Furnizori (B2B — Clientul plătitor)
 1. *„Din ce rol ne răspundeți (furnizor, distribuitor, O&M/instalator, business) și care a fost ultima situație concretă în care un client cu panouri fotovoltaice v-a creat o problemă operațională sau un cost?”*
-2. *„Când un prosumator sună că i s-au oprit panourile la prânz sau că factura e prea mare, cum aflați astăzi dacă e vina rețelei de distribuție, a instalației din casă sau a facturării? Cât durează și cât vă costă?”*
+2. *„Când un prosumator sună că i s-au oprit panourile în orele de vârf ale producției solare sau că factura e prea mare, cum aflați astăzi dacă e vina rețelei de distribuție, a instalației din casă sau a facturării? Cât durează și cât vă costă?”*
 3. *„Din apelurile venite de la prosumatori, câte sunt despre factură și câte despre «nu-mi produce sistemul»?”*
-4. *„Vă costă faptul că prosumatorii injectează energie la prânz (când prețul PZU e jos) și o consumă înapoi seara (când e vârful de preț)? Cum verificați astăzi dacă bateriile lor chiar livrează seara?”*
+4. *„Vă costă faptul că prosumatorii injectează energie în orele de vârf ale producției solare (când prețul PZU e jos) și o consumă înapoi seara (când e vârful de preț)? Cum verificați astăzi dacă bateriile lor chiar livrează seara?”*
 5. *„Cine ar trebui să plătească pentru o soluție care vede în spatele contorului — prosumatorul sau furnizorul? Din ce buget și ce v-ar convinge să o cumpărați (ROI)?”*
 
 ### B. Întrebări pentru Prosumatori (Utilizatorul final)
-1. *„De câte ori ți s-a oprit invertorul vara asta la prânz, când era soarele mai puternic? De unde ai aflat și după cât timp?”*
+1. *„De câte ori ți s-a oprit invertorul vara asta în orele de vârf ale producției solare, când era soarele mai puternic? De unde ai aflat și după cât timp?”*
 2. *„Pe cine ai sunat prima dată — instalatorul, furnizorul sau distribuitorul? Ce ți-au răspuns fiecare?”*
 3. *„Cum e setată bateria ta acum în aplicație (ce procent de rezervă are)? Cine a pus setarea asta și ți s-a întâmplat seara să ai bateria încărcată, dar casa să tragă curent din rețea?”*
 4. *„Ai înțeles ultima factură de prosumator? Ai plăti un abonament lunar pentru o aplicație care îți verifică sistemul sau te aștepți să fie inclusă de furnizor?”*
@@ -45,7 +47,7 @@ Acest document conține:
   > *„Un furnizor nu cumpără că aveți voi o aplicație frumoasă, cumpără doar dacă îi puneți pe masă ROI-ul: câți lei pierde azi și câți lei îi rămân în buzunar după ce vă plătește pe voi. Dacă valoarea pe care i-o aduceți nu bate clar costul investiției, nu se uită la voi. Și atenție la preț: calculați-vă bine costurile voastre de dezvoltare, operare și mentenanță, ca să nu vindeți în pierdere.”*
 
 - **Despre supraîncărcarea rețelei pe intervale orare:**
-  > *„Problema cu supraîncărcarea rețelei pe anumite intervale orare e cât se poate de reală, mai ales la prânz când bagă toți în rețea. Acolo pierd și prosumatorii, și furnizorii. Țineți-vă de problema asta și arătați clar cum ajutați ambele părți.”*
+  > *„Problema cu supraîncărcarea rețelei pe anumite intervale orare e cât se poate de reală, mai ales [în orele de vârf ale producției solare] când bagă toți în rețea. Acolo pierd și prosumatorii, și furnizorii. Țineți-vă de problema asta și arătați clar cum ajutați ambele părți.”*
 
 - **Despre validarea problemei înainte de implementare:**
   > *„Nu vă apucați să scrieți cod și să băgați funcționalități doar pe presupunerile voastre despre ce credeți voi că ar fi util. Cel mai mare risc e să construiți ceva ce vi se pare vouă valoros, dar pe care piața nu-l caută. Porniți de la o problemă bine înțeleasă și validată cu oameni din industrie — de ce apare, cât costă, de ce nu merg soluțiile de azi — nu de la o soluție pe care încercați după aia s-o justificați.”*
@@ -55,19 +57,19 @@ Acest document conține:
 ### 2. Interviu Specialist din Industrie — Furnizor de Energie
 **Context:** Discuție cu o persoană care lucrează în sectorul de furnizare despre reclamațiile prosumatorilor, pasarea vinei între actori și costul orelor de vârf.
 
-- **Despre apelurile prosumatorilor când se opresc panourile la prânz:**
-  > *„Când îi sare invertorul la prânz sau îi vine factura, omul nu știe cine e distribuitorul și cine e furnizorul — el ne sună pe noi, că de la noi îi vine factura. Și noi suntem obligați să-i luăm sesizarea, dar în call center ești legat la ochi: nu vezi ce face invertorul lui în casă, nu știi dacă a sărit tensiunea pe stradă peste 253 de volți sau dacă i-a montat instalatorul prost echipamentul.”*
+- **Despre apelurile prosumatorilor când se opresc panourile în orele de vârf ale producției solare:**
+  > *„Când îi sare invertorul [în orele de vârf ale producției solare] sau îi vine factura, omul nu știe cine e distribuitorul și cine e furnizorul — el ne sună pe noi, că de la noi îi vine factura. Și noi suntem obligați să-i luăm sesizarea, dar în call center ești legat la ochi: nu vezi ce face invertorul lui în casă, nu știi dacă a sărit tensiunea pe stradă peste 253 de volți sau dacă i-a montat instalatorul prost echipamentul.”*
 
-- **Despre deplasările inutile și dezechilibrul prânz–seară:**
-  > *„Dacă i-am vândut tot noi pachetul de panouri, ajungem să trimitem echipa pe teren și constatăm că instalația n-are nimic, e doar rețeaua încărcată la prânz. Iar pe partea comercială, pe noi ne arde vârful de seară: îi iei curentul la prânz când e ieftin pe piață și i-l dai înapoi la opt seara când prețul sare în aer.”*
+- **Despre deplasările inutile și dezechilibrul amiază–seară:**
+  > *„Dacă i-am vândut tot noi pachetul de panouri, ajungem să trimitem echipa pe teren și constatăm că instalația n-are nimic, e doar rețeaua încărcată [în orele de vârf ale producției solare]. Iar pe partea comercială, pe noi ne arde vârful de seară: îi iei curentul [în orele de vârf ale producției solare] când e ieftin pe piață și i-l dai înapoi la opt seara când prețul sare în aer.”*
 
 ---
 
 ### 3. Interviu Prosumator Rezidențial (6 kWp + baterie)
-**Context:** Proprietar de casă cu sistem fotovoltaic care s-a confruntat cu opriri repetate la prânz și lipsa unui răspuns din partea instalatorului și a distribuitorului.
+**Context:** Proprietar de casă cu sistem fotovoltaic care s-a confruntat cu opriri repetate în orele de vârf ale producției solare și lipsa unui răspuns din partea instalatorului și a distribuitorului.
 
-- **Despre opririle la prânz și pasarea responsabilității:**
-  > *„La prânz, fix când e soarele sus și ar trebui să producă maxim, mă uit în aplicație și văd că invertorul e în zero, s-a oprit singur. Am sunat la băieții care mi l-au montat, ei mi-au zis direct că nu e de la ei, că e tensiunea prea mare pe stradă de la distribuitor. Suni la distribuție, ăia îți zic că la ei rețeaua e în parametri și să-mi verific invertorul. Rămâi la mijloc ca prostul și pierzi curentul în cele mai bune ore.”*
+- **Despre opririle în orele de vârf ale producției solare și pasarea responsabilității:**
+  > *„[În orele de vârf ale producției solare], fix când e soarele sus și ar trebui să producă maxim, mă uit în aplicație și văd că invertorul e în zero, s-a oprit singur. Am sunat la băieții care mi l-au montat, ei mi-au zis direct că nu e de la ei, că e tensiunea prea mare pe stradă de la distribuitor. Suni la distribuție, ăia îți zic că la ei rețeaua e în parametri și să-mi verific invertorul. Rămâi la mijloc ca prostul și pierzi curentul în cele mai bune ore.”*
 
 - **Despre setările bateriei:**
   > *„Eu habar n-am ce praguri au lăsat în meniul de instalator când au plecat. Dacă aplicația nu-ți dă eroare cu roșu, tu crezi că totul merge bine, și abia când vine factura vezi că seara ai tras curent din rețea.”*
@@ -90,7 +92,7 @@ Pentru a valida că experiențele din interviurile directe se repetă la nivelul
   *(Sursă: Poziție oficială DEO, HotNews)*
 
 - **Mărturie Prosumator (Cazul Softpedia — 15–20 vizite fără diagnostic):**
-  > *„Au venit de 15–20 de ori fără să pună un diagnostic clar, de fiecare dată ziceau că au rezolvat din setări și a doua zi la prânz făcea exact la fel.”*
+  > *„Au venit de 15–20 de ori fără să pună un diagnostic clar, de fiecare dată ziceau că au rezolvat din setări și a doua zi [în orele de vârf ale producției solare] făcea exact la fel.”*
   *(Sursă: Forum Softpedia, topic reclamație instalație fotovoltaică, ianuarie 2026)*
 
 - **Mărturie Prosumator (Comunitatea Reddit `r/panourifotovoltaice` — baterie blocată seara):**

@@ -118,7 +118,7 @@ const flagships: HouseholdSpec[] = [
     billed_export_kwh: 610,
     billed_ron: 254.6,
     verified_ron: 254.6,
-    question: "De ce mi se oprește invertorul în fiecare zi la prânz și de ce mai plătesc 185 RON seara dacă am baterie de 10 kWh?",
+    question: "De ce mi se oprește invertorul în fiecare zi în orele de vârf ale producției solare și de ce mai plătesc 185 RON seara dacă am baterie de 10 kWh?",
     flagship: true,
     lat: 45.7962,
     lon: 21.2421,
@@ -150,7 +150,7 @@ const flagships: HouseholdSpec[] = [
     billed_export_kwh: 330,
     billed_ron: 241.3,
     verified_ron: 241.3,
-    question: "Vecinii mei produc normal, de ce invertorul meu dă eroare de supratensiune?",
+    question: "Echipamentele din zonă produc normal, de ce invertorul meu dă eroare de supratensiune?",
     flagship: true,
     lat: 44.6036,
     lon: 26.0503,
@@ -402,7 +402,7 @@ const APP: Record<HouseholdSpec["inverter_brand"], { name: string; path: string;
 function triageLine(s: HouseholdSpec, lockedKwh: number): string {
   switch (s.code) {
     case "GRID_OVERVOLTAGE":
-      return `Supratensiune în rețeaua distribuitorului: contorul atinge ${fmt(s.meter_peak_v, 1)} V, peste limita de ${LEGAL_LIMIT_V} V, iar ${s.neighbors_tripped} din 4 vecini declanșează simultan. Nu este nevoie de tehnician. Depuneți sesizare la distribuitor.`;
+      return `Supratensiune în rețeaua distribuitorului: contorul atinge ${fmt(s.meter_peak_v, 1)} V, peste limita de ${LEGAL_LIMIT_V} V, iar ${s.neighbors_tripped} din 4 echipamente declanșează simultan. Nu este nevoie de tehnician. Depuneți sesizare la distribuitor.`;
     case "LOCAL_OVERVOLTAGE_SENSITIVITY":
       return `Problemă în instalația locală: tensiunea străzii e sănătoasă (${fmt(s.meter_peak_v, 1)} V), dar cablul AC de ${fmt(s.cable_mm2, 1)} mm² / ${s.cable_m} m adaugă +${fmt(s.cable_rise_v, 1)} V și pragul invertorului e setat greșit la ${s.inverter_threshold_v} V.`;
     case "MISCONFIGURED_MODE":
@@ -443,7 +443,7 @@ export function buildDetail(s: HouseholdSpec): HouseholdDetail {
     });
     return {
       neighbor_id: `${s.id}-N${i + 1}`,
-      label: `Vecin ${i + 1}`,
+      label: `Echipament ${i + 1}`,
       distance_from_transformer_m: 120 + i * 45,
       phase: ["L1", "L2", "L3", "3P"][i]!,
       voltage_max_5min: series,
@@ -478,13 +478,13 @@ export function buildDetail(s: HouseholdSpec): HouseholdDetail {
 
   const complaintText =
     s.code === "GRID_OVERVOLTAGE"
-      ? `Către ${s.operator}: Solicităm verificarea postului de transformare ${s.transformer_id}. La locul de consum ${s.street} (POD RO005E${s.id.replace(/\D/g, "")}0000), tensiunea măsurată de contorul inteligent în punctul de racordare a atins ${fmt(s.meter_peak_v, 1)} V, peste limita de ${LEGAL_LIMIT_V} V din SR EN 50160 / EN 50549-1. ${s.neighbors_tripped} din 4 prosumatori vecini au înregistrat deconectări simultane, totalizând ${fmt(tripMinutes)} minute/zi. Vă rugăm ajustarea ploturilor transformatorului și reechilibrarea fazelor.`
+      ? `Către ${s.operator}: Solicităm verificarea postului de transformare ${s.transformer_id}. La locul de consum ${s.street} (POD RO005E${s.id.replace(/\D/g, "")}0000), tensiunea măsurată de contorul inteligent în punctul de racordare a atins ${fmt(s.meter_peak_v, 1)} V, peste limita de ${LEGAL_LIMIT_V} V din SR EN 50160 / EN 50549-1. ${s.neighbors_tripped} din 4 echipamente au înregistrat deconectări simultane, totalizând ${fmt(tripMinutes)} minute/zi. Vă rugăm ajustarea ploturilor transformatorului și reechilibrarea fazelor.`
       : `Către ${s.operator}: Locul de consum ${s.street}, post ${s.transformer_id}. Tensiunea maximă la punctul de racordare a fost ${fmt(s.meter_peak_v, 1)} V, sub limita de ${LEGAL_LIMIT_V} V. Nu se impune o sesizare către operatorul de distribuție; ${s.code === "LOCAL_OVERVOLTAGE_SENSITIVITY" ? `cauza este creșterea de +${fmt(s.cable_rise_v, 1)} V pe cablul intern de ${fmt(s.cable_mm2, 1)} mm² și ${s.cable_m} m.` : "rețeaua funcționează în parametri."}`;
 
   const batteryText =
     s.battery_kwh > 0
       ? `Bateria dvs. ${s.battery_brand} de ${fmt(s.battery_kwh)} kWh este setată la ${s.configured_soc}% rezervă minimă. Ați cerut ${s.desired_soc}%. ${lockedKwh > 0 ? `Astfel ${fmt(lockedKwh, 1)} kWh rămân blocați zilnic și pierdeți circa ${fmt(taxLoss, 1)} RON/lună din tarife de rețea. Calea în aplicație: ${app.path}.` : "Setarea este optimă."}`
-      : `Instalația dvs. nu are baterie. Pentru a muta energia de la prânz (${fmt(PZU_MIDDAY)} RON/MWh) în vârful de seară (${fmt(PZU_EVENING)} RON/MWh), o baterie de 10 kWh ar fi recomandată.`;
+      : `Instalația dvs. nu are baterie. Pentru a muta energia din orele de vârf ale producției solare (${fmt(PZU_MIDDAY)} RON/MWh) în vârful de seară (${fmt(PZU_EVENING)} RON/MWh), o baterie de 10 kWh ar fi recomandată.`;
 
   const callCenter = `Bună ziua, ${s.name.split(" ")[0]}! Am analizat instalația dvs. din ${s.city}. ${triageLine(s, lockedKwh)} Vă trimitem un rezumat pe e-mail în câteva minute.`;
 
@@ -520,9 +520,9 @@ export function buildDetail(s: HouseholdSpec): HouseholdDetail {
       cable_length_m: s.cable_m,
       verdict_text_ro:
         s.code === "GRID_OVERVOLTAGE"
-          ? "Vina rețelei OD — contorul depășește 253 V împreună cu vecinii."
+          ? "Vina rețelei OD — contorul depășește 253 V împreună cu echipamentele."
           : s.code === "LOCAL_OVERVOLTAGE_SENSITIVITY"
-            ? "Vina instalației locale — rețeaua e în parametri, vecinii nu declanșează."
+            ? "Vina instalației locale — rețeaua e în parametri, echipamentele nu declanșează."
             : "Tensiune în parametri normali.",
     },
     battery_verdict: {
@@ -559,7 +559,7 @@ export function buildDetail(s: HouseholdSpec): HouseholdDetail {
   };
 
   const answer: Record<ScenarioCode, string> = {
-    GRID_OVERVOLTAGE: `Nu e vina dumneavoastră și nici a panourilor. La prânz, tensiunea pe strada dvs. urcă la ${fmt(s.meter_peak_v, 1)} V, peste limita legală de ${LEGAL_LIMIT_V} V, iar invertorul se oprește automat pentru siguranță — la fel și la ${s.neighbors_tripped} dintre vecini. Am trimis deja sesizarea la ${s.operator}.`,
+    GRID_OVERVOLTAGE: `Nu e vina dumneavoastră și nici a panourilor. În orele de vârf ale producției solare, tensiunea pe strada dvs. urcă la ${fmt(s.meter_peak_v, 1)} V, peste limita legală de ${LEGAL_LIMIT_V} V, iar invertorul se oprește automat pentru siguranță — la fel și la ${s.neighbors_tripped} dintre echipamente. Am trimis deja sesizarea la ${s.operator}.`,
     LOCAL_OVERVOLTAGE_SENSITIVITY: `Rețeaua de pe stradă e în regulă (${fmt(s.meter_peak_v, 1)} V). Problema e cablul subțire dintre invertor și tablou, care adaugă ${fmt(s.cable_rise_v, 1)} V, plus o setare prea strictă a invertorului. Un tehnician va înlocui cablul și va corecta setarea — fără costuri pentru dvs. dacă instalația e în garanție.`,
     MISCONFIGURED_MODE: `Bateria dvs. păstrează ${s.configured_soc}% din energie ca rezervă pentru pene de curent, așa că seara aproape nu se descarcă. Dacă o setați la ${s.desired_soc}%, folosiți energia proprie exact când curentul e cel mai scump.`,
     MISSING_EXPORT_INDEX: `Ați avut dreptate! Factura nu a inclus cei ${fmt(s.meter_export_kwh)} kWh pe care i-ați trimis în rețea. Suma corectă este ${fmt(s.verified_ron, 2)} RON, iar diferența de ${fmt(delta, 2)} RON vă va fi returnată automat.`,

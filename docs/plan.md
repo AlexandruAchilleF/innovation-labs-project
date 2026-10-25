@@ -29,7 +29,7 @@ Aceste decizii sunt luate. Nu le redeschide fără Alex.
 | Istoricul setărilor | Păstrăm istoricul setărilor bateriei și arătăm când o problemă a început după o schimbare („rezerva a trecut la 80% pe 3 iulie; de atunci importul seara a crescut, producția a rămas la fel”). Ideea #4 din research, Task 12b |
 | Branduri | **O singură interfață de adaptor**, independentă de brand (`sunproof/adapters.py`). La hackathon e implementat doar adaptorul simulat; tabelul cu API-ul fiecărui brand (Huawei, Deye, Growatt, Fronius, SolarEdge, SMA, Victron, plus curba de sarcină a distribuitorului pentru orice brand) e în pitch-ul detaliat, §11 |
 | ML | **Fără model ML antrenat.** N-avem defecte reale etichetate, iar un model antrenat pe simulator ar învăța doar regulile simulatorului; dosarul trebuie să spună *de ce*. Comparația cu vecinii (producție pe kWp față de mediana vecinilor) **e** detecția de anomalii nesupervizată. Opțional: un strat statistic peste diferența față de vecini (scor de abatere pe 7 zile) pentru derive lente, Task 9b, după interviuri |
-| Prețuri | **OPCOM PZU** e candidat pentru „cât valorează fiecare oră” (prânz vs. seară, la baterie și la factură). Opțional, Task 13; datele se descarcă de pe laptop |
+| Prețuri | **OPCOM PZU** e candidat pentru „cât valorează fiecare oră” (amiază vs. seară, la baterie și la factură). Opțional, Task 13; datele se descarcă de pe laptop |
 | Prezentarea | **4 grafice, fiecare cu o singură concluzie scrisă deasupra** (vezi „Prezentarea” mai jos), plus slide-ul cu cifrele și citatele din interviuri |
 | Site-ul | MVP-ul clicabil, **în stilul AirlineSim** (decis pe 24.10, înlocuiește stilul noda.energy; plan și schițe: [panoul furnizorului în stilul AirlineSim](https://claude.ai/artifact/LZtXDj8iEkqmdMzeXtK8fV)): `/mnt/project-files/mvp/sunproof-mvp.html` ([link](https://claude.ai/artifact/KCkrh4oGRfkekbuWDZqrZ4)). Are **panoul clientului** (cifrele zilei, grafice producție/consum vs. așteptat și baterie, alerte cu acțiune, „Trimite o problemă echipei O&M”) și **panoul furnizorului**, un „dispecerat” (harta României cu inele pe orașe, alegerea județului sau orașului cu posturile și casele pe linie, pagina „De rezolvat” cu tichetele și verdictul SunProof atașat, Baterii, Facturi, Rețea, Inbox). **Site-ul e interfața din demo; fără Streamlit** (Alex, 24.10). Simularea din site e un port JS al aceleiași logici; cifrele trebuie să rămână egale cu ale motorului Python, verificate cu `python -m sunproof.demo export` |
 | În lucru, în alte thread-uri | Panoul prosumatorului după autentificare (design) și video-ul de lansare |
@@ -42,10 +42,10 @@ Aceste decizii sunt luate. Nu le redeschide fără Alex.
 1. O cronologie a zilei: producția, tensiunea rețelei și fiecare oprire marcată, cu cauza ei (rețea sau echipament).
 2. Un rezumat lunar: „Invertorul s-a oprit de 23 de ori, ai pierdut 41 kWh, aproximativ 41 lei. În 21 din cazuri, și vecinii s-au oprit în același minut: problema e la rețea.”
 3. Butonul **„Generează sesizarea”**: un PDF în română către distribuitor, cu datele de identificare, lista opririlor, graficul tensiunii, pierderea calculată și cererea de verificare și remediere.
-4. Un chat: „De ce n-am produs azi la prânz?”. Răspunsul vine cu cifre, din unelte.
+4. Un chat: „De ce n-am produs azi în orele de vârf ale producției solare?”. Răspunsul vine cu cifre, din unelte.
 5. **„Invertor vs. contor vs. factură”:** consumul real al casei e calculat fără contor nou, ca producție din invertor + import − export, unde importul și exportul vin din curba de sarcină a distribuitorului. Apoi fiecare factură e verificată față de contor: energie injectată nedecontată sau decontată la preț zero.
 6. **„Cine vede ce”:** prosumatorul acordă și retrage accesul la date pe categorii (distribuitorul vede doar tensiunea și opririle, O&M doar alertele, furnizorul doar livrarea din baterie), cu jurnal de acces. Nimeni nu primește parola invertorului.
-7. **„Bateria ta face ce trebuie?”** Proprietarul spune ce vrea (de exemplu „rezervă 20% pentru pană, restul seara”), iar verificarea compară intenția cu setarea și cu ce s-a măsurat. Verifică zilnic dacă bateria se încarcă la prânz (când altfel energia s-ar pierde prin opriri), dacă livrează seara și dacă respectă rezerva. Răspunsul diferă după intenție: „bateria îți păstrează rezerva aleasă” nu e o alertă, „bateria e setată la 80%, tu ai vrut 20%” e o alertă, cu importul seara din rețea în lei. Dacă prosumatorul e într-un program de furnizor, arată și bonusul ratat și generează raportul verificat al livrării de seară (cu acordul lui).
+7. **„Bateria ta face ce trebuie?”** Proprietarul spune ce vrea (de exemplu „rezervă 20% pentru pană, restul seara”), iar verificarea compară intenția cu setarea și cu ce s-a măsurat. Verifică zilnic dacă bateria se încarcă în orele de vârf ale producției solare (când altfel energia s-ar pierde prin opriri), dacă livrează seara și dacă respectă rezerva. Răspunsul diferă după intenție: „bateria îți păstrează rezerva aleasă” nu e o alertă, „bateria e setată la 80%, tu ai vrut 20%” e o alertă, cu importul seara din rețea în lei. Dacă prosumatorul e într-un program de furnizor, arată și bonusul ratat și generează raportul verificat al livrării de seară (cu acordul lui).
 8. **„Ce s-a schimbat?”** Istoricul setărilor bateriei: dacă importul seara a crescut după o schimbare de setare, iar producția a rămas la fel, aplicația arată data schimbării și diferența în kWh și lei.
 9. **„Trimite o problemă echipei O&M”:** prosumatorul descrie problema, iar tichetul pleacă cu datele zilei și cu verdictul SunProof atașat (de exemplu „rețea, nu echipament, fără deplasare”). Prosumatorul vede statusul tichetului.
 10. (Opțional) **Absorbție inteligentă:** când tensiunea se apropie de prag, pornește boilerul printr-o priză smart, ca energia să fie folosită în casă. Simulatorul arată câte opriri se evită.
@@ -80,7 +80,7 @@ Aceste decizii sunt luate. Nu le redeschide fără Alex.
 | Facturi de prosumator | Reconcilierea cu contorul | Sintetice (JSON), cu 2 erori plantate. Regulile de compensare se schimbă (metodologia ANRE pentru Legea 160/2026 nu e încă actualizată), deci prețurile sunt configurabile și marcate „demo”. Legea aduce facturarea și decontarea lunară a energiei livrate. Pragul pentru compensarea cantitativă apare diferit în surse (400 kW în presă, 200 kW plus regularizare financiară între 200 și 400 kW în altă lectură), deci nu-l cităm: casele sunt oricum sub 27 kW. Termenul de plată depinde de contract (PPC MaxControl plătește soldul la 30 de zile), deci nu spunem că furnizorii plătesc cu întârziere în general |
 | Programul Electrica (0,40 lei/kWh pentru livrarea din baterie 19–21, încărcare 11–16, rezervă 20%) | Regulile programului în verificarea bateriei | **Verificat (24.10):** bonusul a fost doar pentru august 2026 ([Financial Intelligence](https://financialintelligence.ro/electrica-ii-stimuleaza-pe-prosumatorii-cu-baterii-sa-livreze-energie-seara-bonus-de-040-lei-kwh-in-luna-august/)); n-am găsit o prelungire. În demo îl numim „program de tip Electrica (pilot august 2026)”, cu valori marcate „demo”. Verificarea bateriei nu depinde de el: funcționează pe intenția proprietarului |
 | Casa Verde Baterii (AFM) | Contextul pieței | 400 mil. lei, max. 15.000 lei pe proiect, cel puțin 10 kWh. Lansarea era așteptată în octombrie 2026, fără confirmare găsită; ordinea „primul venit” a fost înlocuită cu criterii ([SpotMedia, 20.08](https://spotmedia.ro/stiri/mediu/casa-verde-baterii-schimba-regulile-nu-va-mai-conta-cine-se-inscrie-primul-cand-ar-putea-incepe-programul)). Nu spunem în pitch că a început |
-| Prețurile OPCOM PZU (orare, ziua următoare) | „Cât valorează fiecare oră”: prânz vs. seară, la baterie și la factură (Task 13, opțional) | Publice pe site-ul OPCOM; blocate din mediul cloud, deci le descărcați de pe laptop în `data/raw/pzu_{luna}.csv`. Testele rămân pe `LEI_PER_KWH` fix |
+| Prețurile OPCOM PZU (orare, ziua următoare) | „Cât valorează fiecare oră”: amiază vs. seară, la baterie și la factură (Task 13, opțional) | Publice pe site-ul OPCOM; blocate din mediul cloud, deci le descărcați de pe laptop în `data/raw/pzu_{luna}.csv`. Testele rămân pe `LEI_PER_KWH` fix |
 | API-urile producătorilor (Huawei, Deye, Growatt, Fronius, SolarEdge, SMA, Victron) | Sursa reală a citirilor, în produs | La hackathon doar interfața adaptorului (Task 0b); tabelul pe branduri e în pitch-ul detaliat, §11. **De verificat** dacă fiecare API expune tensiunea rețelei |
 | Telegram Bot API, Shelly local HTTP API | Alerte și acțiunea pe priza smart | Publice. Priza Shelly e doar simulată în demo |
 | Cheie API Anthropic | Copilot și textul sesizării | Necesară pentru demo; testele rulează cu un LLM fals |
@@ -170,7 +170,7 @@ sunproof/
 **Interfaces:**
 - Consumes: profilurile din Task 1, constantele din `config.py`
 - Produces:
-  - `Battery(capacity_kwh: float = 10.0, max_kw: float = 5.0, reserve: float = 0.2, mode: Literal["self_consumption","evening_program","full_by_morning","never_discharges"] = "self_consumption")`. Modurile: `self_consumption` încarcă din surplus și descarcă pentru consumul casei oricând; `evening_program` încarcă din surplus între 11 și 16, păstrează energia și descarcă la putere maximă în fereastra `PROGRAM_WINDOW` (export permis), până la rezervă; `full_by_morning` (configurare greșită) încarcă din primul surplus și e plină înainte de prânz; `never_discharges` (rezervă setată la 100%)
+  - `Battery(capacity_kwh: float = 10.0, max_kw: float = 5.0, reserve: float = 0.2, mode: Literal["self_consumption","evening_program","full_by_morning","never_discharges"] = "self_consumption")`. Modurile: `self_consumption` încarcă din surplus și descarcă pentru consumul casei oricând; `evening_program` încarcă din surplus între 11 și 16, păstrează energia și descarcă la putere maximă în fereastra `PROGRAM_WINDOW` (export permis), până la rezervă; `full_by_morning` (configurare greșită) încarcă din primul surplus și e plină înainte de vârful producției solare; `never_discharges` (rezervă setată la 100%)
   - `House(site_id: str, position: int, kwp: float, daily_kwh: float, volt_watt: bool = False, smart_load_w: float = 0.0, battery: Battery | None = None)`. Citirile capătă coloanele `soc` (0–1) și `p_batt_w` (+ descărcare, − încărcare), iar `export[i]` din algoritm include bateria
   - `FeederConfig(feeder_id: str, houses: list[House], r_seg_ohm: float = 0.01, v_tx: float = 240.0)`
   - `Fault(site_id: str, kind: Literal["inverter_trip","string_loss"], start: pd.Timestamp, end: pd.Timestamp | None)`
@@ -193,7 +193,7 @@ pentru fiecare minut t:
 
 - [ ] **Step 1: Teste:**
   - `test_voltage_rise_exact`: 3 case, export constant de 2.300 W fiecare, `r_seg_ohm=0.01`, `v_tx=240` → `I = [30, 20, 10]` A, `v = [240.30, 240.50, 240.60]`.
-  - `test_end_of_street_trips_first`: pe strada demo (12 case de 6 kWp, `DEMO_DAY`, profil PVGIS sau bell), ultimele case se opresc la prânz, iar primele 3 nu se opresc deloc.
+  - `test_end_of_street_trips_first`: pe strada demo (12 case de 6 kWp, `DEMO_DAY`, profil PVGIS sau bell), ultimele case se opresc în orele de vârf ale producției solare, iar primele 3 nu se opresc deloc.
   - `test_trip_lasts_reconnect`: după o oprire, statusul rămâne `off` cel puțin 15 minute.
   - `test_volt_watt_reduces_not_trips`: o casă cu `volt_watt=True` la 250 V produce 0,68 din putere (1 − 2/5 · 0,8) și rămâne `on`.
   - `test_smart_absorb_reduces_trips`: același scenariu cu `smart_absorb=True` și `smart_load_w=2000` are strict mai puține opriri.
@@ -242,7 +242,7 @@ lost_kwh = Σ (expected - p_ac) pe durata evenimentului / 60 000,  lost_lei = lo
   - `test_night_ignored` (Review Focus 5).
   - `test_5min_resolution` (Review Focus 4): pe datele agregate la 5 minute, același număr de evenimente și aceleași tipuri.
   - `test_lost_kwh_exact`: o casă de 6 kWp oprită 60 de minute, cu vecinii la 800 W/kWp → `lost_kwh == pytest.approx(4.8)`, `lost_lei == pytest.approx(4.8)`.
-  - `test_data_gap_not_outage`: scoatem 60 de minute de citiri ale casei 4 la prânz → un singur eveniment `no_data`, cu `lost_kwh == 0`, niciun `equipment`.
+  - `test_data_gap_not_outage`: scoatem 60 de minute de citiri ale casei 4 în orele de vârf ale producției solare → un singur eveniment `no_data`, cu `lost_kwh == 0`, niciun `equipment`.
   - `test_string_loss_detected`: `string_loss` la casa 2 (jumătate de string inactiv) → casa e „on”, dar `p_ac` ≈ 50% din așteptat toată ziua; apare ca `equipment` cu `evidence["pattern"] == "partial_output"`. În pitch: verificarea din prima lună („o intrare PV n-a produs niciodată”), cazul real de pe r/panourifotovoltaice.
 - [ ] **Step 2:** Rulează → FAIL; implementează; → PASS.
 - [ ] **Step 3: Commit** `feat: event extraction, grid-vs-equipment classification, lost energy`.
@@ -308,7 +308,7 @@ lost_kwh = Σ (expected - p_ac) pe durata evenimentului / 60 000,  lost_lei = lo
 **Interfaces:**
 - Produces: uneltele `day_timeline(site_id, day)`, `events(site_id, start, end, kind=None)`, `month_summary(site_id, month)`, `compare_neighbours(site_id, day)`; plus `ask(question, site_id, llm_client) -> tuple[str, list[str]]` (maximum 5 runde de unelte; promptul de sistem interzice cifre care nu vin din unelte)
 
-- [ ] **Step 1: Teste** (cu un client LLM fals): `test_ask_calls_day_timeline` (întrebarea „de ce n-am produs azi la prânz” → `day_timeline`); `test_round_limit`; `test_tools_return_kinds` (răspunsul `events` conține tipul în română: „supratensiune în rețea”).
+- [ ] **Step 1: Teste** (cu un client LLM fals): `test_ask_calls_day_timeline` (întrebarea „de ce n-am produs azi în orele de vârf ale producției solare” → `day_timeline`); `test_round_limit`; `test_tools_return_kinds` (răspunsul `events` conține tipul în română: „supratensiune în rețea”).
 - [ ] **Step 2:** Rulează → FAIL; implementează; → PASS.
 - [ ] **Step 3: Commit** `feat: prosumer copilot with tools`.
 
@@ -453,7 +453,7 @@ Nu e un model antrenat. Pentru fiecare casă, `residual = p_ac / expected_power`
 **Files:** Create `sunproof/prices.py`, `tests/test_prices.py`
 
 **Interfaces:**
-- Produces: `load_pzu(path: Path) -> pd.Series` (lei/MWh pe oră, ora locală); `hour_value(day: date, prices) -> pd.Series` (lei/kWh); `value_of_shift(kwh: float, from_hour: int, to_hour: int, day, prices) -> float` (cât valorează mutarea unui kWh de la prânz la seară).
+- Produces: `load_pzu(path: Path) -> pd.Series` (lei/MWh pe oră, ora locală); `hour_value(day: date, prices) -> pd.Series` (lei/kWh); `value_of_shift(kwh: float, from_hour: int, to_hour: int, day, prices) -> float` (cât valorează mutarea unui kWh din orele de vârf ale producției solare la seară).
 - Folosire: pe ecranul „Bateria” și în panoul clientului, „energia ta de la 13:00 valora X lei/kWh, cea de la 20:00 Y lei/kWh”. **Testele cu valori exacte din Task 12 rămân pe `LEI_PER_KWH`**, iar PZU apare doar ca a doua coloană, marcată cu sursa și data.
 - [ ] **Teste:** `test_load_pzu_24_hours`; `test_hour_value_units` (500 lei/MWh → 0,50 lei/kWh).
 - [ ] **Commit** `feat: OPCOM PZU hourly value (optional)`.
@@ -480,7 +480,7 @@ Site-ul (`/mnt/project-files/mvp/sunproof-mvp.html`, publicat la același [link]
 Concluzia stă scrisă deasupra graficului. Pe fiecare grafic scrie ce e real și ce e simulat.
 
 1. **„Bateriile cresc mai repede decât oricine le verifică.”** Prosumatori și baterii, iunie–august 2026, din ANRE (127.084 → 151.040 baterii, ~24.000 în 2 luni). Date reale.
-2. **„Prânzul e și cel mai bun moment, și cel mai riscant.”** Producția PVGIS pe o zi de iulie în 5 orașe, peste tensiunea pe stradă. Producția e reală, tensiunea simulată. Are nevoie de PVGIS descărcat de pe laptop.
+2. **„Amiaza: producție maximă și risc de supratensiune.”** Producția PVGIS pe o zi de iulie în 5 orașe, peste tensiunea pe stradă. Producția e reală, tensiunea simulată. Are nevoie de PVGIS descărcat de pe laptop.
 3. **„Capătul străzii se oprește primul, deși panourile sunt bune.”** Tensiunea maximă casă cu casă pe strada demo. Simulat.
 4. **„Ce pierde omul.”** kWh și lei pierduți pe zi, plus bateria setată greșit (≈3,39 lei/zi în site). Simulat, cu formula la vedere.
 
@@ -525,7 +525,7 @@ P1 = simulator, detector, evaluare. P2 = dosar, O&M, UI, copilot. Interviurile l
 2. **0:25–1:10:** modul Prosumator, ziua de 15 iulie: la 12:40 tensiunea trece de 253 V și trei case de la capătul străzii se opresc în același minut. Eticheta spune „Problemă de rețea, confirmată de 2 vecini”. Butonul generează PDF-ul de sesizare, pe care îl arătăm pe ecran.
 3. **1:10–1:40:** panoul demo: injectăm un defect de invertor la casa 5 de pe strada B. Eticheta spune „Defect de echipament”, iar mesajul ajunge pe Telegram la tehnician.
 4. **1:40–2:05:** panoul furnizorului: harta României cu inelele pe orașe, clic pe București și Ilfov, harta se apropie pe județ, apoi clic pe PT 2041: în casele pe linie, A10–A12 de la capăt sunt peste 253 V și oprite, iar PT 1187, cu casa B5, e roșu pe hartă. Contorul „deplasări inutile evitate: 7”.
-5. **2:05–2:25:** „Bateria”: proprietarul a vrut rezervă 20%, invertorul e setat la 80%. „Bateria e plină, dar iei din rețea seara: 4 lei pe zi.” Schimbăm intenția la 80% și verdictul devine „îți păstrează rezerva aleasă”, fără alertă: aceleași date, alt răspuns. Apoi setarea corectă: 3 opriri mai puțin la prânz și, într-un program de tip Electrica (pilot august 2026), 3,20 lei bonus pe seară. „Bateria bine setată ajută și rețeaua.”
+5. **2:05–2:25:** „Bateria”: proprietarul a vrut rezervă 20%, invertorul e setat la 80%. „Bateria e plină, dar iei din rețea seara: 4 lei pe zi.” Schimbăm intenția la 80% și verdictul devine „îți păstrează rezerva aleasă”, fără alertă: aceleași date, alt răspuns. Apoi setarea corectă: 3 opriri mai puțin în orele de vârf ale producției solare și, într-un program de tip Electrica (pilot august 2026), 3,20 lei bonus pe seară. „Bateria bine setată ajută și rețeaua.”
 5a. **(10 s):** pe graficul bateriei, linia „Rezerva: 20% → 80% pe 3 iulie” arată când a început importul seara.
 5b. **(opțional, 10 s):** tichetul O&M de la pasul 3 e marcat „rezolvat”; după două zile simulate fără defect devine „verificat”. Cu zile înnorate, rămâne „dovezi insuficiente”, nu „verificat”.
 5c. **2:25–2:32:** „Invertor · Contor · Factură”: în august, energia injectată apare pe factură la preț zero, adică 150 lei. Consumul casei e calculat fără niciun contor nou.

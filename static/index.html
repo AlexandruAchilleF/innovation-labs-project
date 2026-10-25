@@ -1,6 +1,6 @@
 <title>SunProof</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="SunProof: când invertorul se oprește, afli dacă e rețeaua sau echipamentul, comparând cu vecinii de pe același post. Hartă, baterie, factură, dosar de sesizare. Date demo.">
+<meta name="description" content="SunProof: când invertorul se oprește, afli dacă e rețeaua sau echipamentul, comparând cu echipamentele de pe același post. Hartă, baterie, factură, dosar de sesizare. Date demo.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&display=swap" rel="stylesheet">
@@ -918,7 +918,7 @@ html,body{font-feature-settings:"tnum" 1,"cv11" 1}
         <div class="snip">
           <div class="sn-head">Casa ta, azi<small>alerte 1</small></div>
           <svg class="mini-spark" viewBox="0 0 300 78" aria-hidden="true"><rect x="138" y="8" width="13" height="64" fill="#a497ff" fill-opacity=".22"/><rect x="167" y="8" width="10" height="64" fill="#a497ff" fill-opacity=".22"/><path d="M8 70H292" stroke="#4a4844"/><polyline points="8.0,70.0 12.7,69.1 17.5,67.6 22.2,65.8 26.9,63.8 31.7,61.6 36.4,59.2 41.1,56.7 45.9,54.1 50.6,51.5 55.3,48.8 60.1,46.1 64.8,43.4 69.5,40.7 74.3,38.1 79.0,35.5 83.7,33.0 88.5,30.7 93.2,28.4 97.9,26.2 102.7,24.2 107.4,22.4 112.1,20.7 116.9,19.1 121.6,17.8 126.3,16.7 131.1,15.7 135.8,15.0 140.5,70.0 145.3,70.0 150.0,14.0 154.7,14.1 159.5,14.4 164.2,15.0 168.9,70.0 173.7,70.0 178.4,17.8 183.1,19.1 187.9,20.7 192.6,22.4 197.3,24.2 202.1,26.2 206.8,28.4 211.5,30.7 216.3,33.0 221.0,35.5 225.7,38.1 230.5,40.7 235.2,43.4 239.9,46.1 244.7,48.8 249.4,51.5 254.1,54.1 258.9,56.7 263.6,59.2 268.3,61.6 273.1,63.8 277.8,65.8 282.5,67.6 287.3,69.1 292.0,70.0" fill="none" stroke="#f2c45a" stroke-width="2" stroke-linejoin="round"/><path d="M8 62C60 60 90 58 120 60S200 64 230 52 270 30 292 34" fill="none" stroke="#ebe8e1" stroke-opacity=".7" stroke-width="1.4"/></svg>
-          <div class="sn-tk"><i style="background:#a497ff"></i><span><b>Invertorul s-a oprit la prânz</b><small>supratensiune în rețea, nu defect</small></span></div>
+          <div class="sn-tk"><i style="background:#a497ff"></i><span><b>Invertorul s-a oprit în orele de vârf ale producției solare</b><small>supratensiune în rețea, nu defect</small></span></div>
           <div class="sn-field"><span>Invertorul se oprește</span><span aria-hidden="true">▾</span></div>
           <span class="sn-btn">Trimite tichetul</span>
         </div>
@@ -1104,7 +1104,7 @@ function simulate(opts) {
       if (surplus > 0) return Math.min(kw, surplus, room);
       return -Math.min(kw, -surplus, avail);
     }
-    // self11 / evening: încarcă 11–16 din surplus, eșalonat, ca să absoarbă vârful de la prânz
+    // self11 / evening: încarcă 11–16 din surplus, eșalonat, ca să absoarbă vârful producției solare
     if (m >= CFG.CHG[0] && m < CFG.CHG[1] && surplus > 0) {
       const left = Math.max(DT, (CFG.CHG[1] - m) / 60);
       return Math.min(kw, surplus, room, (1 - soc) * cap / left * 1.1);
@@ -1177,7 +1177,7 @@ function simulate(opts) {
       });
     }
   }
-  // producția așteptată: din vecini (mediana randamentului specific al caselor „ok” în același pas)
+  // producția așteptată: din echipamente (mediana randamentului specific al caselor „ok” în același pas)
   const pvH = H.filter(h => h.kwp);
   for (let i = 0; i < NS; i++) {
     const ys = pvH.filter(h => h.st[i] === 'ok').map(h => h.pv[i] / (h.kwp * (ORI[h.ori] || 1))).sort((a, b) => a - b);
@@ -1216,7 +1216,7 @@ function summarize(h, H) {
   h.lost = h.ev.filter(e => e.kind !== 'no_data').reduce((a, e) => a + e.lost, 0);
   h.yieldKwp = h.kwp ? h.kwh / h.kwp : 0;
 }
-// vecini opriți în ±5 minute față de fiecare oprire
+// echipamente oprite în ±5 minute față de fiecare oprire
 function peersFor(h, H) {
   const set = new Set();
   for (const e of h.trips) for (const p of H) if (p !== h && p.f === h.f)
@@ -1287,7 +1287,7 @@ const S = {
   consent: { dso: { volt: true, cons: true }, om: { prod: true, volt: true, alarm: true }, sup: { bat: true }, nb: { prod: true } },
   log: [
     { t: '15 iul, 09:12', who: 'O&M furnizor', what: 'Alarme invertor', ok: true },
-    { t: '15 iul, 08:00', who: 'Vecinii (agregat)', what: 'Producție normalizată, anonim', ok: true },
+    { t: '15 iul, 08:00', who: 'Echipamentele (agregat)', what: 'Producție normalizată, anonim', ok: true },
     { t: '14 iul, 21:05', who: 'Furnizor', what: 'Livrare din baterie 19–21', ok: true },
     { t: '10 iul, 10:31', who: 'Instalator', what: 'Parola invertorului', ok: false, why: 'SunProof nu stochează și nu dă parole' },
   ],
@@ -1307,7 +1307,7 @@ const nowStamp = () => '15 iul, ' + hh(tmin(S.i));
 
 const STLABEL = {
   ok: 'Produce normal', grid: 'Oprit: supratensiune în rețea', fault: 'Defect de echipament', nodata: 'Lipsă date (monitorizarea, nu producția)',
-  vw: 'Putere redusă automat (volt-watt)', low: 'Produce sub vecini', outage: 'Pană de curent în rețea', nopv: 'Fără panouri', night: 'Noapte, nu produce',
+  vw: 'Putere redusă automat (volt-watt)', low: 'Produce sub echipamente', outage: 'Pană de curent în rețea', nopv: 'Fără panouri', night: 'Noapte, nu produce',
 };
 const KIND = {
   grid_overvoltage: ['grid', 'Rețea · supratensiune'], equipment: ['fault', 'Defect de echipament'], no_data: ['nodata', 'Lipsă date'],
@@ -1348,7 +1348,7 @@ const ICO = {
 };
 
 const VIEWS = {
-  pros: [{ k: 'acasa', t: 'Acasă', ico: 'home' }, { k: 'vecini', t: 'Vecinii', ico: 'nb' }, { k: 'ziua', t: 'Ziua', ico: 'day' }, { k: 'bateria', t: 'Bateria', ico: 'bat' }, { k: 'factura', t: 'Factura', ico: 'bill' }, { k: 'actiuni', t: 'Acțiuni', ico: 'ticket' }, { k: 'acces', t: 'Cine vede', ico: 'key' }],
+  pros: [{ k: 'acasa', t: 'Acasă', ico: 'home' }, { k: 'vecini', t: 'Echipamente', ico: 'nb' }, { k: 'ziua', t: 'Ziua', ico: 'day' }, { k: 'bateria', t: 'Bateria', ico: 'bat' }, { k: 'factura', t: 'Factura', ico: 'bill' }, { k: 'actiuni', t: 'Acțiuni', ico: 'ticket' }, { k: 'acces', t: 'Cine vede', ico: 'key' }],
   om: [{ k: 'panou', t: 'Panou', ico: 'home' }, { k: 'tichete', t: 'De rezolvat', ico: 'ticket' }, { k: 'baterii', t: 'Baterii', ico: 'bat' }, { k: 'facturi', t: 'Facturi', ico: 'bill' }, { k: 'retea', t: 'Rețea', ico: 'pylon' }, { k: 'inbox', t: 'Inbox', ico: 'inbox' }, { k: 'raport', t: 'Rapoarte', ico: 'doc' }],
 };
 // ecrane fără buton propriu în bara laterală: se aprinde părintele
@@ -1486,7 +1486,7 @@ function addLayersControl() {
         <div class="grp">Legendă</div><div class="legend">
         <span><i class="sw-c" style="background:var(--ok)"></i>Produce normal</span><span><i class="sw-c" style="background:var(--grid)"></i>Rețea (supratensiune)</span>
         <span><i class="sw-c" style="background:var(--fault)"></i>Defect echipament</span><span><i class="sw-c" style="background:var(--nodata)"></i>Lipsă date</span>
-        <span><i class="sw-c" style="background:var(--vw)"></i>Putere redusă</span><span><i class="sw-c" style="background:var(--low)"></i>Sub vecini</span>
+        <span><i class="sw-c" style="background:var(--vw)"></i>Putere redusă</span><span><i class="sw-c" style="background:var(--low)"></i>Sub echipamente</span>
         <span><i class="sw-c" style="background:var(--outage)"></i>Pană de curent</span><span><i class="sw-c" style="background:var(--nopv)"></i>Fără panouri</span>
         </div><div class="grp">Cablu</div><div class="legend"><span><i class="sw-c" style="background:var(--v0)"></i>&lt; 242 V</span><span><i class="sw-c" style="background:var(--v2)"></i>246–250 V</span><span><i class="sw-c" style="background:var(--v3)"></i>250–253 V</span><span><i class="sw-c" style="background:var(--v4)"></i>≥ 253 V</span></div></div>`;
       if (innerWidth > 900) d.open = false;
@@ -1528,7 +1528,7 @@ function renderWx() {
 }
 function houseTip(id) {
   const h = HS(id), st = houseState(h), v = h.v[S.i];
-  const name = S.mode === 'om' ? `Casa ${id} · client SunProof` : h.you ? 'Casa ta · A10' : `Vecin ${id} · anonim`;
+  const name = S.mode === 'om' ? `Casa ${id} · client SunProof` : h.you ? 'Casa ta · A10' : `Echipament ${id} · anonim`;
   if (omHidden(h)) return `<b>${name}</b><br>Date ascunse de proprietar`;
   const volt = st === 'nodata' ? '—' : v ? nf(v) + ' V' : '0 V';
   return `<b>${esc(name)}</b><br><span class="mono">${h.kwp ? h.kwp + ' kWp' : 'fără panouri'} · ${volt}</span><br>${STLABEL[st]}${h.trips.length ? ` · ${h.trips.length} opriri azi` : ''}`;
@@ -1544,13 +1544,13 @@ function miniSpark(h) {
   return `<svg viewBox="0 0 ${W} ${Hh}" aria-hidden="true">${bands}<path d="${linePath(h.exp, fx, fy)}" fill="none" stroke="var(--ink-3)" stroke-dasharray="3 3" stroke-width="1.2"/><path d="${linePath(h.pv, fx, fy)}" fill="none" stroke="var(--accent)" stroke-width="1.8"/><line x1="${fx(S.i)}" x2="${fx(S.i)}" y1="2" y2="${Hh - 4}" stroke="var(--ink)" opacity=".5"/></svg>`;
 }
 function openPopup(id, ll) {
-  const h = HS(id), name = S.mode === 'om' ? `Casa ${id}` : h.you ? 'Casa ta · A10' : `Vecin ${id}`;
+  const h = HS(id), name = S.mode === 'om' ? `Casa ${id}` : h.you ? 'Casa ta · A10' : `Echipament ${id}`;
   let body;
   if (omHidden(h)) body = '<p>Proprietarul nu partajează datele acestei case cu echipa O&amp;M.</p>';
   else if (!h.kwp) body = '<p>Consumator fără panouri. Contează la tensiune prin consumul lui.</p>';
   else body = `<div class="m">${h.kwp} kWp · ${h.ori} · ${h.bat ? 'baterie ' + h.bat.cap + ' kWh · ' : ''}la ${Math.round(housePos(h).x - STREET[h.f].pt[0])} m de post</div>${miniSpark(h)}
     <div style="margin-top:4px">${h.trips.length} opriri azi · Vmax ${nf(h.vmax)} V<br>${nf(h.kwh)} kWh produși · ${nf(h.yieldKwp)} kWh/kWp${h.lost > 0.05 ? ` · pierdut ${nf(h.lost)} kWh` : ''}</div>
-    ${h.you && S.mode === 'pros' ? '<div class="actions"><button class="btn sm" data-act="view" data-v="ziua">Vezi ziua</button></div>' : S.mode === 'pros' ? '<div class="m" style="margin-top:6px">Vecin anonim: vezi doar starea și randamentul.</div>' : ''}`;
+    ${h.you && S.mode === 'pros' ? '<div class="actions"><button class="btn sm" data-act="view" data-v="ziua">Vezi ziua</button></div>' : S.mode === 'pros' ? '<div class="m" style="margin-top:6px">Echipament anonimizat: vezi doar starea și randamentul.</div>' : ''}`;
   L.popup({ maxWidth: 260, autoPanPadding: [30, 30] }).setLatLng(ll).setContent(`<div class="pop"><h4>${esc(name)}</h4>${body}</div>`).openOn(map);
 }
 function boundsOf(ids) { return L.latLngBounds(ids.map(id => MO.houses[id]?.ll).filter(Boolean)); }
@@ -1695,32 +1695,32 @@ function vVecini() {
   if (n) {
     const first = hh(tmin(y.trips[0].start)), last = hh(tEnd(y.trips[n - 1]));
     card = `<div class="card verdict">
-      <span class="badge">${peers.length ? `Rețea, confirmat de ${peers.length} vecini` : 'Rețea, tensiune peste prag'}</span>
+      <span class="badge">${peers.length ? `Rețea, confirmat de ${peers.length} echipamente` : 'Rețea, tensiune peste prag'}</span>
       <div class="big">Rețeaua, nu panourile tale.</div>
       <p>Invertorul tău s-a oprit de <b>${n} ori</b> azi, între ${first} și ${last}. Tensiunea a ajuns la <b>${nf(y.vmax)} V</b>, peste pragul de 253 V.
-      ${peers.length ? `În aceleași minute s-au oprit și vecinii ${peers.join(', ')}, de pe același cablu.` : 'Niciun vecin nu s-a oprit în aceleași minute, dar tensiunea măsurată e clar peste prag.'}</p>
-      <p style="color:var(--ink-2)">Când tensiunea e sub prag, produci cât vecinii: panourile tale sunt în regulă.</p>
+      ${peers.length ? `În aceleași minute s-au oprit și echipamentele ${peers.join(', ')}, de pe același cablu.` : 'Niciun echipament nu s-a oprit în aceleași minute, dar tensiunea măsurată e clar peste prag.'}</p>
+      <p style="color:var(--ink-2)">Când tensiunea e sub prag, produci cât echipamentele: panourile tale sunt în regulă.</p>
       <div class="actions"><button class="btn primary" data-act="dossier">${ICO.doc.replace('<svg', '<svg width="16" height="16"')}Generează dosarul de sesizare</button>
       <button class="btn" data-act="show" data-ids="${['A10', ...peers].join(',')}" data-t="${y.trips[0].start + 1}">Arată pe hartă</button></div>
-      ${srcChips(['Invertor · alarme, tensiune la 5 min', 'Vecini PT 2041 · anonim', 'SR EN 50160'])}</div>`;
+      ${srcChips(['Invertor · alarme, tensiune la 5 min', 'Echipamente PT 2041 · anonim', 'SR EN 50160'])}</div>`;
   } else {
     card = `<div class="card verdict ok"><span class="badge ok">Fără opriri azi</span><div class="big">Azi n-ai avut nicio oprire din supratensiune.</div>
-      <p>${y.vmax >= 253 ? `Tensiunea a atins <b>${nf(y.vmax)} V</b> doar câteva minute. Media pe 10 minute a rămas sub 253 V, deci invertorul n-a declanșat.` : `Tensiunea maximă la casa ta: <b>${nf(y.vmax)} V</b>, sub pragul de 253 V.`}${(() => { const tp = SIM.byF.A.filter(h => h.trips.length && !h.you); return tp.length ? ` Vecinii ${tp.map(h => h.id).join(', ')}, mai departe de post, s-au oprit de ${tp.reduce((a, h) => a + h.trips.length, 0)} ori: tu ești chiar sub prag.` : ''; })()}${S.opts.batSet < 0.5 ? ' Bateria, încărcată la prânz, a absorbit vârful de export.' : ''}${S.opts.boiler ? ' Boilerul pornit la tensiune mare a ținut energia în casă.' : ''}</p>
-      ${srcChips(['Invertor · tensiune la 5 min', 'Vecini PT 2041 · anonim'])}</div>`;
+      <p>${y.vmax >= 253 ? `Tensiunea a atins <b>${nf(y.vmax)} V</b> doar câteva minute. Media pe 10 minute a rămas sub 253 V, deci invertorul n-a declanșat.` : `Tensiunea maximă la casa ta: <b>${nf(y.vmax)} V</b>, sub pragul de 253 V.`}${(() => { const tp = SIM.byF.A.filter(h => h.trips.length && !h.you); return tp.length ? ` Echipamentele ${tp.map(h => h.id).join(', ')}, mai departe de post, s-au oprit de ${tp.reduce((a, h) => a + h.trips.length, 0)} ori: tu ești chiar sub prag.` : ''; })()}${S.opts.batSet < 0.5 ? ' Bateria, încărcată în orele de vârf ale producției solare, a absorbit vârful de export.' : ''}${S.opts.boiler ? ' Boilerul pornit la tensiune mare a ținut energia în casă.' : ''}</p>
+      ${srcChips(['Invertor · tensiune la 5 min', 'Echipamente PT 2041 · anonim'])}</div>`;
   }
   const rows = SIM.byF.A.map(h => {
     const st = h.st[S.i], d = Math.round(housePos(h).x - STREET.A.pt[0]);
     return `<li><button class="linkish" data-act="show" data-ids="${h.id}"><span class="dot ${st === 'ok' ? 'ok' : st === 'nopv' || st === 'night' ? '' : st}"></span><span class="grow"><b>${h.you ? 'Tu (A10)' : h.id}</b> <span style="color:var(--ink-3)">· ${d} m de post · ${h.kwp ? h.kwp + ' kWp' : 'fără panouri'}</span><br>
     <span style="font-size:12.5px;color:var(--ink-2)">${h.kwp ? `${h.trips.length ? h.trips.length + ' opriri' : 'fără opriri'} · Vmax ${nf(h.vmax)} V · ${nf(h.yieldKwp)} kWh/kWp` : `Vmax ${nf(h.vmax)} V`}</span></span></button></li>`;
   }).join('');
-  return head('Strada A, 12 locuințe pe PT 2041', 'Tu și vecinii de pe același cablu', 'Norii îi afectează pe toți la fel. Dacă se opresc mai multe case în același minut și tensiunea trece de prag, problema e la rețea.') + card +
+  return head('Strada A, 12 locuințe pe PT 2041', 'Echipamente de pe același cablu', 'Norii îi afectează pe toate la fel. Dacă se opresc mai multe case în același minut și tensiunea trece de prag, problema e la rețea.') + card +
     `<div class="kpis"><div class="kpi"><div class="l">Pierdut azi</div><div class="v">${nf(y.lost)}<small>kWh</small></div><div class="d">≈ ${nf(y.lost * CFG.LEI, 0)} lei</div></div>
-     <div class="kpi"><div class="l">Opriri azi</div><div class="v">${n}</div><div class="d">vecinul median: ${median(others.map(h => h.trips.length))}</div></div>
+     <div class="kpi"><div class="l">Opriri azi</div><div class="v">${n}</div><div class="d">echipamentul de referință: ${median(others.map(h => h.trips.length))}</div></div>
      <div class="kpi"><div class="l">Randament</div><div class="v">${nf(y.yieldKwp)}<small>kWh/kWp</small></div><div class="d">locul ${rk.pos} din ${rk.n}</div></div></div>
     <div class="card"><h3>Tensiunea maximă azi, casă cu casă</h3>${streetBars('A')}<p class="hint">Exportul tuturor caselor urcă tensiunea spre capătul cablului. Casele de la capăt se opresc primele, deși panourile lor sunt bune.</p></div>
-    ${n && peers.length ? `<div class="card"><h3>Sesizare comună</h3><p>Vecinii ${peers.join(', ')} au aceeași problemă. O sesizare semnată de mai multe locuințe de pe ${STREET.A.ptId} cântărește mai mult.</p><div class="actions"><button class="btn" data-act="invite">Invită-i anonim să semneze</button></div><p class="hint">Invitația pleacă prin SunProof. Nu vezi cine sunt și nici ei nu te văd până nu semnați.</p></div>` : ''}
-    <div class="card"><h3>Vecinii tăi, de la post spre capăt</h3><ul class="list">${rows}</ul><p class="hint">Starea e la ora ${hh(tmin(S.i))}. Vecinii sunt anonimi: vezi starea și randamentul, nu numele sau consumul lor.</p></div>
-    <div class="card"><h3>Luna iulie</h3><p><b>23 de opriri</b> · 41 kWh · ≈41 lei. În 21 din 23 de cazuri s-au oprit și vecinii în același minut.</p><p class="hint">Cifre demo pentru lună; ziua de azi e calculată în pagină.</p></div>
+    ${n && peers.length ? `<div class="card"><h3>Sesizare comună</h3><p>Echipamentele ${peers.join(', ')} au aceeași problemă. O sesizare semnată de mai multe locuințe de pe ${STREET.A.ptId} cântărește mai mult.</p><div class="actions"><button class="btn" data-act="invite">Invită-i anonim să semneze</button></div><p class="hint">Invitația pleacă prin SunProof. Nu vezi cine sunt și nici ei nu te văd până nu semnați.</p></div>` : ''}
+    <div class="card"><h3>Echipamentele din zonă, de la post spre capăt</h3><ul class="list">${rows}</ul><p class="hint">Starea e la ora ${hh(tmin(S.i))}. Echipamentele sunt anonimizate: vezi starea și randamentul, nu numele sau consumul lor.</p></div>
+    <div class="card"><h3>Luna iulie</h3><p><b>23 de opriri</b> · 41 kWh · ≈41 lei. În 21 din 23 de cazuri s-au oprit și echipamentele în același minut.</p><p class="hint">Cifre demo pentru lună; ziua de azi e calculată în pagină.</p></div>
     <div class="card"><h3>Date publice folosite</h3><ul class="list">
       <li><span class="dot" style="background:var(--ink)"></span><span class="grow"><b>OpenStreetMap · Overpass</b><br><span style="font-size:13px;color:var(--ink-2)">Posturi de transformare (power=substation) și linii de medie tensiune (power=line): așa știm ce case sunt pe același cablu.</span></span></li>
       <li><span class="dot" style="background:var(--accent)"></span><span class="grow"><b>PVGIS (Comisia Europeană)</b><br><span style="font-size:13px;color:var(--ink-2)">≈${thousands(CITY().pvS)} kWh/kWp pe an pentru acoperișuri spre sud în ${CITY().n}, ≈${thousands(CITY().pvE)} spre est sau vest. Aproximativ, după orientare.</span></span></li>
@@ -1736,16 +1736,16 @@ function vZiua() {
   const alt = sim({ ...S.opts, boiler: !S.opts.boiler }), altY = alt.H.find(h => h.you);
   const [tOn, tOff] = S.opts.boiler ? [y.trips.length, altY.trips.length] : [altY.trips.length, y.trips.length];
   const evs = y.ev.filter(e => e.kind !== 'volt_watt');
-  return head(`Miercuri, 15 iulie 2026, ${CITY().n}, senin și ${CITY().tmax} °C`, 'Ziua ta, la 5 minute', 'Producția reală față de cea așteptată după vecini, plus tensiunea rețelei la casa ta.') +
+  return head(`Miercuri, 15 iulie 2026, ${CITY().n}, senin și ${CITY().tmax} °C`, 'Ziua ta, la 5 minute', 'Producția reală față de cea așteptată după echipamente, plus tensiunea rețelei la casa ta.') +
     `<div class="card"><h3>Producție (kW)</h3>${timeChart({ h: 150, label: 'Producție reală vs. așteptată', yMin: 0, yMax: 7, yTicks: [0, 2, 4, 6], bands, series: [{ arr: y.exp, cls: 's-exp', area: 'a-exp' }, { arr: y.pv, cls: 's-real' }] })}
-      <div class="legend-mini"><span><i style="background:var(--accent)"></i>Reală</span><span><i style="background:var(--ink-3)"></i>Așteptată după vecini</span><span><i class="box" style="background:var(--grid);opacity:.35"></i>Oprire din rețea</span></div>
-      <p class="hint">Așteptata vine din vecinii care produceau normal în același minut, ajustată la kWp și orientare. Ține cont de nori fără model meteo.</p></div>
+      <div class="legend-mini"><span><i style="background:var(--accent)"></i>Reală</span><span><i style="background:var(--ink-3)"></i>Așteptată după echipamente</span><span><i class="box" style="background:var(--grid);opacity:.35"></i>Oprire din rețea</span></div>
+      <p class="hint">Așteptata vine din echipamentele care produceau normal în același minut, ajustată la kWp și orientare. Ține cont de nori fără model meteo.</p></div>
     <div class="card"><h3>Tensiunea (V)</h3>${timeChart({ h: 150, label: 'Tensiunea la casa ta', yMin: 226, yMax: 258, yTicks: [230, 240, 250], bands, hlines: [{ y: 253, cls: 'lim', label: '253 V = 230 V + 10%', tcls: 'lim-t' }, { y: 230, cls: 'nom' }],
       series: [{ arr: SIM.VT.A, cls: 's-vtx', skip: i => SIM.VT.A[i] < 100 }, { arr: y.v, cls: 's-v', skip: i => y.v[i] < 100 }] })}
       <div class="legend-mini"><span><i style="background:var(--grid)"></i>La casa ta</span><span><i style="background:var(--ink-3)"></i>La post (PT 2041)</span><span><i style="background:var(--fault)"></i>Prag</span></div></div>
     <div class="card"><h3>Bilanțul zilei</h3><div class="formula">${nf(y.kwh)} produs + ${nf(y.imp)} import − ${nf(y.expo)} export = <b>${nf(cons)} kWh consum</b></div>
       <p class="hint">Consumul casei, fără contor nou: producția din invertor plus importul și exportul din curba de sarcină a distribuitorului.</p>${srcChips(['Invertor', 'Contor · curba de sarcină'])}</div>
-    <div class="card"><h3>Evenimente azi</h3>${evs.length ? `<ul class="list">${evs.map(e => `<li><button class="linkish" data-act="time" data-t="${e.start + 1}"><span class="t">${hh(tmin(e.start))}–${hh(tEnd(e))}</span><span class="grow"><span class="badge ${KIND[e.kind][0] === 'grid' ? '' : KIND[e.kind][0] === 'fault' ? 'fault' : 'mute'}">${KIND[e.kind][1]}</span><br><span style="font-size:12.5px;color:var(--ink-2)">${e.kind === 'grid_outage' ? 'tensiune 0 la toate casele' : 'Vmax ' + nf(e.vmax) + ' V'} · ${tripPeers(y, e).length && e.kind === 'grid_overvoltage' ? tripPeers(y, e).length + ' vecini opriți odată cu tine · ' : ''}pierdut ${nf(e.lost, 2)} kWh</span></span></button></li>`).join('')}</ul>` : '<p>Niciun eveniment azi.</p>'}</div>
+    <div class="card"><h3>Evenimente azi</h3>${evs.length ? `<ul class="list">${evs.map(e => `<li><button class="linkish" data-act="time" data-t="${e.start + 1}"><span class="t">${hh(tmin(e.start))}–${hh(tEnd(e))}</span><span class="grow"><span class="badge ${KIND[e.kind][0] === 'grid' ? '' : KIND[e.kind][0] === 'fault' ? 'fault' : 'mute'}">${KIND[e.kind][1]}</span><br><span style="font-size:12.5px;color:var(--ink-2)">${e.kind === 'grid_outage' ? 'tensiune 0 la toate casele' : 'Vmax ' + nf(e.vmax) + ' V'} · ${tripPeers(y, e).length && e.kind === 'grid_overvoltage' ? tripPeers(y, e).length + ' echipamente oprite odată cu tine · ' : ''}pierdut ${nf(e.lost, 2)} kWh</span></span></button></li>`).join('')}</ul>` : '<p>Niciun eveniment azi.</p>'}</div>
     <div class="card"><h3>Absorbție inteligentă <span class="badge mute" style="margin-left:4px">opțional</span></h3>
       <div class="toggle"><span class="tl">Pornește boilerul de 2 kW la tensiune mare<small>printr-o priză smart, peste 250,5 V. SunProof nu atinge invertorul.</small></span><button class="sw" role="switch" aria-checked="${S.opts.boiler}" data-act="opt" data-k="boiler" aria-label="Absorbție inteligentă"></button></div>
       <p style="margin-top:6px">Opriri azi: <b>${tOff} → ${tOn}</b> cu absorbția pornită.</p></div>`;
@@ -1763,10 +1763,10 @@ function vBateria() {
     <p>Ai vrut rezervă <b>${pct(S.intent)}</b>, iar invertorul e setat la <b>${pct(bc.setting)}</b>. Între 18:00 și 23:00 ai luat ${nf(bc.eveImpAtRes)} kWh din rețea cât bateria stătea la rezerva setată: <b>≈${nf(mm.lei, 2)} lei pe zi</b>.</p>${srcChips(['Invertor · setări citite', 'Baterie · SoC la 5 min', 'Contor · import'])}</div>`;
   else if (hold) card = `<div class="card verdict"><span class="badge mute">Fără alertă</span><div class="big">Bateria îți păstrează rezerva aleasă.</div>
     <p>Ai vrut ${pct(S.intent)} pentru pană de curent, iar setarea e ${pct(bc.setting)}. Importul de seară (${nf(bc.eveImpAtRes)} kWh) e prețul rezervei, nu o greșeală.</p>${srcChips(['Invertor · setări citite', 'Intenția ta'])}</div>`;
-  else card = `<div class="card verdict ok"><span class="badge ok">Face ce ai vrut</span><div class="big">Bateria se încarcă la prânz și te ajută seara.</div>
+  else card = `<div class="card verdict ok"><span class="badge ok">Face ce ai vrut</span><div class="big">Bateria se încarcă în orele de vârf ale producției solare și te ajută seara.</div>
     <p>Rezervă ${pct(bc.setting)}, încărcare între 11 și 16.${S.opts.program ? ` În fereastra 19–21 a livrat ${nf(bc.delivered)} kWh: <b>${nf(bc.bonus, 2)} lei</b> bonus.` : ''}</p>${srcChips(['Invertor · setări (simulare)', 'Baterie · SoC la 5 min'])}</div>`;
   const fl = bc.findings.filter(x => x.k !== 'reserve_mismatch' && x.k !== 'holding_owner_reserve').map(x => x.k === 'full_before_noon'
-    ? `<li><span class="dot" style="background:var(--accent)"></span><span class="grow">Plină la ${hh(x.at)}, înainte de prânz. Surplusul de la prânz merge în rețea și urcă tensiunea pe stradă.</span></li>`
+    ? `<li><span class="dot" style="background:var(--accent)"></span><span class="grow">Plină la ${hh(x.at)}, înainte de vârful producției solare. Surplusul din orele de vârf ale producției solare merge în rețea și urcă tensiunea pe stradă.</span></li>`
     : `<li><span class="dot grid"></span><span class="grow">În 19–21 a livrat ${nf(bc.delivered)} kWh din ${nf(bc.possible)} posibili: bonus ratat <b>${nf(x.lei, 2)} lei</b>.</span></li>`).join('');
   const socW = Array.from(cur.H.find(h => h.you).soc, v => v * 100), socO = Array.from(other.H.find(h => h.you).soc, v => v * 100);
   return head('Baterie de 10 kWh pe invertor hibrid (demo)', 'Bateria ta face ce ai vrut?', 'Comparăm ce ai vrut cu ce e setat și cu ce s-a măsurat. Aceleași date pot da alt verdict dacă intenția e alta.') +
@@ -1778,12 +1778,12 @@ function vBateria() {
       <div class="legend-mini"><span><i style="background:var(--ok)"></i>${fixed ? 'Setarea corectată' : 'Setarea actuală'}</span><span><i style="background:var(--ink-3)"></i>${fixed ? 'Setarea actuală' : 'Cu setarea corectată'}</span><span><i class="box" style="background:var(--accent);opacity:.3"></i>Încărcare 11–16</span><span><i class="box" style="background:var(--grid);opacity:.3"></i>Program 19–21</span></div></div>
     ${fl ? `<div class="card"><h3>Ce am mai găsit</h3><ul class="list">${fl}</ul></div>` : ''}
     <div class="card"><h3>Setarea actuală vs. corectată</h3><table class="t"><thead><tr><th></th><th class="n">80% acum</th><th class="n">20% corectat</th></tr></thead><tbody>
-      <tr><td>Opriri la prânz (tu)</td><td class="n">${yw.trips.length}</td><td class="n">${yf.trips.length}</td></tr>
-      <tr><td>Energie pierdută la prânz</td><td class="n">${nf(yw.lost)} kWh</td><td class="n">${nf(yf.lost)} kWh</td></tr>
+      <tr><td>Opriri în orele de vârf ale producției solare (tu)</td><td class="n">${yw.trips.length}</td><td class="n">${yf.trips.length}</td></tr>
+      <tr><td>Energie pierdută în orele de vârf ale producției solare</td><td class="n">${nf(yw.lost)} kWh</td><td class="n">${nf(yf.lost)} kWh</td></tr>
       <tr><td>Import seara, la rezervă</td><td class="n">${nf(bw.eveImpAtRes)} kWh</td><td class="n">${nf(bf.eveImpAtRes)} kWh</td></tr>
       ${S.opts.program ? `<tr><td>Bonus program 19–21</td><td class="n">${nf(bw.bonus, 2)} lei</td><td class="n">${nf(bf.bonus, 2)} lei</td></tr>` : ''}
-      <tr><td>Opriri vecini A11 + A12</td><td class="n">${nb(w)}</td><td class="n">${nb(f)}</td></tr></tbody></table>
-      <p class="hint">Bateria setată bine ajută și rețeaua: absoarbe vârful de la prânz, deci scad opririle pe toată strada.</p></div>
+      <tr><td>Opriri echipamente A11 + A12</td><td class="n">${nb(w)}</td><td class="n">${nb(f)}</td></tr></tbody></table>
+      <p class="hint">Bateria setată bine ajută și rețeaua: absoarbe vârful producției solare, deci scad opririle pe toată strada.</p></div>
     <div class="card"><div class="toggle"><span class="tl">Sunt într-un program de furnizor<small>de tip Electrica, pilot august 2026 · 0,40 lei/kWh livrat 19–21 (valori demo)</small></span><button class="sw" role="switch" aria-checked="${S.opts.program}" data-act="opt" data-k="program" aria-label="Program de furnizor"></button></div></div>
     <div class="note">SunProof nu schimbă setările invertorului. Trimitem instalatorului recomandarea, cu graficul și cifrele de mai sus.</div>
     <div class="actions" style="margin-top:0;margin-bottom:12px"><button class="btn primary" data-act="installer">Trimite recomandarea instalatorului</button></div>`;
@@ -1809,7 +1809,7 @@ function vFactura() {
 }
 
 const CATS = [{ k: 'prod', t: 'Producție la 5 min' }, { k: 'volt', t: 'Tensiune și opriri' }, { k: 'alarm', t: 'Alarme invertor' }, { k: 'bat', t: 'Baterie: încărcare, livrare seara' }, { k: 'cons', t: 'Consum derivat' }, { k: 'bill', t: 'Facturi' }];
-const WHO = [{ k: 'dso', t: 'Distribuitor', get s() { return CITY().dsoS; } }, { k: 'om', t: 'O&M', s: 'furnizor' }, { k: 'sup', t: 'Furnizor', s: 'program baterii' }, { k: 'nb', t: 'Vecinii', s: 'anonim, agregat' }];
+const WHO = [{ k: 'dso', t: 'Distribuitor', get s() { return CITY().dsoS; } }, { k: 'om', t: 'O&M', s: 'furnizor' }, { k: 'sup', t: 'Furnizor', s: 'program baterii' }, { k: 'nb', t: 'Echipamentele', s: 'anonim, agregat' }];
 function vAcces() {
   const m = `<table class="matrix"><thead><tr><th>Ce date</th>${WHO.map(w => `<th>${w.t}<small>${w.s}</small></th>`).join('')}</tr></thead><tbody>${CATS.map(c => `<tr><td>${c.t}</td>${WHO.map(w => {
     const on = !!S.consent[w.k][c.k]; return `<td><button class="ck" role="checkbox" aria-checked="${on}" aria-label="${w.t}: ${c.t}" data-act="consent" data-w="${w.k}" data-c="${c.k}">${ICO.check}</button></td>`;
@@ -1844,8 +1844,8 @@ function vFlota() {
       <div class="actions"><button class="btn sm" data-act="show" data-ids="${s.grid.map(h => h.id).join(',')}">Arată pe hartă</button><button class="btn sm" data-act="view" data-v="raport">Raport pentru distribuitor</button></div></div>
     <div class="card verdict ${S.opts.fault ? 'fault' : 'ok'}"><div class="row" style="justify-content:space-between"><b>${STREET.B.ptId} · strada B</b><span class="badge ${S.opts.fault ? 'fault' : 'warn'}">${S.opts.fault ? 'Defect de echipament' : 'De urmărit'}</span></div>
       <ul class="list" style="margin-top:6px">
-      ${S.opts.fault ? `<li><span class="dot fault"></span><span class="grow"><b>B5</b>: producție 0 de la 11:20, cu tensiune normală (${nf(b5.vmax)} V). Vecinii produc normal.</span></li>` : ''}
-      <li><span class="dot low"></span><span class="grow"><b>B8</b>: produce cu ${Math.round((1 - b8.kwh / b8.expKwh) * 100)}% sub vecini de 6 zile (murdărie sau umbră).</span></li>
+      ${S.opts.fault ? `<li><span class="dot fault"></span><span class="grow"><b>B5</b>: producție 0 de la 11:20, cu tensiune normală (${nf(b5.vmax)} V). Echipamentele produc normal.</span></li>` : ''}
+      <li><span class="dot low"></span><span class="grow"><b>B8</b>: produce cu ${Math.round((1 - b8.kwh / b8.expKwh) * 100)}% sub echipamente de 6 zile (murdărie sau umbră).</span></li>
       <li><span class="dot nodata"></span><span class="grow"><b>B9</b>: lipsă date ${hh(b9.gap[0])}–${hh(b9.gap[1])}. Monitorizarea a căzut, nu producția: fără tichet.</span></li></ul>
       <div class="actions"><button class="btn sm" data-act="view" data-v="tichete">Vezi ce e de rezolvat</button><button class="btn sm" data-act="show" data-ids="B5,B8,B9">Arată pe hartă</button></div></div>
     ${!S.consent.om.alarm && !S.consent.om.prod ? '<div class="note">Proprietarul casei A10 nu partajează datele cu O&amp;M. Pe hartă casa apare gri.</div>' : ''}`;
@@ -1863,17 +1863,17 @@ function vTichete() {
     const actions = st === 'open' ? `<button class="btn sm primary" data-act="tk-resolve">Tehnicianul a marcat „rezolvat”</button>`
       : `<div style="margin-top:8px;font-size:13px">În verificare: ${S.verifyDays} din 2 zile senine fără simptom</div><div class="progress"><span style="width:${S.verifyDays * 50}%"></span></div><div class="actions"><button class="btn sm" data-act="tk-day">Simulează o zi senină</button><button class="btn sm" data-act="tk-back">Defectul revine</button></div>`;
     return `<div class="ticket"><div class="head"><div><h4>B5 · strada B · ${STREET.B.ptId}</h4><span class="badge fault" style="margin-top:4px">Defect de echipament</span></div><div class="money">${nf(TICKET_LEI.B5)} lei/zi</div></div>
-      <p>Producție 0 de la 11:20, tensiune normală (${nf(HS('B5').vmax)} V), alarmă: izolație DC scăzută (demo). Vecinii au produs normal, deci nu e de la nori sau rețea.</p>
+      <p>Producție 0 de la 11:20, tensiune normală (${nf(HS('B5').vmax)} V), alarmă: izolație DC scăzută (demo). Echipamentele au produs normal, deci nu e de la nori sau rețea.</p>
       <p>Tichetul se închide după 2 zile senine fără simptom, nu când tehnicianul spune „rezolvat”.</p><div class="actions">${actions}</div></div>`;
   } });
-  if (S.ticket.B8 === 'open') tk.push({ id: 'B8', lei: b8lei, html: () => `<div class="ticket"><div class="head"><div><h4>B8 · strada B</h4><span class="badge low" style="margin-top:4px">Producție sub vecini</span></div><div class="money">${nf(b8lei)} lei/zi</div></div>
-      <p>${Math.round((1 - b8.kwh / b8.expKwh) * 100)}% sub vecinii cu aceeași orientare, de 6 zile, la toate orele. Probabil murdărie sau umbră nouă.</p><div class="actions"><button class="btn sm" data-act="tk-clean">Programează curățarea</button></div></div>` });
+  if (S.ticket.B8 === 'open') tk.push({ id: 'B8', lei: b8lei, html: () => `<div class="ticket"><div class="head"><div><h4>B8 · strada B</h4><span class="badge low" style="margin-top:4px">Producție sub echipamente</span></div><div class="money">${nf(b8lei)} lei/zi</div></div>
+      <p>${Math.round((1 - b8.kwh / b8.expKwh) * 100)}% sub echipamentele cu aceeași orientare, de 6 zile, la toate orele. Probabil murdărie sau umbră nouă.</p><div class="actions"><button class="btn sm" data-act="tk-clean">Programează curățarea</button></div></div>` });
   tk.sort((a, b) => b.lei - a.lei);
   const s = omStats();
   return head('Ordonate după cât pierde clientul pe zi', 'De rezolvat', 'Tichetele trimise de clienți vin cu verdictul SunProof atașat. Opririle din rețea și lipsa datelor nu trimit pe nimeni pe teren.') + omKpis() + clientTicketsHTML() +
     (tk.length ? tk.map(t => t.html()).join('') : '<div class="card verdict ok"><span class="badge ok">Niciun tichet deschis</span></div>') +
     (S.ticket.B5 === 'verified' ? '<div class="card verdict ok"><span class="badge ok">B5 verificat</span><p style="margin-top:6px">2 zile senine fără defect. Tichetul s-a închis singur, cu dovezile.</p></div>' : '') +
-    `<div class="card"><h3>Alertă Telegram</h3>${S.opts.fault && S.ticket.B5 === 'open' ? `<div class="tg"><b>SunProof O&amp;M</b>Defect de echipament la B5 (strada B, ${STREET.B.ptId}). Producție 0 de la 11:20, tensiune normală. Pierdere ≈${nf(TICKET_LEI.B5)} lei/zi. Vecinii produc normal.</div>
+    `<div class="card"><h3>Alertă Telegram</h3>${S.opts.fault && S.ticket.B5 === 'open' ? `<div class="tg"><b>SunProof O&amp;M</b>Defect de echipament la B5 (strada B, ${STREET.B.ptId}). Producție 0 de la 11:20, tensiune normală. Pierdere ≈${nf(TICKET_LEI.B5)} lei/zi. Echipamentele produc normal.</div>
       <p class="hint">${S.inet ? 'Trimisă la 11:25, la 5 minute după detecție.' : 'În coadă: internetul a căzut. Alerta pleacă automat la reconectare.'}</p>` : '<p class="hint">Nicio alertă nouă.</p>'}</div>
     <div class="card"><h3>Fără tichet</h3><ul class="list">
       ${s.grid.length ? `<li><span class="dot grid"></span><span class="grow"><b>${s.grid.map(h => h.id).join(', ')}</b>: opriri din supratensiune. Rețea, nu echipament: raport la distribuitor.</span></li>` : ''}
@@ -1884,7 +1884,7 @@ function vRaport() {
   const A = SIM.byF.A, pv = A.filter(h => h.kwp), tr = pv.filter(h => h.trips.length), tot = tr.reduce((a, h) => a + h.trips.length, 0);
   const noon = idxOf(13 * 60 + 20), rise = Math.max(...A.map(h => h.v[noon])) - SIM.VT.A[noon], vB = Math.max(...SIM.byF.B.map(h => h.vmax));
   return head(`${STREET.A.ptId}, strada A, 15 iulie 2026`, 'Raport pentru distribuitor', 'Dovezi agregate pe stradă, fără acces la invertoare. Casele incluse și-au dat acordul.') +
-    `<div class="card verdict"><p>La prânz, tensiunea crește cu <b>${nf(rise)} V</b> de la post până la capătul străzii. ${tr.length} din ${pv.length} locuințe cu panouri s-au oprit de <b>${tot} ori</b> în total, cu tensiuni de până la ${nf(Math.max(...A.map(h => h.vmax)))} V.</p>
+    `<div class="card verdict"><p>În orele de vârf ale producției solare, tensiunea crește cu <b>${nf(rise)} V</b> de la post până la capătul străzii. ${tr.length} din ${pv.length} locuințe cu panouri s-au oprit de <b>${tot} ori</b> în total, cu tensiuni de până la ${nf(Math.max(...A.map(h => h.vmax)))} V.</p>
       <p>Cerem verificarea reglajului transformatorului de la ${STREET.A.ptId} și a secțiunii cablului pe strada A.</p></div>
     <div class="card"><h3>Tensiunea maximă, casă cu casă</h3>${streetBars('A')}</div>
     <div class="card"><h3>Detaliu pe locuințe</h3><table class="t"><thead><tr><th>Casa</th><th class="n">kWp</th><th class="n">Opriri</th><th class="n">Vmax</th><th class="n">kWh pierduți</th></tr></thead><tbody>
@@ -1898,18 +1898,18 @@ const TK_TYPES = { oprit: 'Invertorul se oprește', productie: 'Produce mai puț
 const TK_CLOSED = ['rezolvat', 'verificat'];
 const TK_ST = { nou: ['mute', 'nou'], preluat: ['warn', 'preluat'], rezolvat: ['ok', 'rezolvat'], verificare: ['warn', 'în verificare'], verificat: ['ok', 'verificat'], redeschis: ['fault', 'redeschis'] };
 const tkBadge = st => `<span class="badge ${(TK_ST[st] || TK_ST.nou)[0]}">${(TK_ST[st] || TK_ST.nou)[1]}</span>`;
-// luna iulie: aceleași cifre demo ca în „Vecinii”; ziua de azi se calculează în pagină
+// luna iulie: aceleași cifre demo ca în „Echipamentele”; ziua de azi se calculează în pagină
 const MONTH = { trips: 23, confirmed: 21, lei: 41 };
 let TK_SEQ = 1041;
 const eqEvent = y => y.ev.find(e => e.kind === 'equipment');
 const openAutoTicket = () => S.ctk.find(t => t.auto && !TK_CLOSED.includes(t.status));
 function triage(tip) {
   const y = you(), peers = peersFor(y, SIM.H), bc = batteryCheck(SIM, S.intent, S.opts.program), rk = rankYield(y), eq = eqEvent(y);
-  if (tip === 'oprit' && eq) return { cls: 'fault', t: `Defect de echipament: producție 0 de la ${hh(tmin(eq.start))}, cu tensiune normală (${nf(y.v[eq.start])} V). Vecinii produc normal, deci nu e rețeaua. Merită o deplasare.` };
+  if (tip === 'oprit' && eq) return { cls: 'fault', t: `Defect de echipament: producție 0 de la ${hh(tmin(eq.start))}, cu tensiune normală (${nf(y.v[eq.start])} V). Echipamentele produc normal, deci nu e rețeaua. Merită o deplasare.` };
   if (tip === 'oprit' && y.trips.length) return { cls: 'grid', t: `Rețea, nu echipament: ${y.trips.length} opriri din supratensiune (până la ${nf(y.vmax)} V)${peers.length ? `, confirmate de ${listRo(peers)}` : ''}. Fără deplasare; dosarul merge la ${CITY().dsoS}.` };
   if (tip === 'baterie' && bc.findings.some(x => x.k === 'reserve_mismatch')) return { cls: 'warn', t: `Setare, nu defect: rezerva e ${pct(bc.setting)}, clientul a cerut ${pct(S.intent)}. Se corectează de la distanță, prin instalator.` };
-  if (tip === 'productie' && rk.pos > rk.n - 2 && !y.trips.length) return { cls: 'fault', t: `Producție sub vecini (locul ${rk.pos} din ${rk.n}). Merită o verificare pe teren.` };
-  if (tip === 'productie') return { cls: 'ok', t: `Randamentul e în linie cu vecinii (locul ${rk.pos} din ${rk.n}). Pierderea de azi vine din opriri, nu din panouri.` };
+  if (tip === 'productie' && rk.pos > rk.n - 2 && !y.trips.length) return { cls: 'fault', t: `Producție sub echipamente (locul ${rk.pos} din ${rk.n}). Merită o verificare pe teren.` };
+  if (tip === 'productie') return { cls: 'ok', t: `Randamentul e în linie cu echipamentele (locul ${rk.pos} din ${rk.n}). Pierderea de azi vine din opriri, nu din panouri.` };
   return { cls: 'mute', t: 'Nu se vede în date. Tehnicianul sună clientul.' };
 }
 // un defect de echipament deschide singur tichetul O&M, dacă O&M are acces la alarme
@@ -1959,7 +1959,7 @@ function todos() {
     out.push({ k: 'fault', cls: eq ? 'fault' : 'warn', today: true, month: lei * 30,
       t: eq ? `Invertorul s-a oprit la ${hh(tmin(eq.start))}` : 'Invertorul a fost reparat. Verificăm.',
       lei: eq ? '≈' + nf(lei, 0) : `${tk.vd || 0} din 2`, unit: eq ? 'lei pe zi' : 'zile senine fără defect',
-      s: eq ? 'Vecinii produc normal, iar tensiunea e normală: e un defect de echipament, nu rețeaua.' : 'Dacă defectul revine, tichetul se redeschide singur, cu dovezile.',
+      s: eq ? 'Echipamentele produc normal, iar tensiunea e normală: e un defect de echipament, nu rețeaua.' : 'Dacă defectul revine, tichetul se redeschide singur, cu dovezile.',
       body: tk ? `${ticketSteps(tk)}<p>${tkMsg(tk)}</p>${tk.txt ? `<p>Nota ta: „${esc(tk.txt)}”</p>` : ''}${noteUI(tk)}` : (S.consent.om.alarm ? '' : '<p>Ai retras accesul O&amp;M la alarme, așa că n-am trimis nimic automat.</p>'),
       btns });
   }
@@ -1994,10 +1994,10 @@ function railCount(k) {
 }
 
 function homeVerdict(y, peers, bc, mm, eq) {
-  if (eq) return { cls: 'fault', big: `Invertorul tău s-a oprit la ${hh(tmin(eq.start))}.`, say: `Vecinii produc normal și tensiunea e ${nf(y.v[eq.start])} V, deci e un defect de echipament, nu rețeaua.${openAutoTicket() ? ' Am anunțat echipa O&amp;M.' : ''}` };
-  if (y.trips.length) { const n = y.trips.length; return { cls: '', big: `Azi rețeaua te-a oprit ${n === 1 ? 'o dată' : `de ${n} ori`}.${peers.length ? ' Vecinii confirmă.' : ''}`, say: `Tensiunea a ajuns la ${nf(y.vmax)} V, peste pragul de 253 V. Panourile tale sunt în regulă: când tensiunea e sub prag, produci cât vecinii.` }; }
+  if (eq) return { cls: 'fault', big: `Invertorul tău s-a oprit la ${hh(tmin(eq.start))}.`, say: `Echipamentele produc normal și tensiunea e ${nf(y.v[eq.start])} V, deci e un defect de echipament, nu rețeaua.${openAutoTicket() ? ' Am anunțat echipa O&amp;M.' : ''}` };
+  if (y.trips.length) { const n = y.trips.length; return { cls: '', big: `Azi rețeaua te-a oprit ${n === 1 ? 'o dată' : `de ${n} ori`}.${peers.length ? ' Echipamentele confirmă.' : ''}`, say: `Tensiunea a ajuns la ${nf(y.vmax)} V, peste pragul de 253 V. Panourile tale sunt în regulă: când tensiunea e sub prag, produci cât echipamentele.` }; }
   if (mm) return { cls: 'warn', big: 'Panourile au mers. Bateria nu face ce ai vrut.', say: `Rezerva e setată la ${pct(bc.setting)}, iar tu ai cerut ${pct(S.intent)}. Seara iei din rețea energie pe care o aveai în baterie.` };
-  return { cls: 'ok', big: 'Panourile și bateria au făcut azi ce trebuie.', say: `Ai produs ${nf(y.kwh)} kWh, cât vecinii cu aceeași orientare, și tensiunea a rămas sub prag.` };
+  return { cls: 'ok', big: 'Panourile și bateria au făcut azi ce trebuie.', say: `Ai produs ${nf(y.kwh)} kWh, cât echipamentele cu aceeași orientare, și tensiunea a rămas sub prag.` };
 }
 function streetMini() {
   const hs = SIM.byF.A, W = 300, H = 120, x0 = 44, dx = (W - x0 - 14) / (hs.length - 1), cy = 58;
@@ -2032,13 +2032,13 @@ function vAcasa() {
   const evs = y.ev.map((e, i) => ({ e, i })).filter(x => x.e.kind !== 'volt_watt');
   const band = e => ({ from: e.start, to: e.end + 1, cls: e.kind === 'equipment' ? 'b-fault' : e.kind === 'grid_overvoltage' ? 'b-grid' : 'b-nodata' });
   const evDot = k => k === 'equipment' ? 'fault' : k === 'no_data' ? 'nodata' : k === 'grid_outage' ? 'outage' : '';
-  const say = eq ? `Doar casa ta s-a oprit la ${hh(tmin(eq.start))}. Vecinii au produs normal.`
+  const say = eq ? `Doar casa ta s-a oprit la ${hh(tmin(eq.start))}. Echipamentele au produs normal.`
     : tripped.length ? `${tripped.length} din ${A.length} case s-au oprit azi din supratensiune${y.trips.length ? `, inclusiv casa ta, prima dată la ${hh(tmin(y.trips[0].start))}` : ', mai departe de post decât tine'}.`
     : `Nicio casă de pe ${STREET.A.ptId} nu s-a oprit azi.`;
   const t3 = mm ? ['≈' + nf(mm.lei, 2), 'lei/zi', 'iei din rețea seara, evitabil'] : S.opts.program ? [nf(bc.bonus, 2), 'lei', 'bonus 19–21 azi (demo)'] : [nf(bc.delivered), 'kWh', 'livrați seara din baterie'];
   const tile = (v, l, val, unit, d, extra = '') => `<button class="tile" data-act="view" data-v="${v}"><span class="l">${l}</span><span class="v" style="display:block">${val}${unit ? `<small>${unit}</small>` : ''}</span><span class="d" style="display:block">${d}</span>${extra}</button>`;
   return `<div class="dash">
-    <div class="card verdict ${V.cls} home-v"><div class="meta">Casa A10 · ${y.kwp} kWp, baterie de 10 kWh · ${CITY().n} · miercuri, 15 iulie, verificat la ${hh(tmin(S.i))}, comparat cu ${A.length - 1} vecini de pe ${STREET.A.ptId}</div>
+    <div class="card verdict ${V.cls} home-v"><div class="meta">Casa A10 · ${y.kwp} kWp, baterie de 10 kWh · ${CITY().n} · miercuri, 15 iulie, verificat la ${hh(tmin(S.i))}, comparat cu ${A.length - 1} echipamente de pe ${STREET.A.ptId}</div>
       <div class="big">${V.big}</div><p class="say">${V.say}</p>
       <div class="dots" role="group" aria-label="Starea pe domenii">${dots.map(d => `<button data-act="view" data-v="${d.v}"><i class="${d.c}"></i>${d.t}<small>${d.s}</small></button>`).join('')}</div></div>
     <div class="zl"><b>De făcut</b><span>întâi ce s-a întâmplat azi, apoi după lei${more ? ` · <button data-act="view" data-v="actiuni">încă ${more} în Acțiuni</button>` : ''}</span></div>
@@ -2046,16 +2046,16 @@ function vAcasa() {
     <div class="card z-day"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Ziua de azi</h3><button class="btn sm ghost" data-act="view" data-v="ziua">Detalii</button></div>
       ${timeChart({ h: 170, W: CW, label: 'Producție, consum și producția așteptată azi', yMin: 0, yMax: 7, yTicks: [0, 2, 4, 6], bands: evs.map(x => band(x.e)), series: [{ arr: y.exp, cls: 's-exp', area: 'a-exp' }, { arr: y.load, cls: 's-load' }, { arr: y.pv, cls: 's-real' }] })}
       ${timeChart({ h: 92, W: CW, label: 'Tensiunea la casa ta', yMin: 230, yMax: 258, yTicks: [240, 250], bands: evs.map(x => band(x.e)), hlines: [{ y: 253, cls: 'lim', label: '253 V', tcls: 'lim-t' }], series: [{ arr: y.v, cls: 's-v', skip: i => y.v[i] < 100 }] })}
-      <div class="legend-mini"><span><i style="background:var(--accent)"></i>Producție (kW)</span><span><i style="background:var(--ink-3)"></i>Așteptat după vecini</span><span><i style="background:var(--ink)"></i>Consum</span><span><i style="background:var(--grid)"></i>Tensiune (V)</span></div>
+      <div class="legend-mini"><span><i style="background:var(--accent)"></i>Producție (kW)</span><span><i style="background:var(--ink-3)"></i>Așteptat după echipamente</span><span><i style="background:var(--ink)"></i>Consum</span><span><i style="background:var(--grid)"></i>Tensiune (V)</span></div>
       ${evs.length ? `<div class="evlist" aria-label="Evenimentele zilei">${evs.map(({ e, i }) => `<button data-act="ev" data-i="${i}"><i class="${evDot(e.kind)}"></i>${hh(tmin(e.start))} · ${KIND[e.kind][1]} · ${nf(e.lost, 1)} kWh</button>`).join('')}</div><p class="hint">Apasă pe un eveniment ca să vezi dovezile.</p>` : '<p class="hint">Niciun eveniment azi.</p>'}</div>
     <div class="card z-street street-mini"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Strada ta</h3><span class="src"><i></i>${STREET.A.ptId}, anonim</span></div>
       ${streetMini()}<p class="sm-say">${say}</p>
-      <div class="legend-mini"><span><i class="box" style="background:var(--grid)"></i>oprită de rețea</span><span><i class="box" style="background:var(--fault)"></i>defect</span><span><i class="box" style="background:var(--ok)"></i>normal</span><span><i class="box" style="background:var(--low)"></i>sub vecini</span></div>
+      <div class="legend-mini"><span><i class="box" style="background:var(--grid)"></i>oprită de rețea</span><span><i class="box" style="background:var(--fault)"></i>defect</span><span><i class="box" style="background:var(--ok)"></i>normal</span><span><i class="box" style="background:var(--low)"></i>sub echipamente</span></div>
       <div class="actions"><button class="btn sm" data-act="view" data-v="vecini">${ICO.map.replace('<svg', '<svg width="14" height="14"')}Deschide harta</button></div></div>
     <div class="zl"><b>Pe scurt</b><span>azi se calculează în pagină; luna și factura sunt cifre demo</span></div>
     <div class="tiles">
-      ${tile('ziua', 'Produs azi', nf(y.kwh), 'kWh', `așteptat ${nf(y.expKwh)} după vecini`, sparkTile(y.pv, y.exp))}
-      ${tile('vecini', 'Opriri în iulie', MONTH.trips, '', `${MONTH.confirmed} confirmate de vecini · ≈${MONTH.lei} lei`)}
+      ${tile('ziua', 'Produs azi', nf(y.kwh), 'kWh', `așteptat ${nf(y.expKwh)} după echipamente`, sparkTile(y.pv, y.exp))}
+      ${tile('vecini', 'Opriri în iulie', MONTH.trips, '', `${MONTH.confirmed} confirmate de echipamente · ≈${MONTH.lei} lei`)}
       ${tile('bateria', 'Bateria seara', t3[0], t3[1], t3[2])}
       ${tile('factura', 'Factura din august', BILL.zero, 'lei', 'de recuperat de la furnizor')}
     </div>
@@ -2089,14 +2089,14 @@ function evidenceHTML(i) {
   const why = [];
   if (e.kind === 'grid_overvoltage') {
     why.push(['grid', `Tensiunea la casa ta a ajuns la <b>${nf(e.vmax)} V</b>, peste pragul de 253 V (media pe 10 minute, SR EN 50160).`]);
-    why.push([peers.length ? 'grid' : '', peers.length ? `<b>${listRo(peers)}</b>, de pe același cablu, ${peers.length === 1 ? 's-a' : 's-au'} oprit în aceleași minute.` : 'Niciun vecin nu s-a oprit în aceleași minute, dar tensiunea e clar peste prag.']);
-    why.push(['ok', 'Când tensiunea e sub prag, produci cât vecinii: panourile tale sunt în regulă.']);
+    why.push([peers.length ? 'grid' : '', peers.length ? `<b>${listRo(peers)}</b>, de pe același cablu, ${peers.length === 1 ? 's-a' : 's-au'} oprit în aceleași minute.` : 'Niciun echipament nu s-a oprit în aceleași minute, dar tensiunea e clar peste prag.']);
+    why.push(['ok', 'Când tensiunea e sub prag, produci cât echipamentele: panourile tale sunt în regulă.']);
   } else if (e.kind === 'equipment') {
     why.push(['fault', `Producție 0 de la <b>${hh(tmin(e.start))}</b>, cu tensiune normală (${nf(y.v[e.start])} V, sub pragul de 253 V).`]);
-    why.push(['ok', `${okN.length} din ${pvN.length} vecini cu panouri produceau normal în același minut: nu sunt norii și nici rețeaua.`]);
+    why.push(['ok', `${okN.length} din ${pvN.length} echipamente cu panouri produceau normal în același minut: nu sunt norii și nici rețeaua.`]);
     why.push(['fault', 'Invertorul raportează o alarmă: izolație DC scăzută (demo).']);
   } else if (e.kind === 'grid_outage') why.push(['outage', 'Tensiune 0 la toate casele de pe stradă: pană de curent în rețea, nu defect și nici supratensiune.']);
-  else if (e.kind === 'no_data') why.push(['nodata', 'Invertorul n-a mai trimis date. Vecinii produceau, deci a căzut monitorizarea, nu producția.']);
+  else if (e.kind === 'no_data') why.push(['nodata', 'Invertorul n-a mai trimis date. Echipamentele produceau, deci a căzut monitorizarea, nu producția.']);
   const title = { grid_overvoltage: 'Rețea, nu echipament', equipment: 'Defect de echipament', grid_outage: 'Pană de curent', no_data: 'Lipsă date' }[e.kind] || KIND[e.kind][1];
   const badge = { grid_overvoltage: '', equipment: 'fault' }[e.kind] ?? 'mute', tk = openAutoTicket();
   const btns = e.kind === 'grid_overvoltage' ? [{ act: 'dossier', label: 'Generează sesizarea', primary: true }, { act: 'show', label: 'Arată pe hartă', data: { ids: ['A10', ...peers].join(','), t: e.start + 1 } }]
@@ -2106,7 +2106,7 @@ function evidenceHTML(i) {
     <p class="kicker" style="margin:0 0 2px">15 iulie, ${hh(tmin(e.start))}–${hh(tEnd(e))}</p><h3 style="margin:0 0 6px">${title}</h3><span class="badge ${badge}">${KIND[e.kind][1]}</span>
     ${evChart(e)}
     <ul class="why">${why.map(([c, t]) => `<li><span class="dot ${c}"></span><span>${t}</span></li>`).join('')}</ul>
-    ${e.kind !== 'no_data' ? `<div class="formula">${nf(e.lost, 2)} kWh pierduți × ${nf(CFG.LEI, 2)} lei/kWh (demo) = <b>${nf(e.lost * CFG.LEI, 2)} lei</b></div><p class="hint">kWh pierduți = producția așteptată după vecini minus ce ai produs, în intervalul evenimentului.</p>` : ''}
+    ${e.kind !== 'no_data' ? `<div class="formula">${nf(e.lost, 2)} kWh pierduți × ${nf(CFG.LEI, 2)} lei/kWh (demo) = <b>${nf(e.lost * CFG.LEI, 2)} lei</b></div><p class="hint">kWh pierduți = producția așteptată după echipamente minus ce ai produs, în intervalul evenimentului.</p>` : ''}
     <div class="actions">${btnsHTML(btns)}</div>`;
 }
 function openEvidence(i) {
@@ -2130,7 +2130,7 @@ function vActiuni() {
     <div class="card" id="tkForm"><h3>Raportează o problemă</h3>
       <p class="hint" style="margin:0 0 4px">Pentru ce nu se vede în date: un panou spart, un cablu ars, un zgomot ciudat.</p>
       <label class="fl">Ce se întâmplă<select id="tkType">${Object.entries(TK_TYPES).map(([k, t]) => `<option value="${k}">${t}</option>`).join('')}</select></label>
-      <label class="fl">Detalii (opțional)<textarea id="tkTxt" rows="2" placeholder="Ex.: de câteva zile se oprește la prânz"></textarea></label>
+      <label class="fl">Detalii (opțional)<textarea id="tkTxt" rows="2" placeholder="Ex.: de câteva zile se oprește în orele de vârf ale producției solare"></textarea></label>
       <p class="hint" style="margin:8px 0 0">Atașăm automat datele zilei (producție, tensiune, alarme). Tehnicianul vede și ce a găsit SunProof înainte să plece de acasă.</p>
       <div class="actions"><button class="btn primary" data-act="tk-send">Trimite echipei O&amp;M</button></div></div></div></div>`;
 }
@@ -2228,18 +2228,18 @@ function dossierHTML() {
   ${n ? `<h2>Sesizare privind tensiunea peste limita admisă</h2>
   <p>Vă sesizez că, pe 15 iulie 2026, invertorul fotovoltaic de la locul meu de consum s-a deconectat automat de ${n} ori din cauza supratensiunii în rețea, între orele ${f.opriri[0].start} și ${f.opriri[n - 1].sfarsit}. Tensiunea măsurată a atins ${nf(f.v_max)} V, peste limita de 253 V (230 V + 10%, SR EN 50160).</p>
   ${f.vecini.length ? `<p>În aceleași intervale s-au deconectat și ${f.vecini.length} alte locuințe alimentate din același post de transformare (${f.post}). Asta arată o problemă a rețelei, nu a instalației mele.</p>` : ''}
-  <table><thead><tr><th>#</th><th>Început</th><th>Sfârșit</th><th>Tensiune maximă</th><th>Vecini opriți</th></tr></thead><tbody>${f.opriri.map((o, k) => `<tr><td>${k + 1}</td><td>${o.start}</td><td>${o.sfarsit}</td><td>${nf(o.v_max)} V</td><td>${o.vecini_opriti}</td></tr>`).join('')}</tbody></table>
+  <table><thead><tr><th>#</th><th>Început</th><th>Sfârșit</th><th>Tensiune maximă</th><th>Echipamente oprite</th></tr></thead><tbody>${f.opriri.map((o, k) => `<tr><td>${k + 1}</td><td>${o.start}</td><td>${o.sfarsit}</td><td>${nf(o.v_max)} V</td><td>${o.vecini_opriti}</td></tr>`).join('')}</tbody></table>
   ${dossierChart(true)}
-  <p>Energie nelivrată estimată: ${nf(f.pierdut_kWh)} kWh, față de locuințele vecine care au funcționat normal.</p>` : (() => {
+  <p>Energie nelivrată estimată: ${nf(f.pierdut_kWh)} kWh, față de echipamentele din zonă care au funcționat normal.</p>` : (() => {
     const st = SIM.byF.A.filter(h => !h.you && h.trips.length), tot = st.reduce((a, h) => a + h.trips.length, 0), tl = h => h.trips.reduce((a, e) => a + e.lost, 0), lost = st.reduce((a, h) => a + tl(h), 0);
     return `<h2>Sesizare privind tensiunea ridicată pe strada A</h2>
   <p>Vă sesizez că, pe 15 iulie 2026, ${st.length ? `${st.length} ${st.length === 1 ? 'locuință alimentată' : 'locuințe alimentate'} din ${f.post} ${st.length === 1 ? 's-a' : 's-au'} deconectat de ${tot} ori din cauza supratensiunii în rețea` : `tensiunea pe strada A, alimentată din ${f.post}, a urcat aproape de limita admisă`}. La locul meu de consum tensiunea a atins ${nf(f.v_max)} V; media pe 10 minute a rămas sub limita de 253 V (230 V + 10%, SR EN 50160), deci invertorul meu a rămas conectat, dar la limită.</p>
   ${st.length ? `<table><thead><tr><th>Locuința</th><th>Opriri</th><th>Tensiune maximă</th><th>Energie nelivrată</th></tr></thead><tbody>${st.map(h => `<tr><td>${h.id} (anonim)</td><td>${h.trips.length}</td><td>${nf(h.vmax)} V</td><td>${nf(tl(h))} kWh</td></tr>`).join('')}</tbody></table>` : ''}
   ${dossierChart(true)}
-  ${st.length ? `<p>Energie nelivrată estimată pe stradă: ${nf(lost)} kWh. Vecinii sunt prezentați anonim; datele lor intră în dosar doar cu acordul lor.</p>` : ''}`;
+  ${st.length ? `<p>Energie nelivrată estimată pe stradă: ${nf(lost)} kWh. Echipamentele sunt prezentate anonim; datele lor intră în dosar doar cu acordul proprietarilor.</p>` : ''}`;
   })()}
   <p id="askP"><b>Cerere:</b> ${esc(ask)}</p>
-  <p class="meta">Datele provin din citirea invertorului (fără acces la setări) și din comparația anonimă cu vecinii, prin SunProof. Anexă: exportul măsurătorilor la 5 minute.</p>`;
+  <p class="meta">Datele provin din citirea invertorului (fără acces la setări) și din comparația anonimă cu echipamentele, prin SunProof. Anexă: exportul măsurătorilor la 5 minute.</p>`;
 }
 function openDossier() {
   closeEvidence();
@@ -2327,7 +2327,7 @@ const ACT = {
     }, 1400);
   },
   installer: () => { S.log.unshift({ t: nowStamp(), who: 'Instalator', what: 'Raport baterie trimis de tine', ok: true }); addAct('installer', 'Recomandare pentru instalator: rezerva bateriei', 'Cu graficul și cifrele din ecranul Bateria.', 'trimisă'); renderRail(); toast('Recomandarea a plecat la instalator, cu graficul și cifrele (demo).'); },
-  invite: () => { addAct('invite', 'Invitație la sesizare comună: A11, A12', 'Anonimă, prin SunProof. Nu vezi cine sunt până nu semnați.', 'trimisă'); renderRail(); toast('Invitație anonimă trimisă vecinilor A11 și A12 (demo).'); },
+  invite: () => { addAct('invite', 'Invitație la sesizare comună: A11, A12', 'Anonimă, prin SunProof. Nu vezi cine sunt până nu semnați.', 'trimisă'); renderRail(); toast('Invitație anonimă trimisă proprietarilor echipamentelor A11 și A12 (demo).'); },
   'tk-send': () => {
     const tip = $('#tkType').value, txt = $('#tkTxt').value.trim().slice(0, 300), id = 'T-' + (++TK_SEQ);
     S.ctk.unshift({ id, tip, txt, from: 'A10', at: nowStamp(), status: 'nou', tr: triage(tip) });
@@ -2373,7 +2373,7 @@ document.addEventListener('click', e => {
 
 // ---------- asistent: unelte, Claude, verificarea cifrelor ----------
 const SUGG = {
-  pros: ['De ce s-a oprit invertorul azi la prânz?', 'Bateria mea face ce am vrut?', 'E corectă factura din august?', 'Cine mi-a văzut datele?'],
+  pros: ['De ce s-a oprit invertorul azi în orele de vârf ale producției solare?', 'Bateria mea face ce am vrut?', 'E corectă factura din august?', 'Cine mi-a văzut datele?'],
   om: ['Ce trimit azi pe teren?', 'Care stradă are probleme de rețea?', 'De ce B9 apare gri?'],
 };
 function renderSugg() { $('#sugg').innerHTML = SUGG[S.mode].map(q => `<button type="button" data-act="sugg" data-q="${esc(q)}">${esc(q)}</button>`).join(''); }
@@ -2386,12 +2386,12 @@ const houseOut = h => ({ id: h.id, strada: h.f, post: STREET[h.f].ptId, kWp: h.k
   opriri_supratensiune: h.trips.map(e => ({ start: hh(tmin(e.start)), sfarsit: hh(tEnd(e)), v_max: r1(e.vmax) })), alte_evenimente: h.ev.filter(e => e.kind !== 'grid_overvoltage' && e.kind !== 'volt_watt').map(e => ({ tip: KIND[e.kind][1], start: hh(tmin(e.start)), sfarsit: hh(tEnd(e)) })),
   v_max_zi: r1(h.vmax), productie_kWh: r1(h.kwh), randament_kWh_per_kWp: r1(h.yieldKwp), pierdut_kWh: r1(h.lost) });
 const TOOLDEFS = [
-  { name: 'get_my_day', modes: ['pros'], label: 'Citesc ziua casei tale (invertor, la 5 minute)', src: ['Invertor', 'Vecini PT 2041'], description: 'Ziua casei A10, a utilizatorului: producție, opriri cu ora și tensiunea maximă, pierderi în kWh și lei, vecinii opriți în aceleași minute, bilanț import/export. Fără argumente.',
-    run: () => { const y = you(); return { data: '2026-07-15, miercuri, senin (date simulate)', ...houseOut(y), asteptat_dupa_vecini_kWh: r1(y.expKwh), pierdut_lei: r1(y.lost * CFG.LEI), pret_demo_lei_per_kWh: CFG.LEI, prag_V: 253, vecini_opriti_in_aceleasi_minute: peersFor(y, SIM.H), import_kWh: r1(y.imp), export_kWh: r1(y.expo), consum_derivat_kWh: r1(y.kwh + y.imp - y.expo), oras: CITY().n, distribuitor: CITY().dso, nor_trecator: cloudTxt() + ', scădere comună la toate casele', sursa: 'Invertor; Vecini PT 2041; SR EN 50160' }; } },
-  { name: 'get_street', modes: ['pros', 'om'], label: 'Compar casele de pe același post', src: ['Vecini PT 2041'], description: 'Toate casele de pe o stradă: kWp, poziția pe cablu, opriri azi, tensiune maximă, randament kWh/kWp. Argument: street = "A" (PT 2041) sau "B" (PT 1187).',
+  { name: 'get_my_day', modes: ['pros'], label: 'Citesc ziua casei tale (invertor, la 5 minute)', src: ['Invertor', 'Echipamente PT 2041'], description: 'Ziua casei A10, a utilizatorului: producție, opriri cu ora și tensiunea maximă, pierderi în kWh și lei, echipamentele oprite în aceleași minute, bilanț import/export. Fără argumente.',
+    run: () => { const y = you(); return { data: '2026-07-15, miercuri, senin (date simulate)', ...houseOut(y), asteptat_dupa_vecini_kWh: r1(y.expKwh), pierdut_lei: r1(y.lost * CFG.LEI), pret_demo_lei_per_kWh: CFG.LEI, prag_V: 253, vecini_opriti_in_aceleasi_minute: peersFor(y, SIM.H), import_kWh: r1(y.imp), export_kWh: r1(y.expo), consum_derivat_kWh: r1(y.kwh + y.imp - y.expo), oras: CITY().n, distribuitor: CITY().dso, nor_trecator: cloudTxt() + ', scădere comună la toate casele', sursa: 'Invertor; Echipamente PT 2041; SR EN 50160' }; } },
+  { name: 'get_street', modes: ['pros', 'om'], label: 'Compar casele de pe același post', src: ['Echipamente PT 2041'], description: 'Toate casele de pe o stradă: kWp, poziția pe cablu, opriri azi, tensiune maximă, randament kWh/kWp. Argument: street = "A" (PT 2041) sau "B" (PT 1187).',
     inputSchema: { type: 'object', properties: { street: { type: 'string', enum: ['A', 'B'] } }, required: ['street'] },
-    run: a => { const f = String(a.street || 'A').toUpperCase() === 'B' ? 'B' : 'A'; return { strada: f, post: STREET[f].ptId, tensiune_la_post_la_13_20_V: r1(SIM.VT[f][idxOf(800)]), case: SIM.byF[f].map(h => ({ id: h.id, kWp: h.kwp, pozitie: +h.id.slice(1), opriri: h.trips.length, v_max: r1(h.vmax), kWh_per_kWp: r1(h.yieldKwp), stare_la_ora_selectata: STLABEL[houseState(h)] })), sursa: 'Vecini ' + STREET[f].ptId + ' (anonim); OpenStreetMap' }; } },
-  { name: 'get_house', modes: ['pros', 'om'], label: 'Citesc o casă', src: ['Invertor'], description: 'Detaliile unei case după id (ex. A11, B5): evenimente cu ore, tensiuni, pierderi. În modul prosumator, vecinii sunt anonimi.',
+    run: a => { const f = String(a.street || 'A').toUpperCase() === 'B' ? 'B' : 'A'; return { strada: f, post: STREET[f].ptId, tensiune_la_post_la_13_20_V: r1(SIM.VT[f][idxOf(800)]), case: SIM.byF[f].map(h => ({ id: h.id, kWp: h.kwp, pozitie: +h.id.slice(1), opriri: h.trips.length, v_max: r1(h.vmax), kWh_per_kWp: r1(h.yieldKwp), stare_la_ora_selectata: STLABEL[houseState(h)] })), sursa: 'Echipamente ' + STREET[f].ptId + ' (anonim); OpenStreetMap' }; } },
+  { name: 'get_house', modes: ['pros', 'om'], label: 'Citesc o casă', src: ['Invertor'], description: 'Detaliile unei case după id (ex. A11, B5): evenimente cu ore, tensiuni, pierderi. În modul prosumator, echipamentele sunt anonimizate.',
     inputSchema: { type: 'object', properties: { id: { type: 'string' } }, required: ['id'] },
     run: a => { const h = HS(String(a.id || '').toUpperCase()); if (!h) throw new Error('Nu există casa ' + a.id); if (omHidden(h)) return { id: h.id, mesaj: 'Proprietarul nu partajează datele cu O&M.' }; return { ...houseOut(h), defect: h.id === 'B5' && S.opts.fault ? 'alarmă izolație DC scăzută (demo), producție 0 de la 11:20' : null, sursa: 'Invertor' }; } },
   { name: 'get_battery_check', modes: ['pros'], label: 'Verific bateria: ce ai vrut vs. ce e setat', src: ['Invertor · setări', 'Baterie'], description: 'Verificarea bateriei casei A10: rezerva dorită de proprietar, rezerva setată în invertor, constatări cu lei, livrarea 19–21 și bonusul programului de tip Electrica (pilot august 2026).',
@@ -2401,12 +2401,12 @@ const TOOLDEFS = [
   { name: 'get_access', modes: ['pros', 'om'], label: 'Citesc permisiunile și jurnalul de acces', src: ['Jurnal de acces'], description: 'Cine vede ce: permisiunile pe categorii de date și jurnalul de acces (permis sau refuzat).',
     run: () => ({ permisiuni: Object.fromEntries(WHO.map(w => [w.t, CATS.filter(c => S.consent[w.k][c.k]).map(c => c.t)])), jurnal: S.log.slice(0, 8).map(l => ({ cand: l.t, cine: l.who, ce: l.what, rezultat: l.ok ? 'permis' : 'refuzat' })), parola_invertorului: 'nu se partajează niciodată', sursa: 'Jurnal de acces SunProof' }) },
   { name: 'get_tickets', modes: ['om'], label: 'Citesc tichetele O&M', src: ['Tichete O&M'], description: 'Tichetele O&M deschise, ordonate după lei pierduți pe zi, plus evenimentele pentru care nu se deschide tichet.',
-    run: () => { const b8 = HS('B8'); return { tichete: [S.opts.fault || S.ticket.B5 === 'resolved' ? { casa: 'B5', tip: 'defect de echipament', lei_pe_zi: r1(TICKET_LEI.B5), stare: S.ticket.B5, dovezi: 'producție 0 de la 11:20, tensiune normală, vecinii produc' } : null, S.ticket.B8 === 'open' ? { casa: 'B8', tip: 'producție sub vecini', lei_pe_zi: r1((b8.expKwh - b8.kwh) * CFG.LEI), procent_sub_vecini: Math.round((1 - b8.kwh / b8.expKwh) * 100) } : null].filter(Boolean),
+    run: () => { const b8 = HS('B8'); return { tichete: [S.opts.fault || S.ticket.B5 === 'resolved' ? { casa: 'B5', tip: 'defect de echipament', lei_pe_zi: r1(TICKET_LEI.B5), stare: S.ticket.B5, dovezi: 'producție 0 de la 11:20, tensiune normală, echipamentele produc' } : null, S.ticket.B8 === 'open' ? { casa: 'B8', tip: 'producție sub echipamente', lei_pe_zi: r1((b8.expKwh - b8.kwh) * CFG.LEI), procent_sub_vecini: Math.round((1 - b8.kwh / b8.expKwh) * 100) } : null].filter(Boolean),
       fara_tichet: [...omStats().grid.map(h => ({ casa: h.id, motiv: 'opriri din supratensiune: rețea, raport la distribuitor' })), { casa: 'B9', motiv: 'lipsă date ' + hh(HS('B9').gap[0]) + '–' + hh(HS('B9').gap[1]) + ': monitorizarea a căzut, nu producția' }], deplasari_evitate_azi: omStats().grid.length, sursa: 'Tichete O&M' }; } },
   { name: 'show_on_map', modes: ['pros', 'om'], label: 'Arăt pe hartă', src: [], description: 'Evidențiază case pe hartă și mută harta pe ele. Argumente: ids (listă de id-uri de case), time (opțional, ora HH:MM de afișat).',
     inputSchema: { type: 'object', properties: { ids: { type: 'array', items: { type: 'string' } }, time: { type: 'string' } }, required: ['ids'] },
     run: a => { const ids = (Array.isArray(a.ids) ? a.ids : [a.ids]).map(x => String(x).toUpperCase()).filter(x => MO.houses[x] || HS(x)); let i; const mt = /^(\d{1,2}):(\d{2})$/.exec(String(a.time || '')); if (mt) i = idxOf(+mt[1] * 60 + +mt[2]); showOnMap(ids, { i }); return { evidentiat: ids, ora: i != null ? hh(tmin(i)) : hh(tmin(S.i)) }; } },
-  { name: 'open_screen', modes: ['pros', 'om'], label: 'Pregătesc ecranul potrivit', src: [], description: 'Pune sub răspuns un buton către un ecran: vecini, ziua, bateria, factura, acces (prosumator) sau flota, tichete, raport (O&M).',
+  { name: 'open_screen', modes: ['pros', 'om'], label: 'Pregătesc ecranul potrivit', src: [], description: 'Pune sub răspuns un buton către un ecran: vecini (afișat ca Echipamente), ziua, bateria, factura, acces (prosumator) sau flota, tichete, raport (O&M).',
     inputSchema: { type: 'object', properties: { screen: { type: 'string', enum: ['vecini', 'ziua', 'bateria', 'factura', 'acces', 'flota', 'tichete', 'raport'] } }, required: ['screen'] },
     run: (a, m) => { const v = String(a.screen || ''); if (!RENDER[v]) throw new Error('Ecran necunoscut'); if (!m.links.includes(v)) m.links.push(v); return { buton_adaugat: viewTitle(v) }; } },
 ];
@@ -2432,7 +2432,7 @@ Reguli stricte:
 1. Folosește doar cifre, ore și id-uri de case care apar în rezultatele uneltelor. Nu inventa nimic. Dacă îți lipsește o informație, spune asta.
 2. Clasificarea evenimentelor (rețea, echipament, lipsă date) e făcută deja în cod. Nu o schimba, explic-o.
 3. SunProof doar citește datele. Nu spune că poți schimba setări; trimite spre instalator, spre dosarul de sesizare sau spre ecranul potrivit.
-4. Vecinii sunt anonimi: îi numești doar prin id (de exemplu A11).
+4. Echipamentele sunt anonimizate: le numești doar prin id (de exemplu A11).
 5. Datele sunt simulate pentru demo: 15 iulie 2026, ${CITY().n} (județul ${CITY().county}, distribuitor ${CITY().dso}), strada A (PT 2041) și strada B (PT 1187). Prețurile sunt valori demo.
 6. Când vorbești despre anumite case, apelează show_on_map cu id-urile lor. Dacă un ecran ajută, apelează open_screen.
 7. Poți folosi **îngroșat** și liste cu „- ”. Încheie cu o linie „Surse: …” cu sursele din câmpul „sursa” al uneltelor folosite.
@@ -2556,7 +2556,7 @@ async function askTemplate(q, m) {
     } else if (/b9|gri|lipsa|date/.test(n)) {
       const h = await step('get_house', { id: 'B9' }); await step('show_on_map', { ids: ['B9'] });
       const g = h.alte_evenimente.find(e => e.tip === 'Lipsă date');
-      text = `B9 apare gri pentru că lipsesc datele între ${g ? g.start : '10:00'} și ${g ? g.sfarsit : '13:10'}. Monitorizarea a căzut, nu producția: înainte și după, casa produce la fel ca vecinii. Nu deschidem tichet și nu calculăm pierderi pentru intervalul ăsta.\n\nSurse: ${h.sursa}`;
+      text = `B9 apare gri pentru că lipsesc datele între ${g ? g.start : '10:00'} și ${g ? g.sfarsit : '13:10'}. Monitorizarea a căzut, nu producția: înainte și după, casa produce la fel ca echipamentele. Nu deschidem tichet și nu calculăm pierderi pentru intervalul ăsta.\n\nSurse: ${h.sursa}`;
     } else {
       const a = await step('get_street', { street: 'A' }), b = await step('get_street', { street: 'B' });
       const ta = a.case.filter(c => c.opriri), vmax = Math.max(...a.case.map(c => c.v_max)), vb = Math.max(...b.case.map(c => c.v_max));
@@ -2567,7 +2567,7 @@ async function askTemplate(q, m) {
   } else if (/bateri|rezerv|incarc|descarc|setat|setar/.test(n)) {
     const b = await step('get_battery_check'); await step('show_on_map', { ids: ['A10'] });
     const mm = b.constatari.find(c => c.tip === 'reserve_mismatch'), full = b.constatari.find(c => c.tip === 'full_before_noon');
-    text = mm ? `Nu chiar. Ai vrut rezervă **${b.intentie_rezerva}**, dar invertorul e setat la **${b.setare_rezerva}**. Seara, bateria stă la rezervă și casa ia ${nf(b.import_seara_la_rezerva_kWh)} kWh din rețea: ≈${nf(mm.lei, 2)} lei pe zi.${full ? ` În plus, e plină de la ${full.ora}, deci la prânz nu mai absoarbe nimic.` : ''}${b.in_program ? ` În programul de tip Electrica (pilot august 2026) ai livrat ${nf(b.livrat_19_21_kWh)} kWh din ${nf(b.posibil_19_21_kWh)} posibili, adică ai ratat ${nf(b.bonus_ratat_lei, 2)} lei.` : ''}\n\nTrimite recomandarea instalatorului din ecranul Bateria.\n\nSurse: ${b.sursa}`
+    text = mm ? `Nu chiar. Ai vrut rezervă **${b.intentie_rezerva}**, dar invertorul e setat la **${b.setare_rezerva}**. Seara, bateria stă la rezervă și casa ia ${nf(b.import_seara_la_rezerva_kWh)} kWh din rețea: ≈${nf(mm.lei, 2)} lei pe zi.${full ? ` În plus, e plină de la ${full.ora}, deci în orele de vârf ale producției solare nu mai absoarbe nimic.` : ''}${b.in_program ? ` În programul de tip Electrica (pilot august 2026) ai livrat ${nf(b.livrat_19_21_kWh)} kWh din ${nf(b.posibil_19_21_kWh)} posibili, adică ai ratat ${nf(b.bonus_ratat_lei, 2)} lei.` : ''}\n\nTrimite recomandarea instalatorului din ecranul Bateria.\n\nSurse: ${b.sursa}`
       : b.constatari.find(c => c.tip === 'holding_owner_reserve') ? `Da. Ai vrut ${b.intentie_rezerva} pentru pană de curent și setarea e ${b.setare_rezerva}. Importul de seară, ${nf(b.import_seara_la_rezerva_kWh)} kWh, e prețul rezervei, nu o greșeală.\n\nSurse: ${b.sursa}`
       : `Da. Setarea (${b.setare_rezerva}) e cea pe care ai vrut-o.${b.in_program ? ` În fereastra 19–21 a livrat ${nf(b.livrat_19_21_kWh)} kWh: ${nf(b.bonus_lei, 2)} lei bonus.` : ''}\n\nSurse: ${b.sursa}`;
     m.links.push('bateria');
@@ -2580,7 +2580,7 @@ async function askTemplate(q, m) {
     const ref = a.jurnal.filter(j => j.rezultat === 'refuzat');
     text = `Ultimele accese: ${a.jurnal.slice(0, 3).map(j => `${j.cine} (${j.ce}, ${j.rezultat})`).join('; ')}.${ref.length ? ` Refuzate: ${ref.length}.` : ''} Distribuitorul vede acum: ${a.permisiuni['Distribuitor'].join(', ') || 'nimic'}. Parola invertorului nu se partajează niciodată.\n\nSurse: ${a.sursa}`;
     m.links.push('acces');
-  } else if (/opr|pranz|supraten|tensiun|produs|produc|vecin|pierd/.test(n)) {
+  } else if (/opr|pranz|amiaza|varf|supraten|tensiun|produs|produc|echipament|pierd/.test(n)) {
     const d = await step('get_my_day'); await step('get_street', { street: 'A' });
     const o = d.opriri_supratensiune;
     await step('show_on_map', { ids: ['A10', ...d.vecini_opriti_in_aceleasi_minute], time: o[0] ? o[0].start : undefined });
@@ -2626,7 +2626,7 @@ const BELT = [
   [['inv', 'Invertorul tău', 'producție și tensiune la 5 minute'], ['meter', 'Contorul inteligent', 'curba de sarcină de la distribuitor'], ['bill', 'Factura', 'PDF-ul de la furnizor'],
    ['map', 'OpenStreetMap', 'posturi de transformare, linii de medie tensiune'], ['sun', 'PVGIS', 'producția așteptată pe acoperiș'], ['cloud', 'Open-Meteo', 'nori la 15 minute'],
    ['gov', 'ANRE', '385.791 de prosumatori, 39% cu baterie'], ['wave', 'SR EN 50160', '230 V ± 10%, adică cel mult 253 V']],
-  [['bolt', 'Opriri din supratensiune', 'confirmate de vecinii de pe post'], ['tool', 'Defect de echipament', 'alertă pe Telegram în 5 minute'], ['off', 'Lipsă date', 'gri pe hartă, nu pană de producție'],
+  [['bolt', 'Opriri din supratensiune', 'confirmate de echipamentele de pe post'], ['tool', 'Defect de echipament', 'alertă pe Telegram în 5 minute'], ['off', 'Lipsă date', 'gri pe hartă, nu pană de producție'],
    ['bat', 'Bateria', 'ce ai vrut, ce e setat, ce s-a măsurat'], ['doc', 'Factura la 0 lei', 'kWh injectați și nedecontați'], ['ticket', 'Tichete O&M', 'închise după 2 zile senine'],
    ['send', 'Dosar de sesizare', 'la distribuitorul din județ'], ['key', 'Cine vede ce', 'jurnal pentru fiecare acces']],
 ];
@@ -2647,15 +2647,15 @@ function renderLanding() {
   if (n) {
     h1a = `Invertorul tău <span class="nw">s-a oprit</span> ${n === 1 ? 'o dată' : `de ${n} ori`} azi.`;
     h1b = 'Rețeaua e de vină, nu panourile.';
-    lede = `Între ${hh(tmin(y.trips[0].start))} și ${hh(tEnd(y.trips[n - 1]))} tensiunea la casa ta a ajuns la <b>${nf(y.vmax)}&nbsp;V</b>, peste pragul de 253&nbsp;V. ${peers.length ? `${peers.length === 1 ? 'Vecinul' : 'Vecinii'} ${listRo(peers)}, de pe același cablu, s-${peers.length === 1 ? 'a' : 'au'} oprit în aceleași minute. ` : ''}SunProof îți arată asta pe hartă și îți scrie dosarul pentru ${esc(c.dso)}.`;
+    lede = `Între ${hh(tmin(y.trips[0].start))} și ${hh(tEnd(y.trips[n - 1]))} tensiunea la casa ta a ajuns la <b>${nf(y.vmax)}&nbsp;V</b>, peste pragul de 253&nbsp;V. ${peers.length ? `${peers.length === 1 ? 'Echipamentul' : 'Echipamentele'} ${listRo(peers)}, de pe același cablu, s-${peers.length === 1 ? 'a' : 'au'} oprit în aceleași minute. ` : ''}SunProof îți arată asta pe hartă și îți scrie dosarul pentru ${esc(c.dso)}.`;
   } else if (others.length) {
     h1a = 'Invertorul tău a mers toată ziua.';
-    h1b = 'Vecinii de la capătul străzii, nu.';
+    h1b = 'Echipamentele de la capătul străzii, nu.';
     lede = `${listRo(others.map(h => h.id))} ${others.length === 1 ? 's-a' : 's-au'} oprit de ${tot} ori din supratensiune, mai departe de post. ${y.vmax >= 253 ? `La tine tensiunea a atins <b>${nf(y.vmax)}&nbsp;V</b> doar câteva minute: media pe 10 minute a rămas sub 253&nbsp;V, deci invertorul n-a declanșat.` : `La tine tensiunea a urcat până la <b>${nf(y.vmax)}&nbsp;V</b>, ${y.vmax >= 250 ? 'aproape de prag' : 'sub prag'}.`} SunProof vede problema rețelei înainte să ajungă la tine.`;
   } else {
     h1a = 'Invertorul tău a mers toată ziua.';
     h1b = 'Și ai cifrele care o arată.';
-    lede = `Tensiunea maximă la casa ta a fost <b>${nf(y.vmax)}&nbsp;V</b>, sub pragul de 253&nbsp;V, și ai produs cât vecinii cu aceeași orientare. Când se schimbă ceva, afli în aceeași zi.`;
+    lede = `Tensiunea maximă la casa ta a fost <b>${nf(y.vmax)}&nbsp;V</b>, sub pragul de 253&nbsp;V, și ai produs cât echipamentele cu aceeași orientare. Când se schimbă ceva, afli în aceeași zi.`;
   }
   const hero = `<span>${h1a}</span><span class="serif">${h1b}</span>`;
   if (hero !== HERO_LAST) { $('#heroH').innerHTML = hero; HERO_LAST = hero; }
@@ -2670,7 +2670,7 @@ function renderLanding() {
   const chips1 = [...(n ? peers : others.map(h => h.id)).slice(0, 2).map(id => `<span class="chip"><i style="background:#a497ff"></i>${id} oprit la ${nearAt(HS(id))}</span>`),
     okNb ? `<span class="chip"><i style="background:#8fbf8a"></i>${okNb.id} produce normal</span>` : ''].join('');
   const snip1 = n
-    ? `<span class="sn-tag"><i></i>${peers.length ? `Rețea, confirmat de ${peers.length} ${peers.length === 1 ? 'vecin' : 'vecini'}` : 'Rețea, tensiune peste prag'}</span>
+    ? `<span class="sn-tag"><i></i>${peers.length ? `Rețea, confirmat de ${peers.length} ${peers.length === 1 ? 'echipament' : 'echipamente'}` : 'Rețea, tensiune peste prag'}</span>
        <div class="sn-verdict">Rețeaua, nu panourile tale.</div>
        <p class="sn-text">Oprit la ${firstAt(y)}, la ${nf(y.trips[0].vmax)} V.${peers.length ? ` ${listRo(peers)} ${peers.length === 1 ? 's-a' : 's-au'} oprit în aceleași minute.` : ''}</p>`
     : `<span class="sn-tag ok"><i></i>Fără opriri la tine</span>
@@ -2682,7 +2682,7 @@ function renderLanding() {
   const want = Math.round(S.intent * 100), set = Math.round(bc.setting * 100);
   const foot2 = mm ? `Seara iei din rețea cât bateria stă la ${set}%: <b>≈${nf(mm.lei, 2)} lei pe zi</b>.`
     : hold ? `Rezerva e cea aleasă de tine. Importul de seară e prețul ei, nu o greșeală.`
-    : S.opts.program ? `Între 19 și 21 a livrat ${nf(bc.delivered)} kWh: <b>${nf(bc.bonus, 2)} lei</b> bonus.` : 'Se încarcă la prânz și te ajută seara.';
+    : S.opts.program ? `Între 19 și 21 a livrat ${nf(bc.delivered)} kWh: <b>${nf(bc.bonus, 2)} lei</b> bonus.` : 'Se încarcă în orele de vârf ale producției solare și te ajută seara.';
   const lab = (p, t, right) => `<span class="mk" style="left:${p}%;background:${t[1]}"><em style="${right ? 'left:auto;right:7px' : ''}">${t[0]} ${p}%</em></span>`;
   const bar = want === set ? lab(set, ['ai cerut și e setat', '#b6dcb1'], set > 50)
     : lab(want, ['ai cerut', '#b6dcb1'], want > set) + lab(set, ['setat', '#ffaaa2'], set > want);
@@ -2694,8 +2694,8 @@ function renderLanding() {
   <a class="gcard" href="#harta" data-act="go" data-v="vecini">
     <div class="gstage"><div class="chiprow">${chips1}</div>
       <div class="snip"><div class="sn-who">${MARK}SunProof<small>15 iulie, ${n ? firstAt(y) : '14:00'}</small></div>
-        <div class="sn-meta">Am comparat cu ${A.length - 1} vecini de pe ${STREET.A.ptId}${BICO.chev.replace('<svg', '<svg width="14" height="14"')}</div>${snip1}</div></div>
-    <div class="gtext"><h3>Rețea sau echipament</h3><p>Când invertorul se oprește, ne uităm la vecinii de pe același post. Dacă s-au oprit și ei, în același minut, problema e la rețea.</p><span class="go">Vezi vecinii pe hartă</span></div>
+        <div class="sn-meta">Am comparat cu ${A.length - 1} echipamente de pe ${STREET.A.ptId}${BICO.chev.replace('<svg', '<svg width="14" height="14"')}</div>${snip1}</div></div>
+    <div class="gtext"><h3>Rețea sau echipament</h3><p>Când invertorul se oprește, ne uităm la echipamentele de pe același post. Dacă s-au oprit și acestea, în același minut, problema e la rețea.</p><span class="go">Vezi echipamentele pe hartă</span></div>
   </a>
   <a class="gcard" href="#harta" data-act="go" data-v="bateria">
     <div class="gstage"><div class="chiprow"><span class="chip"><i style="background:#f2c45a"></i>Baterie de 10 kWh</span>${S.opts.program ? '<span class="chip">Program de tip Electrica, pilot august 2026</span>' : ''}</div>
@@ -2707,9 +2707,9 @@ function renderLanding() {
   <a class="gcard" href="#harta" data-act="dossier">
     <div class="gstage">
       <div class="snip"><div class="sn-head">Surse<small>4</small></div>
-        ${srcRow('inv', 'Invertorul tău', 'tensiune și alarme la 5 minute')}${srcRow('nb', `Vecini pe ${STREET.A.ptId}`, `${A.length - 1} case, anonim`)}${srcRow('wave', 'SR EN 50160', 'cel mult 253 V, media pe 10 minute')}${srcRow('sun', 'PVGIS', `producția așteptată în ${c.n}`)}
+        ${srcRow('inv', 'Invertorul tău', 'tensiune și alarme la 5 minute')}${srcRow('nb', `Echipamente pe ${STREET.A.ptId}`, `${A.length - 1} case, anonim`)}${srcRow('wave', 'SR EN 50160', 'cel mult 253 V, media pe 10 minute')}${srcRow('sun', 'PVGIS', `producția așteptată în ${c.n}`)}
         <div class="sn-file"><span class="well" style="width:30px;height:30px;display:grid;place-items:center">${ICO.doc.replace('<svg', '<svg width="18" height="18"')}</span><span>Sesizare către ${esc(c.dsoS)}<small>județul ${esc(c.county)}, gata de semnat</small></span></div></div></div>
-    <div class="gtext"><h3>Dovezi pe care le poți trimite</h3><p>Un dosar cu ora, tensiunea și vecinii afectați, pentru distribuitorul din județul tău. Cere verificarea rețelei; nu promite despăgubiri.</p><span class="go">Deschide dosarul</span></div>
+    <div class="gtext"><h3>Dovezi pe care le poți trimite</h3><p>Un dosar cu ora, tensiunea și echipamentele afectate, pentru distribuitorul din județul tău. Cere verificarea rețelei; nu promite despăgubiri.</p><span class="go">Deschide dosarul</span></div>
   </a>`;
 }
 
@@ -2990,7 +2990,7 @@ function lineSay(f) {
   const vs = hs.filter(h => h.v[i] > 100).map(h => h.v[i]), near = hs.slice(0, 3).filter(h => h.v[i] > 100);
   const tv = off.map(h => (h.trips.find(e => i >= e.start && i <= e.end) || { vmax: h.vmax }).vmax);
   if (off.length) return `${listRo(off.map(h => h.id))}, de la capătul liniei, ${off.length === 1 ? 's-a oprit' : 's-au oprit'} când tensiunea a trecut de 253 V (până la ${nf(Math.max(...tv))} V). Lângă post e ${near.length ? nf(Math.max(...near.map(h => h.v[i]))) : '–'} V acum: <b>e rețeaua, nu echipamentul.</b>`;
-  if (fl.length) return `${listRo(fl.map(h => h.id))} nu produce, deși tensiunea e normală (${nf(fl[0].v[i] || Math.max(...vs))} V) și vecinii produc: <b>e echipamentul.</b>`;
+  if (fl.length) return `${listRo(fl.map(h => h.id))} nu produce, deși tensiunea e normală (${nf(fl[0].v[i] || Math.max(...vs))} V) și echipamentele produc: <b>e echipamentul.</b>`;
   const trips = hs.filter(h => h.trips.length);
   if (trips.length) return `Acum nu e nicio casă oprită. Azi s-au oprit ${listRo(trips.map(h => h.id))}, între ${hh(tmin(Math.min(...trips.map(h => h.trips[0].start))))} și ${hh(tEnd(trips[0].trips[trips[0].trips.length - 1]))}. Trage de oră ca să vezi.`;
   return vs.length ? `Toate casele sub 253 V (maxim ${nf(Math.max(...vs))} V la ${hh(tmin(i))}).` : `La ${hh(tmin(i))} panourile nu produc.`;
@@ -3066,7 +3066,7 @@ function goZone(k) {
 // ---------- Baterii, Facturi, Inbox ----------
 const BAT_DEMO = [
   { id: 'C-2210', z: 'buc', post: 'PT 0932', st: ['SETARE GREȘITĂ', 'tg-r'], want: 20, set: 80, lei: 3.6, txt: 'Rezervă 80%, clientul a cerut 20%' },
-  { id: 'C-2231', z: 'buc', post: 'PT 1510', st: ['PLINĂ LA 10:40', 'tg-a'], want: 20, set: 20, lei: 1.9, txt: 'Se încarcă din primul surplus, plină înainte de prânz' },
+  { id: 'C-2231', z: 'buc', post: 'PT 1510', st: ['PLINĂ LA 10:40', 'tg-a'], want: 20, set: 20, lei: 1.9, txt: 'Se încarcă din primul surplus, plină înainte de vârful producției solare' },
   { id: 'C-2307', z: 'buc', post: 'PT 3307', st: ['SETARE GREȘITĂ', 'tg-r'], want: 30, set: 100, lei: 4.1, txt: 'Rezervă 100%: nu descarcă deloc seara' },
   { id: 'C-2318', z: 'buc', post: 'PT 3120', st: ['ÎN PROGRAM', 'tg-g'], want: 20, set: 20, lei: 0, txt: 'Livrează seara cum a vrut clientul' },
 ];

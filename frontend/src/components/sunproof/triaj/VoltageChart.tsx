@@ -79,7 +79,7 @@ export function VoltageChart({ d }: { d: HouseholdDetail }) {
   const legend: LegendItem[] = [
     { color: "var(--bone)", label: "Invertor" },
     { color: "var(--info)", label: "Contor" },
-    ...(hasNb ? [{ color: "var(--pewter)", label: "Vecini", kind: "area" as const }] : []),
+    ...(hasNb ? [{ color: "var(--pewter)", label: "Echipamente", kind: "area" as const }] : []),
     ...(trips.length
       ? [{ color: "var(--critical-border)", label: "Deconectat", kind: "area" as const }]
       : []),
@@ -111,7 +111,7 @@ export function VoltageChart({ d }: { d: HouseholdDetail }) {
                     ["Invertor", `${fmt(r["inv"] as number, 1)} V`],
                     ["Contor", r["meter"] != null ? `${fmt(r["meter"] as number, 1)} V` : null],
                     [
-                      "Vecini",
+                      "Echipamente",
                       r["nb"]
                         ? `${fmt((r["nb"] as number[])[0]!, 1)}–${fmt((r["nb"] as number[])[1]!, 1)} V`
                         : null,

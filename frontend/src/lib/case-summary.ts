@@ -142,8 +142,8 @@ export function prosumerCause(d: HouseholdDetail): string {
   switch (caseKind(d)) {
     case "grid":
       return g.max_meter_voltage_v >= g.legal_limit_v
-        ? `Tensiunea pe strada ta a depășit limita legală (${fmt(g.max_meter_voltage_v, 1)} V față de ${limit} V), oprind simultan invertorul tău și încă ${g.neighbors_affected_simultaneously} vecini. Panourile tale nu sunt stricate.`
-        : `Tensiunea rețelei de pe strada ta urcă la prânz până la ${fmt(g.max_meter_voltage_v, 1)} V la contor, iar la invertor ajunge la ${fmt(g.max_inverter_voltage_v, 1)} V — peste limita legală de ${limit} V. În aceleași minute s-au oprit și încă ${g.neighbors_affected_simultaneously} vecini de pe același transformator. Panourile tale nu sunt stricate.`;
+        ? `Tensiunea pe strada ta a depășit limita legală (${fmt(g.max_meter_voltage_v, 1)} V față de ${limit} V), oprind simultan invertorul tău și încă ${g.neighbors_affected_simultaneously} echipamente. Panourile tale nu sunt stricate.`
+        : `Tensiunea rețelei de pe strada ta urcă în orele de vârf ale producției solare până la ${fmt(g.max_meter_voltage_v, 1)} V la contor, iar la invertor ajunge la ${fmt(g.max_inverter_voltage_v, 1)} V — peste limita legală de ${limit} V. În aceleași minute s-au oprit și încă ${g.neighbors_affected_simultaneously} echipamente de pe același transformator. Panourile tale nu sunt stricate.`;
     case "local":
       return `${g.max_meter_voltage_v < g.legal_limit_v ? "Rețeaua stradală este în parametri normali" : "Rețeaua stradală este aproape de limită"} (${fmt(g.max_meter_voltage_v, 1)} V la contor), dar tensiunea crește cu +${fmt(g.voltage_rise_internal_cable_v, 1)} V pe cablul dintre contor și invertor (${fmt(g.cable_mm2, 1)} mm² pe ${fmt(g.cable_length_m)} m — subdimensionat sau prea lung).`;
     case "battery":
@@ -177,13 +177,13 @@ export function prosumerSolution(d: HouseholdDetail): string {
 export function inverterState(d: HouseholdDetail): { ok: boolean; label: string } {
   const t = d.analysis.grid_verdict.trip_minutes;
   return t > 0
-    ? { ok: false, label: `Oprit la prânz — ${t} min pierdute` }
+    ? { ok: false, label: `Oprit în orele de vârf — ${t} min pierdute` }
     : { ok: true, label: "Funcționare normală" };
 }
 
 /** Ticket topic pre-selected from the detected problem. */
 export const TICKET_TOPICS = [
-  "Invertorul se oprește la prânz",
+  "Invertorul se oprește în orele de vârf ale producției solare",
   "Bateria nu se descarcă seara",
   "Factura nu corespunde",
   "Altă întrebare",

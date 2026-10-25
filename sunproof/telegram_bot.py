@@ -50,7 +50,7 @@ def format_technician_alert(scenario: HouseholdScenario, analysis: HouseholdComp
         f"🔌 Creștere pe cablul AC intern: <b>{g.voltage_rise_internal_cable_v:.2f} V</b> "
         f"({s.internal_ac_cable_section_mm2:.1f} mm², {s.internal_ac_cable_length_m:.1f} m)",
         f"⏱ Opriri azi: <b>{g.total_trip_minutes_today} min</b> · pierdut {g.lost_production_today_kwh:.2f} kWh "
-        f"(vecini afectați simultan: {g.neighbors_affected_simultaneously}/{g.neighbors_total})",
+        f"(echipamente afectate simultan: {g.neighbors_affected_simultaneously}/{g.neighbors_total})",
         f"🩺 Cauză: <b>{e(_CAUSE_RO.get(g.cause.value, g.cause.value))}</b>",
         f"✅ Acțiune recomandată: {e(action)}",
     ]

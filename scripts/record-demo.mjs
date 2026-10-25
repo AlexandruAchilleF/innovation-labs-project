@@ -246,7 +246,7 @@ async function scenes(page, base) {
   await d.highlight(page.getByRole("heading", { level: 1 }), 1900, { zoom: 1.05, pad: 14 });
   const chapter = (name) => page.getByRole("heading", { name, level: 3 });
   await d.reveal(chapter("Rețea sau instalație locală"), 1200);
-  await d.caption("Invertorul s-a oprit la prânz? Rețeaua, nu instalația.", "6 din 11 vecini opriți în același minut, peste 253 V");
+  await d.caption("Invertorul s-a oprit în orele de vârf ale producției solare? Rețeaua, nu instalația.", "6 din 11 vecini opriți în același minut, peste 253 V");
   await d.highlight(chapter("Rețea sau instalație locală").locator("xpath=ancestor::li[1]"), 1600, { pad: 6 });
   await d.reveal(chapter("Baterie blocată seara"), 1200);
   await d.caption("Bateria e blocată exact când energia e scumpă", "rezervă 85% · 10,5 kWh nefolosiți seara");

@@ -38,7 +38,7 @@ describe("ticket store", () => {
       customer_name: "Elena Ionescu",
       city: "Corbeanca",
       scenario_badge_ro: "Instalație locală",
-      topic_ro: "Invertorul se oprește la prânz",
+      topic_ro: "Invertorul se oprește în orele de vârf ale producției solare",
       message_ro: "  De ce?  ",
       attach_diagnostic: true,
     });
@@ -70,7 +70,7 @@ describe("case summary", () => {
     expect(sc.proof).toHaveLength(3);
     expect(sc.proof[1]!.value).toContain(`din ${d.analysis.grid_verdict.neighbors_total}`);
     expect(prosumerCause(d)).toContain("Panourile tale nu sunt stricate");
-    expect(defaultTopic(d)).toBe("Invertorul se oprește la prânz");
+    expect(defaultTopic(d)).toBe("Invertorul se oprește în orele de vârf ale producției solare");
   });
 
   it("maps every flagship to its own kind", () => {

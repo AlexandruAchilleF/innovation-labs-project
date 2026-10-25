@@ -134,7 +134,7 @@ def _neighbor_node(trace: HouseTrace, neighbor_id: str, street_by_feeder: Dict[s
     return NeighborNode(
         neighbor_id=neighbor_id,
         anonymized_label=(
-            f"Vecin {neighbor_id} · plecarea {feeder_no} ({street_by_feeder[h.feeder_id]}) · "
+            f"Echipament {neighbor_id} · plecarea {feeder_no} ({street_by_feeder[h.feeder_id]}) · "
             f"{h.distance_from_transformer_m} m de PT · faza {h.phase.value}"
         ),
         distance_from_transformer_m=h.distance_from_transformer_m,

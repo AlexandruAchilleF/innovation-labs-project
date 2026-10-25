@@ -25,7 +25,7 @@ export const Route = createFileRoute("/harta")({
       {
         name: "description",
         content:
-          "Harta rețelei de joasă tensiune: prosumatori, vecini, încărcarea posturilor de transformare și supratensiuni pe parcursul zilei.",
+          "Harta rețelei de joasă tensiune: prosumatori, echipamente, încărcarea posturilor de transformare și supratensiuni pe parcursul zilei.",
       },
     ],
   }),

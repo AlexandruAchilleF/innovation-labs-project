@@ -8,11 +8,11 @@ Cifrele de aici vin din motoarele aplicației (rulate pe 25.10). Pentru demo și
 
 Spune-l ca pe o poveste, nu ca pe o listă. Pauzele sunt marcate cu „/”.
 
-> „Să zicem că sunteți furnizor de energie. / E august, ora prânzului, cer senin. Pe o stradă din Dumbrăvița, toate casele cu panouri trimit curent în rețea deodată, tensiunea trece de 253 de volți și invertoarele se opresc singure. / Clientul crede că i s-a stricat sistemul și vă sună pe voi.
+> „Să zicem că sunteți furnizor de energie. / E august, orele de vârf ale producției solare, cer senin. Pe o stradă din Dumbrăvița, toate casele cu panouri trimit curent în rețea deodată, tensiunea trece de 253 de volți și invertoarele se opresc singure. / Clientul crede că i s-a stricat sistemul și vă sună pe voi.
 >
 > Voi trimiteți un tehnician. Tehnicianul nu găsește nimic, pentru că problema e în rețea, nu în casă. Instalatorul zice că e rețeaua, distribuitorul zice că e invertorul, și nimeni nu are dovezi. / Un prosumator a povestit pe forum de 15–20 de vizite fără diagnostic.
 >
-> Și asta nu e singura problemă. Aproape 4 din 10 prosumatori au baterie, dar multe stau pline seara, exact când curentul e de opt ori mai scump decât la prânz. Iar cu Legea 160, fiecare factură neclară devine un apel la call center.
+> Și asta nu e singura problemă. Aproape 4 din 10 prosumatori au baterie, dar multe stau pline seara, exact când curentul e de opt ori mai scump decât în orele de vârf ale producției solare. Iar cu Legea 160, fiecare factură neclară devine un apel la call center.
 >
 > SunProof citește datele pe care invertorul și contorul le au deja, fără hardware nou și fără parola clientului, și răspunde la trei întrebări. / E rețeaua sau instalația? Dacă 6 din 11 vecini s-au oprit în același minut, e rețeaua, și dosarul pentru distribuitor e gata. / Stă bateria blocată seara? Vă spunem cât pierdeți, în lei. / E corectă factura? Comparăm invertorul, contorul și factura.
 >
@@ -24,7 +24,7 @@ Spune-l ca pe o poveste, nu ca pe o listă. Pauzele sunt marcate cu „/”.
 
 **De ce îl doare.** România are aproape 386.000 de prosumatori, iar 39% au baterie (ANRE, august 2026). Prosumatorii îl costă pe furnizor din trei motive:
 
-1. **Bateriile descarcă la ora greșită.** Cu Legea 160/2026, furnizorul preia energia de la prânz, când e ieftină, și o compensează cu cea consumată seara, când e de până la opt ori mai scumpă. Electrica a plătit în august un bonus pentru bateriile care livrează seara, dar a putut verifica abia pe factură, la o lună după, dacă bateria era setată bine.
+1. **Bateriile descarcă la ora greșită.** Cu Legea 160/2026, furnizorul preia energia din orele de vârf ale producției solare, când e ieftină, și o compensează cu cea consumată seara, când e de până la opt ori mai scumpă. Electrica a plătit în august un bonus pentru bateriile care livrează seara, dar a putut verifica abia pe factură, la o lună după, dacă bateria era setată bine.
 2. **Facturile de prosumator aduc dispute.** Până în ianuarie 2027, furnizorii trebuie să-și refacă facturile pentru noua lege. Fiecare factură neclară devine un apel sau o reclamație, iar ANRE vrea să claseze public furnizorii după reclamații.
 3. **Primesc reclamații care nu sunt ale lor.** Când invertorul se oprește din cauza rețelei, clientul sună tot la furnizor. Furnizorul e obligat să preia reclamația și s-o ducă la distribuitor. Dacă i-a vândut și panourile, trimite un tehnician, de multe ori degeaba.
 
@@ -70,7 +70,7 @@ Scopul e să aflăm dacă problemele sunt reale pentru furnizor, nu să le vinde
 
 ## De verificat înainte de pitch-ul final
 
-- Din interviuri: **2 din 2** interlocutori (un prosumator, un furnizor) au pomenit singuri opririle de la prânz; un distribuitor a găsit 60% din invertoarele verificate setate greșit; un prosumator povestește de 15–20 de vizite fără diagnostic (Softpedia). Citat public (APCE): „Când tensiunea din rețea depășește 253 V, echipamentele prosumatorilor se opresc automat.” Citatul exact din interviuri și rezultatele de la mentori: *[de confirmat]*. Detalii: `docs/interviews/2026-10-24-sinteza-dovezi-interviuri.md`.
+- Din interviuri: **2 din 2** interlocutori (un prosumator, un furnizor) au pomenit singuri opririle din orele de vârf ale producției solare; un distribuitor a găsit 60% din invertoarele verificate setate greșit; un prosumator povestește de 15–20 de vizite fără diagnostic (Softpedia). Citat public (APCE): „Când tensiunea din rețea depășește 253 V, echipamentele prosumatorilor se opresc automat.” Citatul exact din interviuri și rezultatele de la mentori: *[de confirmat]*. Detalii: `docs/interviews/2026-10-24-sinteza-dovezi-interviuri.md`.
 - Programul Electrica a fost un pilot în august 2026. Nu spunem că mai e activ.
 - Proiectele de ordin ANRE pentru Legea 160 erau în consultare în august. Nu spunem că au fost adoptate.
 - Sursele pentru fiecare cifră sunt în `docs/research/2026-10-24-ce-plateste-furnizorul.md`, secțiunea „Constatări”.

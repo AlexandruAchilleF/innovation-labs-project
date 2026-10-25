@@ -35,7 +35,7 @@ export function GridChapter() {
       ? ["Creștere pe cablul intern", `${fmt(g.voltage_rise_internal_cable_v, 1)} V`]
       : ["Limită legală", `${fmt(g.legal_limit_v, 1)} V`],
     [
-      "Vecini opriți simultan",
+      "Echipamente oprite simultan",
       `${fmt(g.neighbors_affected_simultaneously)} / ${fmt(g.neighbors_total)}`,
     ],
   ];
@@ -59,7 +59,7 @@ export function GridChapter() {
               h={H}
               label={
                 local
-                  ? "Declanșează doar invertorul clientului; vecinii rămân în funcțiune"
+                  ? "Declanșează doar invertorul clientului; celelalte echipamente rămân în funcțiune"
                   : "Invertoarele de pe același post de transformare declanșează în același minut"
               }
             >
@@ -92,7 +92,7 @@ export function GridChapter() {
         />
         <Shot
           src="/landing/grid-volt.webp"
-          alt="Tensiunea la invertor și la contor depășește 253 V în aceleași minute cu vecinii"
+          alt="Tensiunea la invertor și la contor depășește 253 V în aceleași minute ca la celelalte echipamente"
           w={1400}
           h={417}
           className="relative z-10 -mt-[14%] ml-auto w-[78%] sm:-mr-6 lg:-mr-12"

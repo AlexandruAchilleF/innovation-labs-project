@@ -233,7 +233,7 @@ html = f"""<!doctype html><html lang="ro"><head><meta charset="utf-8"><style>{cs
     <div class="wh" style="font-size:13px;margin-bottom:4px">Prețul orei</div>
     <div style="color:#6B7385;font-size:10.5px">curbă ilustrativă</div>
     <svg width="136" height="48" viewBox="0 0 136 48" style="margin-top:8px"><polyline points="{spark}" fill="none" stroke="#2FBF71" stroke-width="1.8"/></svg>
-    <div style="font-size:12px;margin-top:4px">Seara: până la <b>8×</b> prânzul</div>
+    <div style="font-size:12px;margin-top:4px">Seara: până la <b>8×</b> intervalul de amiază</div>
   </section>
   <section class="w" style="left:190px;top:596px;width:158px;height:150px">
     <div class="wh" style="font-size:13px;margin-bottom:6px">Soarele acum</div>

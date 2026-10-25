@@ -149,7 +149,7 @@ def _customer_question(trace: HouseTrace, total_ron: float, billed_export: float
     if h.fault == InstallationFault.INVERTER_DEVICE_FAULT:
         return "Aplicația invertorului nu mai arată producție de câteva zile și factura a crescut. Ce s-a întâmplat?"
     if trace.trip_events > 0:
-        return "De ce se oprește invertorul în fiecare zi la prânz? Pierd producție exact când e soare."
+        return "De ce se oprește invertorul în fiecare zi în orele de vârf ale producției solare? Pierd producție exact când e soare."
     if battery in (BatteryVerdictStatus.MISCONFIGURED_MODE, BatteryVerdictStatus.MISCONFIGURED_SOC_RESERVE):
         return "Am baterie, dar tot iau mult curent din rețea seara. De ce nu mă ajută bateria?"
     if h.fault in (InstallationFault.STRING_FAULT, InstallationFault.SOILING_DEGRADATION):

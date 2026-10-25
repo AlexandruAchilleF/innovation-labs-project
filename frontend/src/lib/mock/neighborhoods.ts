@@ -9,7 +9,7 @@ const defs: Array<{ id: string; name: string; kva: number; tap: number; rise: nu
   { id: "NB-BRAGADIRU", name: "Bragadiru Sud", kva: 250, tap: 2.5, rise: 17, imb: 1.2, cause: "Linie lungă 620 m, secțiune mică", feeders: 2, houses: 15 },
   { id: "NB-CORBEANCA", name: "Corbeanca Centru", kva: 400, tap: 0, rise: 8, imb: 1.1, cause: "Rețea sănătoasă — probleme doar locale", feeders: 2, houses: 12 },
   { id: "NB-CLUJ", name: "Cluj – Mărăști", kva: 630, tap: 0, rise: 9, imb: 1.15, cause: "Baterii neoptimizate seara", feeders: 3, houses: 14 },
-  { id: "NB-BRASOV", name: "Brașov – Schei", kva: 400, tap: 0, rise: 10, imb: 1.15, cause: "Stres moderat la prânz", feeders: 2, houses: 12 },
+  { id: "NB-BRASOV", name: "Brașov – Schei", kva: 400, tap: 0, rise: 10, imb: 1.15, cause: "Stres moderat în orele de vârf ale producției solare", feeders: 2, houses: 12 },
   { id: "NB-BUCURESTI", name: "București – Drumul Taberei", kva: 630, tap: -2.5, rise: 12, imb: 1.2, cause: "Rețea urbană robustă", feeders: 3, houses: 15 },
 ];
 

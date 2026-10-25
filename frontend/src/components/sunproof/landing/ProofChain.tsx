@@ -101,7 +101,7 @@ function Explained() {
         ],
         ["Limită legală", "legal_limit_v", g.legal_limit_v, `${fmt(g.legal_limit_v)} V`],
         [
-          "Vecini opriți",
+          "Echipamente oprite",
           "neighbors_affected_simultaneously",
           g.neighbors_affected_simultaneously,
           fmt(g.neighbors_affected_simultaneously),

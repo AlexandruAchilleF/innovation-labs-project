@@ -27,7 +27,7 @@ def _story_billing() -> Dict[str, _StoryBilling]:
     return {
         # Grid overvoltage on PT-04 Str. Soarelui + Huawei LUNA2000 locked at 80% reserve
         "RO-TM-001": _StoryBilling(
-            badge_ro="Rețea (>253V cu vecinii) + Baterie blocată 80%",
+            badge_ro="Rețea (>253V cu echipamentele) + Baterie blocată 80%",
             monthly=MonthlyEnergySummary(
                 month_label=MONTH_LABEL, days_in_month=DAYS_IN_MONTH,
                 pvgis_expected_production_kwh=1140.0,
@@ -52,7 +52,7 @@ def _story_billing() -> Dict[str, _StoryBilling]:
                 active_energy_supply_price_ron_kwh=0.68, grid_tariffs_and_taxes_ron_kwh=0.62,
                 total_retail_import_price_ron_kwh=1.30,
                 total_payable_ron=184.76,  # 298 kWh imported in the evening * 0.62 RON/kWh non-compensable grid taxes
-                customer_question_ro="De ce mi se oprește invertorul în fiecare zi la prânz și de ce mai plătesc 185 RON seara dacă am baterie de 10 kWh?",
+                customer_question_ro="De ce mi se oprește invertorul în fiecare zi în orele de vârf ale producției solare și de ce mai plătesc 185 RON seara dacă am baterie de 10 kWh?",
             ),
         ),
         # Local fault in Corbeanca: 245V threshold + 2.5 mm² / 38 m AC cable, healthy street
@@ -78,7 +78,7 @@ def _story_billing() -> Dict[str, _StoryBilling]:
                 carried_forward_export_credit_kwh=186.0,
                 active_energy_supply_price_ron_kwh=0.68, grid_tariffs_and_taxes_ron_kwh=0.62,
                 total_retail_import_price_ron_kwh=1.30, total_payable_ron=162.44,
-                customer_question_ro="Invertorul se oprește zilnic la prânz cu eroare de supratensiune. Trimiteți distribuitorul să repare rețeaua!",
+                customer_question_ro="Invertorul se oprește zilnic în orele de vârf ale producției solare cu eroare de supratensiune. Trimiteți distribuitorul să repare rețeaua!",
             ),
         ),
         # Cluj: BYD 15 kWh left in BACKUP_RESERVE at 85%

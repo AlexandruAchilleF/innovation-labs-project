@@ -52,9 +52,9 @@ export function NeighborStrip({
         <h2 className="text-[13px] font-medium text-bone">Strada clientului</h2>
         <span
           className="num text-[11px] text-fog"
-          title="Vecini de pe stradă opriți sau în derating la ora selectată"
+          title="Echipamente de pe stradă oprite sau în derating la ora selectată"
         >
-          pe stradă, la {slotLabel(slot)}: {peersHit} din {peers.length} vecini
+          pe stradă, la {slotLabel(slot)}: {peersHit} din {peers.length} echipamente
         </span>
       </div>
       <div className="relative rounded-[8px] border border-border bg-obsidian px-2 pb-2 pt-3">
@@ -76,7 +76,7 @@ export function NeighborStrip({
                   selected={me}
                   monitored={!!h.household_id}
                   size={50}
-                  title={`${me ? "Client" : "Vecin"} · ${statusRo[st]} · ${fmt(v, 1)} V · ${h.distance_m} m de PT`}
+                  title={`${me ? "Client" : "Echipament"} · ${statusRo[st]} · ${fmt(v, 1)} V · ${h.distance_m} m de PT`}
                 />
                 <span
                   className={cn(

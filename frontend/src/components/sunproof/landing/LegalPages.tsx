@@ -68,7 +68,7 @@ const LEGAL_DOCUMENTS: Record<LegalDocKey, LegalDocument> = {
           ],
           [
             "Motoare deterministe SunProof",
-            "Algoritmii matematici și fizici rulați în cadrul Platformei care calculează cauzele opririlor de invertor la prânz, randamentul de arbitraj al bateriei pe Piața pentru Ziua Următoare (OPCOM PZU) și reconcilierea cantitativă 1:1 a facturilor.",
+            "Algoritmii matematici și fizici rulați în cadrul Platformei care calculează cauzele opririlor de invertor în orele de vârf ale producției solare, randamentul de arbitraj al bateriei pe Piața pentru Ziua Următoare (OPCOM PZU) și reconcilierea cantitativă 1:1 a facturilor.",
           ],
           [
             "Garda numerică (Numeric Guardrail)",
@@ -85,7 +85,7 @@ const LEGAL_DOCUMENTS: Record<LegalDocKey, LegalDocument> = {
         bullets: [
           [
             "Diagnosticul supratensiunii (EN 50549-1)",
-            "Separarea dintre supratensiunea de rețea (creșterea simultană a tensiunii peste pragul de 253,0 V la mai mulți vecini racordați pe același transformator și fider) și defecțiunea instalației locale (cădere sau creștere de tensiune pe cablul intern subdimensionat dintre invertor și contor, în timp ce rețeaua vecină rămâne în parametri normali).",
+            "Separarea dintre supratensiunea de rețea (creșterea simultană a tensiunii peste pragul de 253,0 V la mai multe echipamente racordate pe același transformator și fider) și defecțiunea instalației locale (cădere sau creștere de tensiune pe cablul intern subdimensionat dintre invertor și contor, în timp ce rețeaua din zonă rămâne în parametri normali).",
           ],
           [
             "Auditul configurației bateriei",
@@ -212,8 +212,8 @@ const LEGAL_DOCUMENTS: Record<LegalDocKey, LegalDocument> = {
             "Sumele lunare facturate, cantitățile de energie activă compensată cantitativ 1:1 conform Legii 160/2026, soldul reportat de energie și regimul de decontare aplicabil.",
           ],
           [
-            "Date de analiză de vecinătate (anonimizate la nivel de fider)",
-            "Pentru determinarea simultaneității supratensiunii pe transformator, Platforma calculează indicatori agregați (rata de simultaneitate a decuplărilor pe același fider) fără a expune unui prosumator identitatea civilă sau consumul privat al vecinilor săi.",
+            "Date de analiză a echipamentelor din zonă (anonimizate la nivel de fider)",
+            "Pentru determinarea simultaneității supratensiunii pe transformator, Platforma calculează indicatori agregați (rata de simultaneitate a decuplărilor pe același fider) fără a expune unui prosumator identitatea proprietarilor sau consumul privat asociat celorlalte echipamente.",
           ],
         ],
       },
@@ -226,7 +226,7 @@ const LEGAL_DOCUMENTS: Record<LegalDocKey, LegalDocument> = {
         bullets: [
           [
             "Executarea contractului și furnizarea serviciului de diagnostic (Art. 6 alin. 1 lit. b GDPR)",
-            "Identificarea cauzelor opririlor de invertor la prânz, diagnosticarea rezervelor de baterie blocate și verificarea corectitudinii facturilor lunare de prosumator.",
+            "Identificarea cauzelor opririlor de invertor în orele de vârf ale producției solare, diagnosticarea rezervelor de baterie blocate și verificarea corectitudinii facturilor lunare de prosumator.",
           ],
           [
             "Îndeplinirea obligațiilor legale din sectorul energetic (Art. 6 alin. 1 lit. c GDPR)",

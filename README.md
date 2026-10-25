@@ -17,7 +17,7 @@ Pentru a răspunde cerinței juriului de a **depăși un simplu apel LLM** și d
 | Resursă din Brief | Sursa & Format | Rolul în SunProof | Unde se regăsește în Cod |
 |---|---|---|---|
 | **PVGIS** *(Comisia Europeană / JRC)* | API public (`seriescalc`) & modele orare de radiație solară per kWp | Calibrarea etalonului de producție fotovoltaică curată (`pvgis_expected_kw`) pe coordonatele reale ale României (București, Cluj, Timișoara, Brașov, Constanța, Iași), cu corecție de orientare (S/E/V) și decalaj longitudinal. | [`scripts/download_data.sh`](scripts/download_data.sh)<br>[`sunproof/grid.py`](sunproof/grid.py#L115) |
-| **OPCOM PZU** *(Bursa de Energie din România)* | Prețuri orare Piața pentru Ziua Următoare (PZU) | Curba de preț 24h pentru august 2026 (scăderea la prânz la **85–135 RON/MWh** vs. vârful de seară la **940–1.120 RON/MWh**). Folosită pentru calculul pierderilor financiare reale din bateriile blocate și arbitrajul de seară. | [`sunproof/data/opcom_and_physics.py`](sunproof/data/opcom_and_physics.py#L32)<br>[`sunproof/engine/arbitrage.py`](sunproof/engine/arbitrage.py) |
+| **OPCOM PZU** *(Bursa de Energie din România)* | Prețuri orare Piața pentru Ziua Următoare (PZU) | Curba de preț 24h pentru august 2026 (scăderea în orele de vârf ale producției solare la **85–135 RON/MWh** vs. vârful de seară la **940–1.120 RON/MWh**). Folosită pentru calculul pierderilor financiare reale din bateriile blocate și arbitrajul de seară. | [`sunproof/data/opcom_and_physics.py`](sunproof/data/opcom_and_physics.py#L32)<br>[`sunproof/engine/arbitrage.py`](sunproof/engine/arbitrage.py) |
 | **StoreNet Dataset** *(Irlanda, 2020 / Scientific Data)* | 20 case cu PV + baterii 10 kWh, telemetrie la 1 minut | Modelarea comportamentului realist al bateriei (BMS, randament 96%, curbe de încărcare/descărcare) și tipare dinamice de consum (electrocasnice, AC, vârf de consum). | [`sunproof/grid.py`](sunproof/grid.py#L170)<br>[`docs/research/2026-10-24-surse-date.md`](docs/research/2026-10-24-surse-date.md) |
 | **Open Power System Data (OPSD)** | Date reale de consum rezidențial și profiluri la 15 minute | Validarea curbei de sarcină a contorului inteligent (seria 15-min specifică distribuitorilor) și corelarea cu producția proprie. | [`sunproof/data/archetypes.py`](sunproof/data/archetypes.py) |
 | **Interfețe Invertoare Reale** *(Huawei, Fronius, Deye, SMA)* | FusionSolar Northbound API, Fronius Solar API, Modbus SunSpec | Preluarea codurilor oficiale de eroare la supratensiune (Huawei `2034`, Fronius `102`, Growatt `300`) și a telemetriei disponibile fără a cere parole instalator. | [`sunproof/grid.py`](sunproof/grid.py#L85)<br>[`sunproof/api_support.py`](sunproof/api_support.py) |
@@ -34,8 +34,8 @@ Pentru a răspunde cerinței juriului de a **depăși un simplu apel LLM** și d
 
 Din interviurile noastre cu prosumatori, instalatori și dispecerate O&M, am identificat **3 găuri negre financiare invizibile**:
 
-1. **Supratensiunea de la prânz (253 V):** Rețelele rurale și periurbane de joasă tensiune sunt saturate. La prânz (11:00–15:00), când producția solară este maximă, tensiunea depășește pragul legal EN 50549-1 de **253 V**, iar invertoarele se decuplează automat. Prosumatorul crede că „s-a înnorat”, iar furnizorul trimite echipe de intervenție în teren doar ca să constate că instalația din casă este impecabilă (**450 RON irosiți pe fiecare deplasare inutilă**).
-2. **Baterii blocate din montaj:** Peste 60% dintre baterii rămân setate la o rezervă de siguranță de **80% SoC** (setarea din fabrică), deși proprietarul a cerut rezervă de 20%. Bateria refuză să se încarce la prânz și nu livrează nimic în **vârful de seară OPCOM PZU (19:00–22:00)**, când energia este cu până la 60% mai scumpă. Pierderea: peste **1.000 RON/an per gospodărie**.
+1. **Supratensiunea din orele de vârf ale producției solare (253 V):** Rețelele rurale și periurbane de joasă tensiune sunt saturate. În orele de vârf ale producției solare (11:00–15:00), tensiunea depășește pragul legal EN 50549-1 de **253 V**, iar invertoarele se decuplează automat. Prosumatorul crede că „s-a înnorat”, iar furnizorul trimite echipe de intervenție în teren doar ca să constate că instalația din casă este impecabilă (**450 RON irosiți pe fiecare deplasare inutilă**).
+2. **Baterii blocate din montaj:** Peste 60% dintre baterii rămân setate la o rezervă de siguranță de **80% SoC** (setarea din fabrică), deși proprietarul a cerut rezervă de 20%. Bateria refuză să se încarce în orele de vârf ale producției solare și nu livrează nimic în **vârful de seară OPCOM PZU (19:00–22:00)**, când energia este cu până la 60% mai scumpă. Pierderea: peste **1.000 RON/an per gospodărie**.
 3. **Facturi decontate eronat (Legea 160/2026):** Compensarea cantitativă 1:1 între producție, import (1.8.0) și export (2.8.0) conține frecvent discrepanțe neobservate de clienți sau cantități injectate nedecontate de furnizor.
 
 ---
@@ -59,7 +59,7 @@ SunProof este un motor software independent de brand, **100% fără hardware sup
             ▼                                       ▼                                       ▼
    REȚEAUA E DE VINĂ?                      BATERIA FACE CE VREI?                   FACTURA E CORECTĂ?
  Supratensiune pe post confirmată        Intenție (20%) vs. Setare (80%).        Compensare 1:1 calculată
- de vecini -> Dosar PDF generat          Arbitraj PZU seară vs. prânz            față de contor -> Bani
+ de vecini -> Dosar PDF generat          Arbitraj PZU seară vs. amiază            față de contor -> Bani
  oficial către Distribuitor.             calculat instant.                       recuperați.
 ```
 

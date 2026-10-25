@@ -98,6 +98,6 @@ def _texts(status: BillingVerdictStatus, n: dict[str, float]) -> dict[str, str]:
         ) + savings,
         "action": (
             "Nicio corecție necesară. Explicați clientului diferența dintre producția totală a panourilor "
-            "și energia injectată în rețea; pentru a reduce importul, mutați consumul mare la prânz."
+            "și energia injectată în rețea; pentru a reduce importul, mutați consumul mare în orele de vârf ale producției solare."
         ),
     }

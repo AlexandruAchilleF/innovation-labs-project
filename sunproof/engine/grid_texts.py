@@ -20,16 +20,16 @@ def _texts(cause: GridFaultCause, f: dict, operator: str) -> dict[str, str]:
         f"Opriri pentru supratensiune: {f['trip']} minute, limitare de putere: {f['derate']} minute "
         f"({f['n_ev']} ferestre). Tensiune maximă la invertor: {_f(f['inv'])} V; la contorul inteligent: "
         f"{_f(f['met'])} V; creștere pe cablul intern: {_f(f['rise'])} V. Prag configurat: {_f(f['thr'])} V "
-        f"(limita legală: {_f(EN50549_LIMIT_V)} V). Vecini afectați simultan: {f['aff']} din {f['tot']}. "
+        f"(limita legală: {_f(EN50549_LIMIT_V)} V). Echipamente afectate simultan: {f['aff']} din {f['tot']}. "
         f"Producție azi: {_f(f['act'])} kWh față de {_f(f['exp'])} kWh estimat PVGIS."
     )
     loss = (f"Pierderea estimată este de {_f(f['lost'])} kWh azi, adică aproximativ {_f(f['lost_m'])} kWh "
             f"și {_f(f['ron'])} RON pe lună.")
     if cause == G.GRID_OVERVOLTAGE:
         return dict(
-            headline_ro=f"Rețeaua a oprit invertorul: supratensiune pe postul de transformare ({f['aff']} din {f['tot']} vecini afectați)",
-            explanation_ro=(f"Tensiunea a ajuns la {_f(f['met'])} V chiar la contor, iar {f['aff']} din {f['tot']} vecini "
-                            f"de pe același transformator au fost afectați în aceleași minute. Datele indică "
+            headline_ro=f"Rețeaua a oprit invertorul: supratensiune pe postul de transformare ({f['aff']} din {f['tot']} echipamente afectate)",
+            explanation_ro=(f"Tensiunea a ajuns la {_f(f['met'])} V chiar la contor, iar {f['aff']} din {f['tot']} echipamente "
+                            f"de pe același transformator au fost afectate în aceleași minute. Datele indică "
                             f"o problemă în rețeaua de distribuție. {loss}"),
             technical_proof_summary_ro=proof,
             recommended_action_supplier_ro=(f"Nu trimiteți echipă la client. Generați dosarul PDF și depuneți reclamația "
@@ -41,7 +41,7 @@ def _texts(cause: GridFaultCause, f: dict, operator: str) -> dict[str, str]:
         return dict(
             headline_ro=f"Invertorul se oprește prea devreme: prag setat la {_f(f['thr'])} V în loc de {_f(EN50549_LIMIT_V)} V",
             explanation_ro=(f"Invertorul s-a oprit la {_f(f['inv'])} V, sub limita legală de {_f(EN50549_LIMIT_V)} V, "
-                            f"iar coroborarea vecinilor este limitată ({f['aff']} din {f['tot']}). Pragul de protecție este "
+                            f"iar coroborarea datelor de la celelalte echipamente este limitată ({f['aff']} din {f['tot']}). Pragul de protecție este "
                             f"configurat greșit (cod de țară incorect). {loss}"),
             technical_proof_summary_ro=proof,
             recommended_action_supplier_ro=(f"Trimiteți alertă tehnicianului instalator: setarea pragului de supratensiune "
@@ -53,8 +53,8 @@ def _texts(cause: GridFaultCause, f: dict, operator: str) -> dict[str, str]:
         return dict(
             headline_ro=f"Cablul dintre invertor și contor este subdimensionat: creștere de {_f(f['rise'])} V",
             explanation_ro=(f"La contor tensiunea a fost normală ({_f(f['met'])} V), dar la bornele invertorului a urcat "
-                            f"la {_f(f['inv'])} V din cauza căderii de tensiune pe cablul intern. Vecinii nu au fost "
-                            f"afectați ({f['aff']} din {f['tot']}). {loss}"),
+                            f"la {_f(f['inv'])} V din cauza căderii de tensiune pe cablul intern. Echipamentele nu au fost "
+                            f"afectate ({f['aff']} din {f['tot']}). {loss}"),
             technical_proof_summary_ro=proof,
             recommended_action_supplier_ro=("Trimiteți alertă tehnicianului instalator: înlocuirea cablului AC cu o "
                                             "secțiune mai mare sau scurtarea traseului până la tabloul contorului."),

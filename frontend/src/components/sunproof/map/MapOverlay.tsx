@@ -218,7 +218,7 @@ export function MapOverlay({
                       ? "Clientul analizat"
                       : h.household_id
                         ? "Client monitorizat"
-                        : "Vecin"}{" "}
+                        : "Echipament"}{" "}
                     · {id}
                   </div>
                   <div className="num text-[11px] text-fog">

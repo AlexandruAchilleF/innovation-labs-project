@@ -10,9 +10,9 @@ Documentul de referință: tot ce spunem, cu dovezile și cifrele. Pentru prezen
 
 **Cine o are:** cei 385.791 de prosumatori din România (ANRE, august 2026), adică oameni cu panouri pe casă, dintre care 39% au și baterie. O au și echipele de O&M care le întrețin sistemele.
 
-**Ce se întâmplă:** e iulie, ora 12:40, cer senin. Toate casele de pe stradă trimit energie în rețea în același timp, iar tensiunea trece de 253 V. Invertoarele de la capătul străzii, cele mai departe de transformator, se opresc automat, fiecare pentru cel puțin 15 minute. Proprietarul nu primește nicio explicație: în aplicația invertorului vede doar o gaură în grafic, la prânz.
+**Ce se întâmplă:** e iulie, ora 12:40, cer senin. Toate casele de pe stradă trimit energie în rețea în același timp, iar tensiunea trece de 253 V. Invertoarele de la capătul străzii, cele mai departe de transformator, se opresc automat, fiecare pentru cel puțin 15 minute. Proprietarul nu primește nicio explicație: în aplicația invertorului vede doar o gaură în grafic, în orele de vârf ale producției solare.
 
-**Ce pierde:** la prânz, un sistem obișnuit de 6 kWp produce în jur de 4,8 kW. O oră de opriri înseamnă aproape 5 kWh pierduți, chiar energia cea mai bună a zilei. Din interviuri: un prosumator și un furnizor ne-au indicat, separat și fără să le sugerăm, opririle de la prânz ca problemă. Numărul de opriri pe lună: *[de confirmat din notițe]*.
+**Ce pierde:** în orele de vârf ale producției solare, un sistem obișnuit de 6 kWp produce în jur de 4,8 kW. O oră de opriri înseamnă aproape 5 kWh pierduți, chiar energia cea mai bună a zilei. Din interviuri: un prosumator și un furnizor ne-au indicat, separat și fără să le sugerăm, opririle din orele de vârf ale producției solare ca problemă. Numărul de opriri pe lună: *[de confirmat din notițe]*.
 
 **De ce nu se rezolvă:** nimeni nu poate dovedi a cui e vina. Instalatorul spune că e rețeaua, distribuitorul spune că e echipamentul. Fără date, o sesizare nu duce nicăieri, iar tehnicienii fac deplasări degeaba: un prosumator povestește de 15–20 de vizite fără diagnostic. Când chiar e un defect de echipament, echipa O&M află abia când sună clientul. Cu bateria e la fel: dacă e setată altfel decât a vrut omul, nu apare nicio alarmă, dar seara el plătește curent din rețea.
 
@@ -20,14 +20,14 @@ Documentul de referință: tot ce spunem, cu dovezile și cifrele. Pentru prezen
 
 ## 2. Problemele pe care le rezolvăm și dovezile că sunt reale
 
-### Problema 1: „La prânz, când e cel mai mult soare, invertorul se oprește”
+### Problema 1: „În orele de vârf ale producției solare, când e cel mai mult soare, invertorul se oprește”
 
 **Ce se întâmplă:** când mulți vecini trimit energie în rețea în același timp, tensiunea pe stradă crește. Peste 253 V, invertorul se oprește singur, ca să se protejeze. Proprietarul pierde exact energia cea mai bună a zilei și de multe ori nici nu știe.
 
 **Dovezi:**
 - Asociația Prosumatorilor (APCE) spune public: „Când tensiunea din rețea depășește 253 V, echipamentele prosumatorilor se opresc automat” ([Economica.net, aprilie 2025](https://www.economica.net/apce-indeamna-prosumatorii-sa-opreasca-invertoarele-daca-pleaca-de-acasa-de-paste_829117.html)).
 - În România sunt **385.791 de prosumatori, iar 151.040 (circa 39%) au baterie** (ANRE, 31 august 2026, prin Cotidianul). La sfârșitul lui iunie erau 127.084 de baterii ([StartupCafe](https://startupcafe.ro/romani-panouri-solare-cati-prosumatori-racordare-retelele-electrice-romania-105065)), deci au apărut aproximativ 24.000 de baterii noi în două luni. Cu cât sunt mai mulți prosumatori pe aceeași stradă, cu atât problema e mai mare.
-- Din interviurile noastre: **2 din 2** interlocutori (un prosumator, un furnizor) au indicat spontan opririle de la prânz. Câți nu știau de ele: *[de confirmat]*.
+- Din interviurile noastre: **2 din 2** interlocutori (un prosumator, un furnizor) au indicat spontan opririle din orele de vârf ale producției solare. Câți nu știau de ele: *[de confirmat]*.
 - Un distribuitor a găsit **60% din invertoarele verificate** setate greșit (în brief: 60% din 460; cifra 460 *[de confirmat sursa]*).
 - Citat reprezentativ 1 (APCE, public): „Când tensiunea din rețea depășește 253 V, echipamentele prosumatorilor se opresc automat.”
 - Citat reprezentativ 2 (Softpedia, caz documentat): un prosumator povestește **15–20 vizite fără diagnostic**. Citatul exact din interviuri: *[de confirmat din notițe]*.
@@ -61,7 +61,7 @@ Documentul de referință: tot ce spunem, cu dovezile și cifrele. Pentru prezen
 Pe scurt: **citim datele pe care invertorul și contorul le au deja și răspundem la trei întrebări, cu dovada la vedere.** Fiecare verificare dă un verdict clar, cine trebuie să rezolve și ce face mai departe.
 
 1. **Rețea sau instalație?** Ne uităm la tensiunea casei și la vecinii de pe același post de transformare. Dacă mai mulți vecini se opresc în același minut și tensiunea trece de 253 V, e rețeaua. Furnizorul nu mai trimite echipa, iar clientul primește **dosarul tehnic în PDF** pentru distribuitor: opririle, tensiunea minut cu minut, vecinii afectați și energia pierdută. Dacă se oprește doar casa ta și vecinii produc normal, e instalația: un prag setat greșit, un cablu prea subțire sau un defect. Atunci tehnicianul primește **alerta pe Telegram**.
-2. **Bateria e blocată seara?** Comparăm ce a vrut clientul („folosesc bateria seara, păstrez 20% pentru pană”) cu ce e setat de fapt și cu ce s-a întâmplat. Dacă bateria stă plină seara, arătăm câți kWh sunt blocați și câți lei pierd clientul și furnizorul, după prețurile OPCOM de la prânz și de seară. Dacă clientul chiar a vrut o rezervă mare, nu dăm alarmă.
+2. **Bateria e blocată seara?** Comparăm ce a vrut clientul („folosesc bateria seara, păstrez 20% pentru pană”) cu ce e setat de fapt și cu ce s-a întâmplat. Dacă bateria stă plină seara, arătăm câți kWh sunt blocați și câți lei pierd clientul și furnizorul, după prețurile OPCOM din orele de vârf ale producției solare și de seară. Dacă clientul chiar a vrut o rezervă mare, nu dăm alarmă.
 3. **Factura e corectă?** Punem lângă ce a produs invertorul, ce a măsurat contorul și ce scrie pe factură, după regula 1:1 din Legea 160/2026. Dacă energia trimisă în rețea lipsește de pe factură, arătăm suma de corectat. Dacă factura e corectă, explicăm de ce: „ai produs 780 kWh, dar 470 i-ai folosit direct în casă, deci la contor au ajuns doar 310”.
 
 **Tichetul se închide pe date, nu pe cuvânt.** După o reparație, tichetul O&M se închide abia după zile însorite fără defect. Dacă defectul revine, se redeschide singur. Dacă e înnorat sau invertorul nu mai trimite date, spunem „dovezi insuficiente”, nu „rezolvat”.
@@ -75,11 +75,11 @@ Pe scurt: **citim datele pe care invertorul și contorul le au deja și răspund
 | `/` (prima pagină) | Oricine | Cele trei verificări, cu cazurile reale din demo, și cum se închide un caz |
 | `/harta` | Furnizorul | Harta posturilor de transformare, casele colorate după stare, încărcarea străzilor. **Analiză detaliată** deschide cele trei verificări, cu acțiunile: **Descarcă dosarul tehnic pentru OD**, **Alocă intervenție O&M (Telegram)**, **Emite factura de corecție**. **Simulează soluția** arată distribuitorului înainte/după |
 | `/triaj` | Furnizorul, analistul | Lista tuturor caselor și, pentru fiecare, graficele de tensiune, baterie și factură, ciclul tichetului O&M și verificarea textelor generate |
-| `/prosumator` | Clientul | Casa lui, cu energia care curge prin ea, de-a lungul zilei (**Avarie / Prânz / Seară**), explicația pe limba lui, luna zi cu zi (**Pe zile**) și butonul de tichet către furnizor |
+| `/prosumator` | Clientul | Casa lui, cu energia care curge prin ea, de-a lungul zilei (**Avarie / Amiază / Seară**), explicația pe limba lui, luna zi cu zi (**Pe zile**) și butonul de tichet către furnizor |
 
 ## 4. Cum l-am construit (pe scurt)
 
-- **Datele.** Producția solară e reală: date oficiale ale Comisiei Europene (PVGIS). Tensiunea pe stradă o calculăm cu un model fizic al rețelei de joasă tensiune, pentru că **nu există date publice despre ea**. Spunem asta deschis. Prețurile de la prânz și de seară urmează curba OPCOM PZU.
+- **Datele.** Producția solară e reală: date oficiale ale Comisiei Europene (PVGIS). Tensiunea pe stradă o calculăm cu un model fizic al rețelei de joasă tensiune, pentru că **nu există date publice despre ea**. Spunem asta deschis. Prețurile din orele de vârf ale producției solare și de seară urmează curba OPCOM PZU.
 - **Cartierele simulate.** 8 cartiere reale ca locație (Dumbrăvița, Giroc, Bragadiru, Corbeanca, Florești, Cluj-Zorilor, București-Aviației, Brașov-Răcădău), fiecare cu postul lui de transformare și cu aproximativ 220 de case în total. Dintre ele, 81 sunt clienți ai furnizorului care și-au dat acordul. Casele de la capătul străzii au tensiunea cea mai mare și se opresc primele, exact ca în realitate. Am pus în flotă și defecte: praguri setate greșit, cabluri subdimensionate, baterii pe modul greșit, facturi fără index de export.
 - **Motoarele de decizie.** Reguli clare, scrise în cod, nu „păreri” ale unui AI. Vecini opriți în același minut plus tensiune peste prag înseamnă rețea. Tensiune normală și vecini care produc înseamnă instalație. Lipsa datelor e „lipsă date”, nu oprire. Aceleași date dau mereu același verdict. Nu antrenăm un model ML: n-avem defecte reale etichetate, iar vecinii sunt deja reperul care spune cât ar fi trebuit să producă fiecare casă.
 - **AI-ul.** Doar scrie textele, iar fiecare cifră e verificată în cod (vezi secțiunea 3). Fără cheie API, aplicația merge cu șabloane, deci demo-ul nu depinde de internet.
@@ -104,11 +104,11 @@ Cazul de control e **Cristina (București)**: totul e în regulă, iar aplicați
 Patru grafice, fiecare cu o singură concluzie scrisă deasupra și cu mențiunea ce e real și ce e simulat:
 
 1. **„Bateriile cresc mai repede decât le verifică cineva.”** Baterii la prosumatori, iunie–august 2026: de la 127.084 la 151.040 (ANRE). Real.
-2. **„Prânzul e și cel mai bun moment, și cel mai riscant.”** Producția PVGIS pe o zi de vară, peste tensiunea pe stradă. Producția e reală, tensiunea simulată.
+2. **„Amiaza: producție maximă și risc de supratensiune.”** Producția PVGIS pe o zi de vară, peste tensiunea pe stradă. Producția e reală, tensiunea simulată.
 3. **„Capătul străzii se oprește primul, deși panourile sunt bune.”** Tensiunea maximă casă cu casă pe o stradă demo. Simulat.
 4. **„Ce pierd omul și furnizorul.”** Energia pierdută la opriri și banii pierduți din bateriile setate greșit. Simulat, cu formula la vedere.
 
-Înaintea lor vine slide-ul cu cifrele din interviuri („2 din 2 interlocutori au pomenit singuri opririle de la prânz”, 15–20 de vizite fără diagnostic, 60% invertoare setate greșit) și două citate: cel al APCE despre 253 V și cazul de pe Softpedia (citatul din interviuri: *[de confirmat]*).
+Înaintea lor vine slide-ul cu cifrele din interviuri („2 din 2 interlocutori au pomenit singuri opririle din orele de vârf ale producției solare”, 15–20 de vizite fără diagnostic, 60% invertoare setate greșit) și două citate: cel al APCE despre 253 V și cazul de pe Softpedia (citatul din interviuri: *[de confirmat]*).
 
 ### Dovada că funcționează (evaluare pe 81 de case)
 
@@ -221,7 +221,7 @@ Tensiunea, bateriile, facturile și invertoarele sunt simulate. Producția solar
 | API sau sursă | Ce luăm de acolo | În demo |
 |---|---|---|
 | **PVGIS** (Comisia Europeană, JRC) | Producția solară reală, cu norii reali | Real, descărcat o dată |
-| **OPCOM PZU** | Cât valorează energia la fiecare oră: prânz față de seară | Curba de preț a lunii august 2026 |
+| **OPCOM PZU** | Cât valorează energia la fiecare oră: amiază față de seară | Curba de preț a lunii august 2026 |
 | **Claude API** (Anthropic) | Textele pentru client, call center și distribuitor | Real cu `SUNPROOF_USE_LLM=1` și cheie API; altfel șabloane |
 | **Telegram Bot API** (`sendMessage`) | Alerta către tehnician | Real cu `TELEGRAM_BOT_TOKEN`; altfel simulat |
 | **Huawei FusionSolar Northbound API**, **Fronius Solar API** | În produsul real: puterea, tensiunea rețelei, starea și alarmele invertorului | Datele vin din simulator, în același format |

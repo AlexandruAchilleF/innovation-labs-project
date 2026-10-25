@@ -50,7 +50,7 @@ export function AlertConfirm({
     `Tensiune invertor: ${fmt(g.max_inverter_voltage_v, 1)} V`,
     `Creștere pe cablu intern: +${fmt(g.voltage_rise_internal_cable_v, 1)} V (${fmt(g.cable_mm2, 1)} mm² × ${g.cable_length_m} m)`,
     `Prag invertor: ${g.inverter_threshold_v} V (legal: ${g.legal_limit_v} V)`,
-    `Vecini declanșați: ${g.neighbors_affected_simultaneously}/${g.neighbors_total}`,
+    `Echipamente declanșate: ${g.neighbors_affected_simultaneously}/${g.neighbors_total}`,
   ].join("\n");
 
   const preview = sentByHouse[a.household_id] ?? defaultPreview;

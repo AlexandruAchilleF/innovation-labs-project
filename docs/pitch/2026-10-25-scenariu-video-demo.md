@@ -34,7 +34,7 @@ Interzis: subtitrări jos, casete care doar se luminează, crossfade-uri între 
   Cursor pe „982 RON/lună recuperabili” → „81 de clienți · 982 RON/lună recuperabili”.
   Cursorul mătură plăcile 21 / 4 / 5 → „21 supratensiuni · 4 baterii blocate · 5 exporturi nefacturate”.
   Zoom 1,7x pe casele roșii din Dumbrăvița → „10 invertoare oprite pe același transformator”.
-  Click pe ▶ în bara de timp: ziua rulează, casele se aprind roșu spre prânz → „18 august, la fiecare 15 minute”.
+  Click pe ▶ în bara de timp: ziua rulează, casele se aprind roșu spre amiază → „18 august, la fiecare 15 minute”.
 
 0:11–0:18  DIAGNOSTIC + WHAT-IF · panoul Analiză detaliată
   Click „Analiză detaliată” → panoul din dreapta. Cursor pe „Declanșări simultane 6/11” → „6 din 11 vecini opriți simultan → cauza e rețeaua”.

@@ -14,15 +14,15 @@ Toate cifrele de mai jos vin din motoarele aplicației (rulate pe 25.10) și din
 
 | Minut | Ecran | Ce le spui (o singură propoziție) | Ce urmărești |
 |---|---|---|---|
-| 0:00–0:30 | — | „Lucrezi la un furnizor de energie. Un client a sunat nervos că i se oprește invertorul la prânz. Află de ce.” | — |
+| 0:00–0:30 | — | „Lucrezi la un furnizor de energie. Un client a sunat nervos că i se oprește invertorul în orele de vârf ale producției solare. Află de ce.” | — |
 | 0:30–2:00 | `/harta?household=RO-TM-001` | (nimic) | Văd casele roșii de pe același transformator? Deschid singuri **Analiză detaliată**? Apasă **Simulează soluția** și înțeleg comparația înainte/după? |
 | 2:00–3:00 | `/triaj` | „Acum verifică bateria și factura la alți doi clienți: Mihai Radu și Dan Munteanu.” | Găsesc clientul în listă? Citesc verdictul înainte de grafic? |
-| 3:00–4:15 | `/prosumator?household=RO-TM-001` | „Acum ești chiar clientul. Ce s-a întâmplat la tine azi?” | Observă că pagina se deschide pe momentul opririi? Folosesc butoanele **Avarie / Prânz / Seară**? Găsesc tab-ul **Pe zile** și butonul de tichet? |
+| 3:00–4:15 | `/prosumator?household=RO-TM-001` | „Acum ești chiar clientul. Ce s-a întâmplat la tine azi?” | Observă că pagina se deschide pe momentul opririi? Folosesc butoanele **Avarie / Amiază / Seară**? Găsesc tab-ul **Pe zile** și butonul de tichet? |
 | 4:15–5:00 | — | Cele 3 întrebări de mai jos | Notează cuvintele lor exacte |
 
 **Cele 3 întrebări (exact așa, în ordinea asta):**
 
-1. „Cu cuvintele tale: a cui era vina pentru oprirea de la prânz și de unde ai știut?”
+1. „Cu cuvintele tale: a cui era vina pentru oprirea din orele de vârf ale producției solare și de unde ai știut?”
 2. „Care a fost momentul în care n-ai mai știut ce să faci sau unde să apeși?”
 3. „Dacă ai fi furnizorul, ce ai face mâine dimineață cu ecranul ăsta? Ce ți-ar lipsi ca să-l folosești?”
 
@@ -35,7 +35,7 @@ Toate cifrele de mai jos vin din motoarele aplicației (rulate pe 25.10) și din
 Ține minte un cuvânt pe bloc: **SUNĂ → NIMENI → TREI → BANI**. Nu-l învăța pe de rost; spune ideea cu cuvintele tale.
 
 **1. SUNĂ (0–15 s)**
-> „E august, prânz, cer senin. Pe o stradă din Dumbrăvița, toate casele cu panouri trimit curent în rețea deodată, tensiunea urcă peste 253 de volți și invertoarele se opresc singure. Omul crede că i s-a stricat sistemul și sună la furnizor.”
+> „E august, amiază, cer senin. Pe o stradă din Dumbrăvița, toate casele cu panouri trimit curent în rețea deodată, tensiunea urcă peste 253 de volți și invertoarele se opresc singure. Omul crede că i s-a stricat sistemul și sună la furnizor.”
 
 **2. NIMENI (15–30 s)**
 > „Instalatorul zice că e rețeaua, distribuitorul zice că e invertorul, și nimeni nu are dovezi. Un prosumator a povestit pe forum de 15–20 de vizite fără diagnostic. Și sunt aproape 386.000 de prosumatori în România, 4 din 10 cu baterie.”
@@ -82,7 +82,7 @@ Arată **Ciclul de viață al tichetului O&M** (în hartă, același caz are but
 
 Caută **Mihai Radu** (Cluj-Napoca), secțiunea **Stocare & arbitraj PZU**.
 
-> „Mihai a vrut să folosească bateria seara. Dar bateria e pe modul de rezervă și păstrează 85% în loc de 15%. Seara cumpără 9 kWh din rețea, deși are bateria plină. La prânz energia costă 123 de lei pe MWh, seara 990. Furnizorul pierde aproape 246 de lei pe lună doar la casa asta, iar Mihai aproape 176.”
+> „Mihai a vrut să folosească bateria seara. Dar bateria e pe modul de rezervă și păstrează 85% în loc de 15%. Seara cumpără 9 kWh din rețea, deși are bateria plină. În orele de vârf ale producției solare energia costă 123 de lei pe MWh, seara 990. Furnizorul pierde aproape 246 de lei pe lună doar la casa asta, iar Mihai aproape 176.”
 
 Caută **Dan Munteanu** (Brașov), secțiunea **Decontare prosumator**.
 
@@ -123,7 +123,7 @@ Sursele: `2026-10-24-pitch-scurt.md`, `2026-10-24-pitch-detaliat.md`, `2026-10-2
 
 **Slide 2: Problema** (grafic: `charts/chart1_baterii_anre.svg`)
 > **386.000 de prosumatori. 4 din 10 au baterie. Nimeni nu verifică dacă merg cum trebuie.**
-> - La prânz, peste 253 V, invertoarele se opresc singure, iar clientul sună la furnizor.
+> - În orele de vârf ale producției solare, peste 253 V, invertoarele se opresc singure, iar clientul sună la furnizor.
 > - Seara, când energia e de 8 ori mai scumpă, multe baterii stau pline.
 > - Legea 160/2026 schimbă facturile, iar fiecare factură neclară devine o reclamație.
 > *Sursă: ANRE, august 2026*
