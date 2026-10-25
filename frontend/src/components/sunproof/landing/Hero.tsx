@@ -93,7 +93,7 @@ function FactStrip() {
       {facts.map(([value, label]) => (
         <div
           key={label}
-          className="flex flex-col-reverse gap-1.5 border-t border-iron py-5 pr-4 lg:border-l lg:border-t-0 lg:py-1 lg:pl-6 lg:first:border-l-0 lg:first:pl-0"
+          className="flex flex-col-reverse justify-end gap-1.5 border-t border-iron py-5 pr-4 lg:border-l lg:border-t-0 lg:py-1 lg:pl-6 lg:first:border-l-0 lg:first:pl-0"
         >
           <dt className="text-[13px] text-fog">{label}</dt>
           <dd className="num text-[28px] leading-none text-bone sm:text-[32px]">{value}</dd>
