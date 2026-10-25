@@ -1,5 +1,6 @@
 import { Link, useHydrated, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { CalendarDays, Sun } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -13,9 +14,9 @@ import { useCurrentHousehold } from "./SupplierTopBar";
 
 export type ProsumerTab = "zile";
 
-const TABS: { tab?: ProsumerTab; label: string }[] = [
-  { label: "Azi" },
-  { tab: "zile", label: "Pe zile" },
+const TABS: { tab?: ProsumerTab; label: string; icon: typeof Sun }[] = [
+  { label: "Azi", icon: Sun },
+  { tab: "zile", label: "Pe zile", icon: CalendarDays },
 ];
 
 /** Homeowner header: wordmark and account switcher (demo flagships). No route into the supplier portal. */
@@ -29,7 +30,7 @@ export function ProsumerHeader() {
   const portfolio = useQuery(portfolioQuery());
   const accounts = hydrated ? (portfolio.data?.households.filter((h) => h.is_flagship) ?? []) : [];
   return (
-    <header className="flex h-14 shrink-0 items-center gap-4 border-b border-border bg-canvas px-4 sm:px-6">
+    <header className="relative flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2 border-b border-border bg-canvas px-4 py-3 sm:px-6 md:h-16 md:flex-nowrap md:py-0">
       <Link
         to="/"
         className="font-display text-[18px] text-bone"
@@ -37,26 +38,30 @@ export function ProsumerHeader() {
       >
         SunProof
       </Link>
-      <nav aria-label="Aplicația prosumatorului" className="flex h-full items-stretch gap-5">
-        {TABS.map(({ tab, label }) => (
+      <nav
+        aria-label="Aplicația prosumatorului"
+        className="order-last flex w-full rounded-[6px] border border-iron bg-obsidian p-1 md:absolute md:left-1/2 md:order-none md:w-auto md:-translate-x-1/2"
+      >
+        {TABS.map(({ tab, label, icon: Icon }) => (
           <Link
             key={label}
             to="/prosumator"
             search={{ household, tab }}
             aria-current={current === tab ? "page" : undefined}
             className={cn(
-              "flex items-center border-b text-[14px] transition-colors",
+              "flex h-9 flex-1 items-center justify-center gap-2 rounded-[4px] px-5 text-[14px] font-medium transition-colors md:flex-none",
               current === tab
-                ? "border-bone text-bone"
-                : "border-transparent text-fog hover:text-bone",
+                ? "bg-slate text-bone shadow-[inset_0_0_0_1px_var(--iron)]"
+                : "text-fog hover:bg-graphite hover:text-bone",
             )}
           >
+            <Icon className={cn("size-4", current === tab ? "text-sun" : "")} strokeWidth={1.5} />
             {label}
           </Link>
         ))}
       </nav>
       <div className="ml-auto flex min-w-0 items-center gap-2">
-        <span className="hidden text-[13px] text-fog sm:inline">Contul tău:</span>
+        <span className="hidden text-[13px] text-fog lg:inline">Contul tău:</span>
         <Select
           value={household}
           onValueChange={(v) =>
@@ -65,7 +70,7 @@ export function ProsumerHeader() {
         >
           <SelectTrigger
             aria-label="Alege contul de prosumator"
-            className="h-8 w-56 border-iron bg-graphite text-[13px] sm:w-64"
+            className="h-8 w-52 border-iron bg-graphite text-[13px] lg:w-64"
           >
             <SelectValue placeholder="Alege gospodăria" />
           </SelectTrigger>
