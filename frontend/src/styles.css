@@ -358,3 +358,76 @@
   --input: oklch(1 0 0 / 18%);
   --ring: var(--voltage);
 }
+
+/* ---------- landing effects (base styles are the final, readable state; motion only adds the build-up) ---------- */
+/* (a) voltage wave: a ring leaves the transformer, then every house trips in the same frame */
+@keyframes lp-wave {
+  0% { transform: scale(0); opacity: 0.9; }
+  70% { opacity: 0.25; }
+  100% { transform: scale(1); opacity: 0; }
+}
+.lp-wave {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: lp-wave 4.5s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+}
+@keyframes lp-trip {
+  0%, 44% { opacity: 0; transform: scale(0.4); }
+  48% { opacity: 1; transform: scale(1.25); }
+  60%, 100% { opacity: 1; transform: scale(1); }
+}
+.lp-trip {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: lp-trip 4.5s ease-out infinite;
+}
+@keyframes lp-flash {
+  0%, 45% { opacity: 0; }
+  48% { opacity: 0.9; }
+  100% { opacity: 0; }
+}
+.lp-flash {
+  opacity: 0;
+  animation: lp-flash 4.5s ease-out infinite;
+}
+/* (b) energy finally flowing out of the battery at the evening peak */
+@keyframes lp-flow {
+  to { stroke-dashoffset: -36; }
+}
+.lp-flow {
+  stroke-dasharray: 0.01 36;
+  stroke-linecap: round;
+  animation: lp-flow 1s linear infinite;
+}
+/* (c) reconciliation scan over the invoice card */
+@keyframes lp-scan {
+  from { transform: translateY(0); opacity: 1; }
+  90% { opacity: 1; }
+  to { transform: translateY(var(--lp-scan-to)); opacity: 0; }
+}
+.lp-scan {
+  opacity: 0;
+  animation: lp-scan 2.2s cubic-bezier(0.45, 0, 0.55, 1) 0.2s 1 both;
+}
+@keyframes lp-reveal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.lp-reveal {
+  animation: lp-reveal 0.5s ease-out var(--lp-delay, 0s) 1 both;
+}
+@keyframes lp-draw {
+  from { stroke-dashoffset: var(--lp-len); }
+  to { stroke-dashoffset: 0; }
+}
+.lp-draw {
+  stroke-dasharray: var(--lp-len);
+  animation: lp-draw 1.6s cubic-bezier(0.65, 0, 0.35, 1) var(--lp-delay, 0s) 1 both;
+}
+@keyframes lp-rise {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}
+.lp-rise {
+  animation: lp-rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) var(--lp-delay, 0s) 1 both;
+}

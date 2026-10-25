@@ -23,7 +23,8 @@ const ghost =
   "inline-flex items-center justify-center gap-2 rounded-[4px] border border-bone font-medium text-bone transition-colors hover:bg-slate";
 const sizes = { sm: "h-11 px-4 text-[13px]", lg: "h-11 px-6 text-[14px]" };
 /** Both roles share one weight per size: solid in the page body, ghost in the nav. */
-const look = (size: Size, className?: string) => cn(size === "lg" ? solid : ghost, sizes[size], className);
+const look = (size: Size, className?: string) =>
+  cn(size === "lg" ? solid : ghost, sizes[size], className);
 
 type Size = "sm" | "lg";
 type EntryProps = { size: Size; className?: string; children?: ReactNode };
