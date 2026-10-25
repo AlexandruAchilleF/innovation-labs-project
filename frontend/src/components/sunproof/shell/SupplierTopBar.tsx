@@ -8,8 +8,8 @@ import { TicketsPopover } from "./TicketsPopover";
 export const DEFAULT_HOUSEHOLD = "RO-TM-001";
 
 export const SUPPLIER_VIEWS = [
-  { to: "/harta" as const, label: "Hartă & Cazuri Live", shortLabel: "Hartă", icon: MapIcon },
-  { to: "/triaj" as const, label: "Analiză Detaliată", shortLabel: "Analiză", icon: ClipboardList },
+  { to: "/harta" as const, label: "Hartă rețea JT", shortLabel: "Hartă", icon: MapIcon },
+  { to: "/triaj" as const, label: "Analiză detaliată", shortLabel: "Analiză", icon: ClipboardList },
 ];
 
 /** Household currently in the URL (`?household=`), so switching views keeps the same client. */

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useHydrated } from "@tanstack/react-router";
 import { ChevronRight, List } from "lucide-react";
 import {
@@ -8,7 +7,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { mainQuestion, type QuestionId } from "@/lib/case-questions";
+import type { QuestionId } from "@/lib/case-questions";
 import { fmt } from "@/lib/format";
 import type {
   GridState,
@@ -89,7 +88,6 @@ export function CaseChip({
   grid: Neighborhood | GridState | undefined;
   slot: number;
 }) {
-  const [tab, setTab] = useState<QuestionId | null>(null);
   if (!detail) return null;
   const a = detail.analysis;
   return (
@@ -127,12 +125,7 @@ export function CaseChip({
           <span className="truncate text-bone">{a.customer_name}</span>
           <span className="num ml-2 text-fog">{a.household_id}</span>
         </div>
-        <CaseDetail
-          key={a.household_id}
-          d={detail}
-          tab={tab ?? mainQuestion(detail)}
-          onTab={setTab}
-        />
+        <CaseDetail key={a.household_id} d={detail} />
       </SheetContent>
     </Sheet>
   );

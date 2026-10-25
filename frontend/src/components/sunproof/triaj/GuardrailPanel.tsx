@@ -57,7 +57,7 @@ export function GuardrailPanel({ d }: { d: HouseholdDetail }) {
 
   return (
     <Panel
-      title="Scut determinist anti-halucinații"
+      title="Validarea numerică a textelor generate"
       actions={
         <span
           className={cn(

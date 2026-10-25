@@ -48,41 +48,45 @@ export function answers(d: HouseholdDetail): Record<QuestionId, QuestionAnswer> 
   return {
     grid: {
       id: "grid",
-      label: "Oprire la prânz",
-      question: "Invertorul s-a oprit la prânz: din cauza rețelei sau a instalației din casă?",
+      label: "Tensiune",
+      question:
+        "Declanșarea invertorului la supratensiune: rețeaua de JT sau instalația interioară?",
       answer:
         cause === "grid"
-          ? "Cauza: rețeaua"
+          ? "Supratensiune în rețeaua de JT"
           : cause === "local"
-            ? "Cauza: instalația din casă"
-            : "Fără opriri",
-      short: cause === "grid" ? "rețea" : cause === "local" ? "instalație" : "fără opriri",
+            ? "Creștere de tensiune în instalația interioară"
+            : "Fără declanșări de protecție",
+      short: cause === "grid" ? "rețea JT" : cause === "local" ? "instalație" : "fără declanșări",
       s: cause === "none" ? "OK" : g.status,
       party: cause === "grid" ? "DISTRIBUTION_OPERATOR" : cause === "local" ? "INSTALLER" : "NONE",
     },
     battery: {
       id: "battery",
-      label: "Baterie seara",
-      question: "Este bateria blocată și nu livrează energie în vârful scump de seară?",
+      label: "Stocare",
+      question:
+        "Rezerva configurată în invertor blochează descărcarea bateriei în vârful de seară?",
       answer: !b.battery_kwh
-        ? "Fără baterie"
+        ? "Fără sistem de stocare"
         : locked
-          ? `Rezervă ${b.configured_min_soc_pct}% în loc de ${b.desired_min_soc_pct}%`
-          : "Setare corectă",
+          ? `SoC minim ${b.configured_min_soc_pct}%, solicitat ${b.desired_min_soc_pct}%`
+          : "Configurare conformă",
       short: !b.battery_kwh
-        ? "fără baterie"
+        ? "fără stocare"
         : locked
-          ? `${fmt(b.locked_kwh, 1)} kWh blocați`
-          : "corectă",
+          ? `${fmt(b.locked_kwh, 1)} kWh indisponibili`
+          : "conformă",
       s: !b.battery_kwh ? "OK" : locked ? b.status : "OK",
       party: locked ? "CUSTOMER_SETTING" : "NONE",
     },
     billing: {
       id: "billing",
-      label: "Factură",
-      question: "Este corectă factura de prosumator?",
-      answer: billWrong ? `Diferență ${fmt(Math.abs(f.delta_ron), 2)} RON` : "Factură corectă",
-      short: billWrong ? `${fmt(Math.abs(f.delta_ron), 2)} RON` : "corectă",
+      label: "Decontare",
+      question: "Energia injectată este compensată integral pe factură?",
+      answer: billWrong
+        ? `Abatere de ${fmt(Math.abs(f.delta_ron), 2)} RON la decontare`
+        : "Factură conformă cu măsurătorile",
+      short: billWrong ? `${fmt(Math.abs(f.delta_ron), 2)} RON` : "conformă",
       s: billWrong ? f.status : "OK",
       party: billWrong ? "SUPPLIER_BILLING" : "NONE",
     },

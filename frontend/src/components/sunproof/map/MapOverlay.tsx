@@ -186,7 +186,7 @@ export function MapOverlay({
                 onClick={() => onHouse(h)}
                 onMouseEnter={() => setHover(h.house_id)}
                 onMouseLeave={() => setHover(null)}
-                className="pointer-events-auto block -translate-x-1/2 -translate-y-1/2"
+                className="pv-sprite pointer-events-auto block -translate-x-1/2 -translate-y-1/2"
                 aria-label={`${h.label} ${fmt(v, 1)} V`}
               >
                 {zoom >= ROOF_ZOOM ? (

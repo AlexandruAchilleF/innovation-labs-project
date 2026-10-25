@@ -40,14 +40,14 @@ export function ProductionChart({ d }: { d: HouseholdDetail }) {
 
   return (
     <ChartFrame
-      eyebrow="Producție"
-      takeaway={tripped ? `${fmt(lostKwh, 1)} kWh pierduți azi` : "Fără pierderi"}
+      eyebrow="Producție FV"
+      takeaway={tripped ? `${fmt(lostKwh, 1)} kWh nelivrați azi` : "Fără energie nelivrată"}
       tone={tripped ? "text-critical" : "text-bone"}
       legend={[
-        { color: "var(--sun)", label: "Reală" },
+        { color: "var(--sun)", label: "Măsurată" },
         { color: "var(--fog)", label: "PVGIS", kind: "dash" },
         ...(tripped
-          ? [{ color: "var(--critical-border)", label: "Pierdut", kind: "area" as const }]
+          ? [{ color: "var(--critical-border)", label: "Nelivrat", kind: "area" as const }]
           : []),
       ]}
     >

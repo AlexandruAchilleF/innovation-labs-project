@@ -41,7 +41,7 @@ export function TriageHeader({ d }: { d: HouseholdDetail }) {
                     toast(`Dosar generat · ${a.transformer_id}`);
                   }}
                 >
-                  <FileDown /> Dosar PDF
+                  <FileDown /> Dosar tehnic OD
                 </Button>
                 <Button
                   size="sm"
@@ -49,7 +49,7 @@ export function TriageHeader({ d }: { d: HouseholdDetail }) {
                   className="border-iron bg-transparent text-bone hover:bg-slate"
                   onClick={() => setAlertOpen(true)}
                 >
-                  <Send /> Tehnician O&M
+                  <Send /> Intervenție O&M
                 </Button>
               </div>
             )}

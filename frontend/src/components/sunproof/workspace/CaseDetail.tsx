@@ -1,6 +1,6 @@
+import { useEffect, useRef } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { answers, QUESTION_IDS, type QuestionId } from "@/lib/case-questions";
-import { severityLabel } from "@/lib/i18n";
+import { answers, mainQuestion, QUESTION_IDS, type QuestionId } from "@/lib/case-questions";
 import type { HouseholdDetail } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useCaseActions } from "./CaseActions";
@@ -9,21 +9,24 @@ import { DetailBattery } from "./DetailBattery";
 import { DetailBilling } from "./DetailBilling";
 import { DetailGrid } from "./DetailGrid";
 import type { NetworkPanelProps } from "./NetworkPanel";
-import { sevDot } from "./SeverityTag";
+
+/** A request to bring one check into view; a fresh object re-scrolls even to the same check. */
+export interface DetailFocus {
+  q: QuestionId;
+}
 
 /**
- * Detailed analysis split in the three questions SunProof answers; one is shown at a time,
- * each with its answer first, then the evidence charts, then the action.
+ * Detailed analysis as one continuous read: the case's main finding first, the other checks
+ * after it, separated only by hairlines. Each section leads with its conclusion, then the
+ * evidence, then the action.
  */
 export function CaseDetail({
   d,
-  tab,
-  onTab,
+  focus,
   network,
 }: {
   d: HouseholdDetail | undefined;
-  tab: QuestionId;
-  onTab: (t: QuestionId) => void;
+  focus?: DetailFocus | null | undefined;
   network?: NetworkPanelProps | undefined;
 }) {
   if (!d) {
@@ -35,64 +38,50 @@ export function CaseDetail({
       </div>
     );
   }
-  return <CaseDetailBody d={d} tab={tab} onTab={onTab} network={network} />;
+  return <CaseDetailBody d={d} focus={focus} network={network} />;
 }
 
 function CaseDetailBody({
   d,
-  tab,
-  onTab,
+  focus,
   network,
 }: {
   d: HouseholdDetail;
-  tab: QuestionId;
-  onTab: (t: QuestionId) => void;
+  focus?: DetailFocus | null | undefined;
   network?: NetworkPanelProps | undefined;
 }) {
   const qs = answers(d);
   const acts = useCaseActions(d);
+  const main = mainQuestion(d);
+  const order = [main, ...QUESTION_IDS.filter((id) => id !== main)];
+  const refs = useRef<Partial<Record<QuestionId, HTMLElement | null>>>({});
+  useEffect(() => {
+    if (focus) refs.current[focus.q]?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [focus]);
+
   return (
     <>
-      <div
-        role="tablist"
-        aria-label="Cele trei verificări"
-        className="grid shrink-0 grid-cols-3 gap-1 border-b border-border p-2"
-      >
-        {QUESTION_IDS.map((id, i) => {
-          const q = qs[id];
-          return (
-            <button
-              key={id}
-              role="tab"
-              type="button"
-              aria-selected={tab === id}
-              onClick={() => onTab(id)}
-              title={`${q.question} · ${severityLabel[q.s]}`}
-              className={cn(
-                "rounded-[4px] border px-2 py-1.5 text-left transition-colors",
-                tab === id ? "border-voltage bg-slate" : "border-transparent hover:bg-slate",
-              )}
-            >
-              <span className="flex items-center gap-1.5 text-[11.5px] text-bone">
-                <span className="num text-fog">{i + 1}</span>
-                <span className="truncate">{q.label}</span>
-              </span>
-              <span className="mt-0.5 flex items-center gap-1.5 text-[11px] text-fog">
-                <span className={cn("size-1.5 shrink-0 rounded-full", sevDot[q.s])} />
-                <span className="sr-only">{severityLabel[q.s]}: </span>
-                <span className="truncate">{q.short}</span>
-              </span>
-            </button>
-          );
-        })}
-      </div>
-      <div role="tabpanel" className="min-h-0 flex-1 overflow-y-auto px-4 pb-8 pt-4">
+      <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-8 pt-4">
         <div className="mb-6 empty:hidden">
           <ClientTicketBox householdId={d.analysis.household_id} />
         </div>
-        {tab === "grid" && <DetailGrid d={d} q={qs.grid} network={network} actions={acts} />}
-        {tab === "battery" && <DetailBattery d={d} q={qs.battery} guide={acts.guide} />}
-        {tab === "billing" && <DetailBilling d={d} q={qs.billing} bill={acts.bill} />}
+        {order.map((id, i) => (
+          <section
+            key={id}
+            ref={(el) => {
+              refs.current[id] = el;
+            }}
+            aria-label={qs[id].question}
+            className={cn(
+              "scroll-mt-4",
+              i > 0 && "scroll-reveal mt-10 border-t border-border pt-8",
+            )}
+          >
+            {id === "grid" && <DetailGrid d={d} q={qs.grid} network={network} actions={acts} />}
+            {id === "battery" && <DetailBattery d={d} q={qs.battery} guide={acts.guide} />}
+            {id === "billing" && <DetailBilling d={d} q={qs.billing} bill={acts.bill} />}
+          </section>
+        ))}
       </div>
       {acts.dialog}
     </>

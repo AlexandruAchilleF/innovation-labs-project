@@ -1,4 +1,4 @@
-import { useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { BatteryCharging, ReceiptText, Zap } from "lucide-react";
 import { fmt } from "@/lib/format";
 import { severityLabel } from "@/lib/i18n";
@@ -32,13 +32,12 @@ const dot: Record<Severity, string> = {
   INFO: "bg-info",
 };
 
-/** The three checks as tiles that double as tabs: status dot, the deciding number, a mini chart. */
+/**
+ * The three checks summarised as tiles (status dot, deciding number, mini chart), then every
+ * check's evidence stacked in one scroll, main finding first. A tile scrolls to its evidence.
+ */
 export function DiagnosticTabs({ d }: { d: HouseholdDetail }) {
   const party = d.analysis.primary_responsible_party;
-  const [tab, setTab] = useState<TabId>(
-    party === "CUSTOMER_SETTING" ? "battery" : party === "SUPPLIER_BILLING" ? "billing" : "grid",
-  );
-  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const { grid_verdict: g, battery_verdict: b, billing_verdict: f } = d.analysis;
   const misset = b.battery_kwh > 0 && b.configured_min_soc_pct !== b.desired_min_soc_pct;
   const day = d.timeseries.minutes.filter((m) => m.minute_of_day % 20 === 0);
@@ -48,10 +47,12 @@ export function DiagnosticTabs({ d }: { d: HouseholdDetail }) {
     {
       id: "grid",
       icon: <Zap />,
-      label: "Rețea sau instalație",
+      label: "Tensiune & declanșări",
       s: g.status,
       value:
-        g.trip_minutes > 0 ? `${g.trip_minutes} min oprit` : `${fmt(g.max_meter_voltage_v, 1)} V`,
+        g.trip_minutes > 0
+          ? `${g.trip_minutes} min deconectat`
+          : `${fmt(g.max_meter_voltage_v, 1)} V`,
       visual: (
         <Spark
           values={volts}
@@ -65,13 +66,13 @@ export function DiagnosticTabs({ d }: { d: HouseholdDetail }) {
     {
       id: "battery",
       icon: <BatteryCharging />,
-      label: "Baterie seara",
+      label: "Stocare & arbitraj PZU",
       s: b.battery_kwh > 0 ? b.status : "OK",
       value: !b.battery_kwh
         ? "—"
         : misset
           ? `${b.configured_min_soc_pct}% → ${b.desired_min_soc_pct}%`
-          : "corectă",
+          : "conformă",
       visual: b.battery_kwh ? (
         <Spark
           values={day.map((m) => m.battery_soc_pct)}
@@ -85,106 +86,91 @@ export function DiagnosticTabs({ d }: { d: HouseholdDetail }) {
     {
       id: "billing",
       icon: <ReceiptText />,
-      label: "Factură",
+      label: "Decontare prosumator",
       s: f.status,
-      value: Math.abs(f.delta_ron) >= 0.01 ? `${fmt(Math.abs(f.delta_ron), 2)} RON` : "corectă",
+      value: Math.abs(f.delta_ron) >= 0.01 ? `${fmt(Math.abs(f.delta_ron), 2)} RON` : "conformă",
       visual: <MiniPair a={f.meter_export_kwh} b={f.billed_export_kwh} />,
     },
   ];
 
-  const onKeyDown = (e: KeyboardEvent<HTMLButtonElement>, idx: number) => {
-    const n = tiles.length;
-    const next =
-      e.key === "ArrowRight"
-        ? (idx + 1) % n
-        : e.key === "ArrowLeft"
-          ? (idx - 1 + n) % n
-          : e.key === "Home"
-            ? 0
-            : e.key === "End"
-              ? n - 1
-              : -1;
-    if (next < 0) return;
-    e.preventDefault();
-    setTab(tiles[next]!.id);
-    tabRefs.current[next]?.focus();
+  const main: TabId =
+    party === "CUSTOMER_SETTING" ? "battery" : party === "SUPPLIER_BILLING" ? "billing" : "grid";
+  const order = [main, ...(["grid", "battery", "billing"] as TabId[]).filter((id) => id !== main)];
+  const sections = useRef<Partial<Record<TabId, HTMLElement | null>>>({});
+  const body: Record<TabId, ReactNode> = {
+    grid: (
+      <>
+        <VoltageChart d={d} />
+        <ProductionChart d={d} />
+        <Fold title="Ciclul de viață al tichetului O&M">
+          <OmTicketLifecycleCard d={d} />
+        </Fold>
+      </>
+    ),
+    battery: <BatterySimulator d={d} />,
+    billing: (
+      <>
+        <BillingPanel d={d} />
+        <Fold title="Texte generate și validarea numerică">
+          <GuardrailPanel d={d} />
+        </Fold>
+      </>
+    ),
   };
 
   return (
     <div className="space-y-4">
-      <div role="tablist" aria-label="Verificări" className="grid gap-2 sm:grid-cols-3">
-        {tiles.map((t, idx) => {
-          const active = tab === t.id;
-          return (
-            <button
-              key={t.id}
-              ref={(el) => {
-                tabRefs.current[idx] = el;
-              }}
-              id={`diag-tab-${t.id}`}
-              role="tab"
-              aria-selected={active}
-              aria-controls={`diag-panel-${t.id}`}
-              tabIndex={active ? 0 : -1}
-              onClick={() => setTab(t.id)}
-              onKeyDown={(e) => onKeyDown(e, idx)}
-              className={cn(
-                "rounded-lg border p-3.5 text-left transition-colors",
-                active ? "border-voltage bg-graphite" : "border-border bg-card hover:bg-graphite",
-              )}
-            >
-              <span className="flex items-center justify-between gap-2">
-                <span className="flex items-center gap-2 text-[12.5px] text-fog [&_svg]:size-3.5">
-                  {t.icon}
-                  {t.label}
-                </span>
-                <span
-                  className={cn("size-1.5 rounded-full", dot[t.s])}
-                  aria-label={severityLabel[t.s]}
-                />
+      <nav aria-label="Sinteza verificărilor" className="grid gap-2 sm:grid-cols-3">
+        {tiles.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() =>
+              sections.current[t.id]?.scrollIntoView({ behavior: "smooth", block: "start" })
+            }
+            className="rounded-lg border border-border bg-card p-3.5 text-left transition-colors hover:bg-graphite"
+          >
+            <span className="flex items-center justify-between gap-2">
+              <span className="flex items-center gap-2 text-[12.5px] text-fog [&_svg]:size-3.5">
+                {t.icon}
+                {t.label}
               </span>
-              <span className="mt-3 flex items-end justify-between gap-3">
-                <span
-                  className={cn(
-                    "text-[22px] leading-none",
-                    /\d/.test(t.value) && "num",
-                    t.s === "OK" ? "text-bone" : sevText[t.s],
-                  )}
-                >
-                  {t.value}
-                </span>
-                {t.visual}
+              <span
+                className={cn("size-1.5 rounded-full", dot[t.s])}
+                aria-label={severityLabel[t.s]}
+              />
+            </span>
+            <span className="mt-3 flex items-end justify-between gap-3">
+              <span
+                className={cn(
+                  "text-[22px] leading-none",
+                  /\d/.test(t.value) && "num",
+                  t.s === "OK" ? "text-bone" : sevText[t.s],
+                )}
+              >
+                {t.value}
               </span>
-            </button>
-          );
-        })}
-      </div>
+              {t.visual}
+            </span>
+          </button>
+        ))}
+      </nav>
 
-      <div
-        id={`diag-panel-${tab}`}
-        role="tabpanel"
-        aria-labelledby={`diag-tab-${tab}`}
-        className="space-y-3"
-      >
-        {tab === "grid" && (
-          <>
-            <VoltageChart d={d} />
-            <ProductionChart d={d} />
-            <Fold title="Ciclul de viață al tichetului O&M">
-              <OmTicketLifecycleCard d={d} />
-            </Fold>
-          </>
-        )}
-        {tab === "battery" && <BatterySimulator d={d} />}
-        {tab === "billing" && (
-          <>
-            <BillingPanel d={d} />
-            <Fold title="Textele generate și verificarea lor numerică">
-              <GuardrailPanel d={d} />
-            </Fold>
-          </>
-        )}
-      </div>
+      {order.map((id, i) => (
+        <section
+          key={id}
+          ref={(el) => {
+            sections.current[id] = el;
+          }}
+          aria-label={tiles.find((t) => t.id === id)!.label}
+          className={cn(
+            "scroll-mt-4 space-y-3",
+            i > 0 && "scroll-reveal border-t border-border pt-6",
+          )}
+        >
+          {body[id]}
+        </section>
+      ))}
 
       <Fold
         title="Acuratețea motoarelor pe toate scenariile"

@@ -38,9 +38,9 @@ export function supplierCase(d: HouseholdDetail): SupplierCase {
   const kind = caseKind(d);
   const limit = `limita legală ${fmt(g.legal_limit_v)} V`;
   const neighbors: Proof = {
-    label: "Vecini căzuți simultan",
+    label: "Declanșări simultane pe PT",
     value: `${g.neighbors_affected_simultaneously} din ${g.neighbors_total}`,
-    note: kind === "local" ? "rețeaua stradală e sănătoasă" : "pe același transformator",
+    note: kind === "local" ? "rețeaua JT în parametri" : "pe același post de transformare",
   };
   const proofs: Record<CaseKind, Proof[]> = {
     grid: [
@@ -51,15 +51,15 @@ export function supplierCase(d: HouseholdDetail): SupplierCase {
       },
       neighbors,
       {
-        label: "Timp oprire",
+        label: "Durată deconectare",
         value: `${g.trip_minutes} min/zi`,
-        note: "invertor deconectat la prânz",
+        note: "protecție la supratensiune (EN 50549-1)",
       },
     ],
     local: [
       { label: "Tensiune la contor", value: `${fmt(g.max_meter_voltage_v, 1)} V`, note: limit },
       {
-        label: "Creștere pe cablul intern",
+        label: "ΔU pe cablul contor–invertor",
         value: `+${fmt(g.voltage_rise_internal_cable_v, 1)} V`,
         note: `${fmt(g.cable_mm2, 1)} mm² · ${fmt(g.cable_length_m)} m până la invertor`,
       },
@@ -67,26 +67,30 @@ export function supplierCase(d: HouseholdDetail): SupplierCase {
     ],
     battery: [
       {
-        label: "Rezervă setată",
+        label: "SoC minim configurat",
         value: `${fmt(b.configured_min_soc_pct)}%`,
-        note: `clientul vrea ${fmt(b.desired_min_soc_pct)}%`,
+        note: `solicitat de client: ${fmt(b.desired_min_soc_pct)}%`,
       },
       {
-        label: "Energie blocată",
+        label: "Energie indisponibilă",
         value: `${fmt(b.locked_kwh, 1)} kWh/zi`,
-        note: "nu ajunge în vârful de seară",
+        note: "nedescărcată în vârful de seară",
       },
       {
-        label: "PZU seară / prânz",
+        label: "PZU vârf seară / interval solar",
         value: `${fmt(b.pzu_evening_ron_mwh)} / ${fmt(b.pzu_midday_ron_mwh)}`,
         note: "RON/MWh",
       },
     ],
     billing: [
-      { label: "Export contor (2.8.0)", value: `${fmt(f.meter_export_kwh)} kWh`, note: "măsurat" },
+      {
+        label: "Export contor (2.8.0)",
+        value: `${fmt(f.meter_export_kwh)} kWh`,
+        note: "index măsurat",
+      },
       { label: "Export pe factură", value: `${fmt(f.billed_export_kwh)} kWh`, note: "facturat" },
       {
-        label: "Diferență factură",
+        label: "Abatere decontare",
         value: `${fmt(Math.abs(f.delta_ron), 2)} RON`,
         note: `facturat ${fmt(f.billed_ron, 2)} vs. corect ${fmt(f.verified_ron, 2)} RON`,
       },
@@ -99,18 +103,18 @@ export function supplierCase(d: HouseholdDetail): SupplierCase {
         note: "compensat 1:1",
       },
       {
-        label: "Factură verificată",
+        label: "Valoare recalculată",
         value: `${fmt(f.verified_ron, 2)} RON`,
-        note: "egală cu suma facturată",
+        note: "identică cu suma facturată",
       },
     ],
     healthy: [
       { label: "Tensiune la contor", value: `${fmt(g.max_meter_voltage_v, 1)} V`, note: limit },
-      { label: "Timp oprire", value: `${g.trip_minutes} min/zi`, note: "fără deconectări" },
+      { label: "Durată deconectare", value: `${g.trip_minutes} min/zi`, note: "fără declanșări" },
       {
-        label: "Diferență factură",
+        label: "Abatere decontare",
         value: `${fmt(Math.abs(f.delta_ron), 2)} RON`,
-        note: "factură corectă",
+        note: "factură conformă",
       },
     ],
   };

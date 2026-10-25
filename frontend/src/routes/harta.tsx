@@ -3,10 +3,10 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { CaseChip, CasePanel } from "@/components/sunproof/workspace/CasePanel";
 import { MapStage } from "@/components/sunproof/workspace/MapStage";
-import { CaseDetail } from "@/components/sunproof/workspace/CaseDetail";
+import { CaseDetail, type DetailFocus } from "@/components/sunproof/workspace/CaseDetail";
 import { SidePanel } from "@/components/sunproof/workspace/SidePanel";
 import { sevDot } from "@/components/sunproof/workspace/SeverityTag";
-import { answers, mainQuestion, QUESTION_IDS, type QuestionId } from "@/lib/case-questions";
+import { answers, QUESTION_IDS, type QuestionId } from "@/lib/case-questions";
 import { cn } from "@/lib/utils";
 import { ClipboardList } from "lucide-react";
 import { api } from "@/lib/api";
@@ -57,12 +57,11 @@ function HartaPage() {
   const [view, setView] = useState<CompareView>("after");
   const [slot, setSlot] = useState(54);
   const [side, setSide] = useState<OpenSide>("left");
-  const [tab, setTab] = useState<QuestionId | null>(null);
-  useEffect(() => setTab(null), [household]);
-  const activeTab = tab ?? (detail.data ? mainQuestion(detail.data) : "grid");
+  const [focus, setFocus] = useState<DetailFocus | null>(null);
+  useEffect(() => setFocus(null), [household]);
   const qs = detail.data ? answers(detail.data) : null;
   const openDetail = (q?: QuestionId) => {
-    if (q) setTab(q);
+    if (q) setFocus({ q });
     setSide("right");
   };
   useEffect(() => {
@@ -145,8 +144,7 @@ function HartaPage() {
         <CaseDetail
           key={household}
           d={detail.data}
-          tab={activeTab}
-          onTab={setTab}
+          focus={focus}
           network={{
             nb,
             grid,

@@ -282,6 +282,11 @@
   stroke-dasharray: 6 6;
   animation: flow-dash 0.9s linear infinite;
 }
+/* PV house sprites on the map: soft contact shadow + faint sun halo to lift them off busy imagery */
+@utility pv-sprite {
+  filter: drop-shadow(0 1px 1.5px rgb(0 0 0 / 0.45))
+    drop-shadow(0 0 3px color-mix(in oklab, var(--sun) 30%, transparent));
+}
 /* energy pulses on the prosumer scene cables: round dots travelling along the path */
 @keyframes energy-pulse {
   to { stroke-dashoffset: -14; }
@@ -296,6 +301,21 @@
 }
 
 /* Libre Baskerville display voice: weight 400, tight tracking, never bold */
+/* stacked analysis sections settle into place as they scroll in (no-op without scroll timelines) */
+@keyframes scroll-reveal {
+  from { opacity: 0.35; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+@utility scroll-reveal {
+  @supports (animation-timeline: view()) {
+    animation: scroll-reveal linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 60%;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
 @utility font-display {
   font-family: var(--font-serif);
   font-weight: 400;

@@ -6,7 +6,7 @@ import { CompareBars } from "../viz";
 import type { Action } from "./CaseActions";
 import { Answer, Mark, SectionActions } from "./DetailParts";
 
-/** Question 2: is the battery locked out of the expensive evening peak. */
+/** Check 2: does the configured reserve keep the battery out of the evening peak. */
 export function DetailBattery({
   d,
   q,
@@ -29,8 +29,8 @@ export function DetailBattery({
       <Answer q={q} lossRon={locked ? b.monthly_pzu_loss_ron : null} />
 
       <Mark
-        name="Încărcare baterie"
-        value={locked ? `${fmt(b.locked_kwh, 1)} kWh/zi blocați` : undefined}
+        name="Stare de încărcare (SoC)"
+        value={locked ? `${fmt(b.locked_kwh, 1)} kWh/zi indisponibili` : undefined}
         tone="text-warning"
       >
         <DayLine
@@ -39,18 +39,18 @@ export function DetailBattery({
           max={100}
           from={0}
           to={1440}
-          limit={{ v: conf, label: `rezervă ${conf}%`, tone: locked ? "warning" : "fog" }}
-          band={{ from: 18 * 60, to: 22 * 60, label: "seară" }}
+          limit={{ v: conf, label: `SoC min ${conf}%`, tone: locked ? "warning" : "fog" }}
+          band={{ from: 18 * 60, to: 22 * 60, label: "vârf" }}
           unit="%"
-          label={`Încărcarea bateriei pe parcursul zilei, rezervă ${conf}%`}
+          label={`Starea de încărcare pe parcursul zilei, SoC minim ${conf}%`}
         />
       </Mark>
 
       <Mark name="Preț PZU · RON/MWh">
         <CompareBars
           rows={[
-            { label: "prânz", value: b.pzu_midday_ron_mwh, tone: "fog" },
-            { label: "seară", value: b.pzu_evening_ron_mwh },
+            { label: "interval solar", value: b.pzu_midday_ron_mwh, tone: "fog" },
+            { label: "vârf de seară", value: b.pzu_evening_ron_mwh },
           ]}
         />
       </Mark>

@@ -8,11 +8,11 @@ import { cn } from "@/lib/utils";
 
 /** Demo prosumer accounts: the five flagship stories, each one problem. */
 export const PROSUMER_ACCOUNTS: [id: string, story: string][] = [
-  ["RO-TM-001", "Supratensiune în rețea"],
+  ["RO-TM-001", "Supratensiune în rețeaua OD"],
   ["RO-IF-002", "Cablu local subdimensionat"],
-  ["RO-CJ-003", "Baterie blocată seara"],
-  ["RO-BV-004", "Index export lipsă pe factură"],
-  ["RO-B-005", "Factură corectă, explicată"],
+  ["RO-CJ-003", "SoC minim configurat eronat"],
+  ["RO-BV-004", "Index de export nefacturat"],
+  ["RO-B-005", "Factură conformă"],
 ];
 
 export const SUPPLIER_ENTRY = { to: "/harta" as const, search: { household: "RO-TM-001" } };
