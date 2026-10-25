@@ -123,6 +123,8 @@ export function MapCanvas({
         maxPitch: 0,
         dragRotate: false,
         cancelPendingTileRequestsWhileZooming: false,
+        // Retain the country, intermediate and roof tiles while replaying the flight.
+        maxTileCacheZoomLevels: 16,
         renderWorldCopies: false,
         attributionControl: { compact: true },
       });
