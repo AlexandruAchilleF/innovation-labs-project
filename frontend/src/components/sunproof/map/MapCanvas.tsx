@@ -2,12 +2,14 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 import type { Map as MlMap, StyleSpecification } from "maplibre-gl";
 import { ROMANIA_CENTER } from "@/lib/geo";
 import { COUNTRY_MASK_LAYER_ID, OUTSIDE_ROMANIA, ROMANIA_BOUNDARY } from "@/lib/romania-map";
+import { createMapNavigation } from "@/lib/map-navigation";
 import { SolarMaskPattern } from "./SolarMaskPattern";
 
 type MapLib = typeof import("maplibre-gl");
 export interface MapApi {
   map: MlMap;
   lib: MapLib;
+  fitBounds: ReturnType<typeof createMapNavigation>["fitBounds"];
 }
 export type Basemap = "satellite" | "dark";
 
@@ -109,6 +111,7 @@ export function MapCanvas({
     let map: MlMap | undefined;
     let cancelled = false;
     let ro: ResizeObserver | undefined;
+    let navigation: ReturnType<typeof createMapNavigation> | undefined;
     void import("maplibre-gl").then((mod) => {
       const lib = ((mod as unknown as { default?: MapLib }).default ?? mod) as MapLib;
       if (cancelled || !el.current) return;
@@ -119,6 +122,7 @@ export function MapCanvas({
         zoom: 6,
         maxPitch: 0,
         dragRotate: false,
+        cancelPendingTileRequestsWhileZooming: false,
         renderWorldCopies: false,
         attributionControl: { compact: true },
       });
@@ -133,13 +137,17 @@ export function MapCanvas({
         el.current
           ?.querySelector(".maplibregl-ctrl-attrib")
           ?.classList.remove("maplibregl-compact-show");
-        if (!cancelled) setApi({ map: map!, lib });
+        if (!cancelled) {
+          navigation = createMapNavigation(map!);
+          setApi({ map: map!, lib, fitBounds: navigation.fitBounds });
+        }
         moveRef.current?.(map!);
       });
     });
     return () => {
       cancelled = true;
       ro?.disconnect();
+      navigation?.dispose();
       map?.remove();
     };
   }, []);
