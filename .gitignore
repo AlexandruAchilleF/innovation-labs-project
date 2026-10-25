@@ -42,3 +42,6 @@ frontend/.wrangler/
 scripts/node_modules/
 demo-sunproof.webm
 demo-sunproof.mp4
+
+# Jury deliverables are committed on purpose
+!deliverables/*.pdf
