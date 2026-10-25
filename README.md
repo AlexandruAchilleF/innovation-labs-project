@@ -34,7 +34,7 @@ Pentru a răspunde cerinței juriului de a **depăși un simplu apel LLM** și d
 Din interviurile noastre cu prosumatori, instalatori și dispecerate O&M, am identificat **3 găuri negre financiare invizibile**:
 
 1. **Supratensiunea din orele de vârf ale producției solare (253 V):** Rețelele rurale și periurbane de joasă tensiune sunt saturate. În orele de vârf ale producției solare (11:00–15:00), tensiunea depășește pragul legal EN 50549-1 de **253 V**, iar invertoarele se decuplează automat. Prosumatorul crede că „s-a înnorat”, iar furnizorul trimite echipe de intervenție în teren doar ca să constate că instalația din casă este impecabilă (**450 RON irosiți pe fiecare deplasare inutilă**).
-2. **Baterii blocate din montaj:** Peste 60% dintre baterii rămân setate la o rezervă de siguranță de **80% SoC** (setarea din fabrică), deși proprietarul a cerut rezervă de 20%. Bateria refuză să se încarce în orele de vârf ale producției solare și nu livrează nimic în **vârful de seară OPCOM PZU (19:00–22:00)**, când energia este cu până la 60% mai scumpă. Pierderea: peste **1.000 RON/an per gospodărie**.
+2. **Baterii blocate din montaj:** Peste 60% dintre baterii rămân setate la o rezervă de siguranță de **80% SoC** (setarea din fabrică), deși proprietarul a cerut rezervă de 20%. Bateria refuză să se încarce în orele de vârf ale producției solare și nu livrează nimic în **vârful de seară OPCOM PZU (19:00–22:00)**, când energia este cu până la 60% mai scumpă. Pierderea: peste **1.000 RON/an per instalație**.
 3. **Facturi decontate eronat (Legea 160/2026):** Compensarea cantitativă 1:1 între producție, import (1.8.0) și export (2.8.0) conține frecvent discrepanțe neobservate de clienți sau cantități injectate nedecontate de furnizor.
 
 ---
@@ -78,7 +78,7 @@ SunProof este un motor software independent de brand, **100% fără hardware sup
 
 ## Validare pe Date & Cifre de Impact
 
-Eficiența algoritmilor noștri este dovedită prin evaluarea automată pe **toate cele 81 de gospodării din flotă** (5 povești principale validate manual + 76 generate pe 8 topologii de joasă tensiune):
+Eficiența algoritmilor noștri este dovedită prin evaluarea automată pe **toate cele 81 de instalații din flotă** (5 povești principale validate manual + 76 generate pe 8 topologii de joasă tensiune):
 
 * **100.0% Acuratețe de Clasificare** Rețea vs. Local/Echipament la date de 1 minut.
 * **98.8% Acuratețe la Citire la 5 Minute:** Funcționează impecabil doar din API-urile cloud ale producătorilor (Huawei, Fronius, Deye, SolarEdge, Victron), **fără montaj de senzori hardware**.

@@ -17,7 +17,7 @@ def _texts(status: BatteryVerdictStatus, v: dict, scenario: HouseholdScenario) -
     if status == BatteryVerdictStatus.NO_BATTERY:
         return (
             "Fără baterie instalată",
-            "Gospodăria nu are baterie; surplusul de la amiază este injectat în rețea, iar consumul de seară "
+            "Instalația nu are baterie; surplusul de la amiază este injectat în rețea, iar consumul de seară "
             "vine din rețea. Nu există setări de baterie de verificat.",
             [],
         )

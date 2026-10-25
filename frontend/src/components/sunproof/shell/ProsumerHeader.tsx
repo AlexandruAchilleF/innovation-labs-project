@@ -72,7 +72,7 @@ export function ProsumerHeader() {
             aria-label="Alege contul de prosumator"
             className="h-8 w-52 border-iron bg-graphite text-[13px] lg:w-64"
           >
-            <SelectValue placeholder="Alege gospodăria" />
+            <SelectValue placeholder="Alege instalația" />
           </SelectTrigger>
           <SelectContent>
             {accounts.map((h) => (

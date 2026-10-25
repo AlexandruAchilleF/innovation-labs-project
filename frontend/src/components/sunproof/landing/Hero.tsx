@@ -84,7 +84,7 @@ function FactStrip() {
   const p = useQuery(portfolioQuery()).data;
   const live = hydrated && p;
   const facts: [value: string, label: string][] = [
-    [live ? fmt(p.metrics.monitored_households_count) : "—", "gospodării analizate"],
+    [live ? fmt(p.metrics.monitored_households_count) : "—", "instalații analizate"],
     [
       live ? fmt(new Set(p.households.map((h) => h.neighborhood_id)).size) : "—",
       "posturi de transformare",

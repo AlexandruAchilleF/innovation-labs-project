@@ -2,7 +2,7 @@
 
 ## 1. Ipoteza Principală (The Primary Hypothesis)
 
-> **Credem că furnizorii de energie din România (B2B) vor plăti un abonament lunar per gospodărie activă (și vor oferi aplicația gratuit prosumatorilor — model B2B2C / Freemium) pentru o platformă software care diagnostichează automat telemetria din spatele contorului, deoarece le reduce direct trei costuri măsurabile (ROI):**
+> **Credem că furnizorii de energie din România (B2B) vor plăti un abonament lunar pe instalație monitorizată (și vor oferi aplicația gratuit prosumatorilor — model B2B2C / Freemium) pentru o platformă software care diagnostichează automat telemetria din spatele contorului, deoarece le reduce direct trei costuri măsurabile (ROI):**
 > 1. **Deplasările O&M inutile și apelurile în call center** cauzate de supraîncărcarea rețelei în orele de vârf ale producției solare (>253 V), separând matematic oprirea de rețea (confirmată de vecinii de pe același transformator) de defectul local de echipament;
 > 2. **Costul dezechilibrelor PZU din vârful de seară** (când energia este de până la 8× mai scumpă decât în orele de vârf ale producției solare pe Legea 160/2026), identificând bateriile configurate greșit (ex. rezervă blocată la 80% în loc de 20%);
 > 3. **Disputele de facturare și reclamațiile ANRE** (Ordinul ANRE 61/2026), reconciliind automat producția invertorului, contorul inteligent și factura.
@@ -19,7 +19,7 @@ Am pornit de la durerea prosumatorului („De ce mi se oprește invertorul în o
 
 ## 3. Sub-ipotezele testate prin prototip și criteriile de validare
 
-| # | Sub-ipoteză testată | Ce am construit în prototip pentru a o testa | Criteriu de succes / Metrică (ROI) | Rezultat pe setul de evaluare (81 gospodării, 8 rețele JT) |
+| # | Sub-ipoteză testată | Ce am construit în prototip pentru a o testa | Criteriu de succes / Metrică (ROI) | Rezultat pe setul de evaluare (81 instalații, 8 rețele JT) |
 |---|---|---|---|---|
 | **H1** | **Supraîncărcarea rețelei (>253 V) vs. Defect local poate fi separată doar din software, fără hardware nou în casă** | Motor determinist de corelare spațio-temporală pe același transformator (invertor + vecini + prag EN 50549-1 de 253 V) + generator automat de dosar PDF către distribuitor și alertă Telegram O&M | **>95% acuratețe** la 1 min și 5 min (cloud polling) și **0% alarme false** pe case sănătoase / Volt-Watt | **81/81 (100%)** acuratețe la 1 min și 5 min; **0/60 (0%)** alarme false; **6.750 RON/lună** deplasări O&M inutile evitate pe eșantion (15 cazuri rețea × 450 RON/vizită) |
 | **H2** | **Bateriile configurate greșit blochează arbitrajul de seară și generează pierderi PZU cuantificabile pentru furnizor și prosumator** | Comparator între intenția declarată a proprietarului (ex. 20% rezervă backup) și pragul real SoC din invertor (ex. 80%), evaluat la spread-ul PZU amiază–seară și bonusul de livrare (0,40 RON/kWh) | Cuantificarea exactă în RON/zi a importului evitabil de seară și **0 alerte false** când utilizatorul își dorește explicit rezervă 80% | **81/81 (100%)** detecție corectă; **1.054,20 RON/lună** valoare PZU recuperabilă pe 7 baterii greșit setate (**~5,66 mil. EUR/an** extrapolat la 25.000 prosumatori) |

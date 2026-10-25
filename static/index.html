@@ -3170,7 +3170,7 @@ Object.assign(ACT, {
 const CITY_TO_HH = { tm: 'RO-TM-001', buc: 'RO-B-005', cluj: 'RO-CJ-003' };
 const currentBackendId = () => {
   const hid = CITY_TO_HH[S.city];
-  if (!hid) toast(`${CITY().n}: nu există încă o gospodărie monitorizată în backend pentru acest oraș.`);
+  if (!hid) toast(`${CITY().n}: nu există încă o instalație monitorizată în backend pentru acest oraș.`);
   return hid;
 };
 

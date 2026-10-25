@@ -17,7 +17,7 @@ export function technicianAlertText(d: HouseholdDetail): string {
   const verdict = (g as typeof g & { headline_ro?: string }).headline_ro || g.verdict_text_ro;
 
   return [
-    `SunProof · Alertă O&M\nGospodărie: ${a.household_id}`,
+    `SunProof · Alertă O&M\nInstalație: ${a.household_id}`,
     `Client și instalație\n${a.customer_name}\n${a.street_address}\nInvertor: ${model}\nPutere instalată: ${fmt(a.installed_pv_kw, 1)} kWp\nAlimentare: ${a.phase}`,
     `Probleme identificate\n${issues.join("\n")}`,
     ...(verdict ? [`Concluzie privind rețeaua\n${verdict}`] : []),

@@ -117,7 +117,7 @@ def post_ticket(body: TicketBody) -> Dict[str, Any]:
         return create_ticket(body.household_id, body.message_ro, body.attach_diagnostic,
                              body.ticket_id, body.topic_ro)
     except KeyError:
-        raise HTTPException(status_code=404, detail=f"Gospodărie necunoscută: {body.household_id}")
+        raise HTTPException(status_code=404, detail=f"Instalație necunoscută: {body.household_id}")
 
 
 @router.post("/{ticket_id}/resolve")

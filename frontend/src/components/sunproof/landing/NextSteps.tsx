@@ -16,8 +16,8 @@ const ROADMAP: [title: string, detail: string, scope: string][] = [
   ],
   [
     "Pilot pe un cartier real",
-    "Validare pe 50–100 de gospodării racordate la aceleași posturi de transformare, împreună cu un furnizor de energie sau o echipă O&M.",
-    "50–100 gospodării",
+    "Validare pe 50–100 de instalații racordate la aceleași posturi de transformare, împreună cu un furnizor de energie sau o echipă O&M.",
+    "50–100 instalații",
   ],
 ];
 
@@ -91,10 +91,10 @@ export function NextSteps() {
             <p className="mt-4 text-[12px] leading-relaxed text-fog">
               Metodă de calcul: extrapolare liniară din cele{" "}
               <span className="num text-bone">{m ? fmt(m.monitored_households_count) : "81"}</span>{" "}
-              de gospodării simulate (
+              de instalații simulate (
               {m ? fmt(m.fleet_total_supplier_monthly_value_ron, 2) : "7.804,20"} RON/lună economie
               furnizor × 12 luni × {m ? fmt(m.extrapolated_prosumers_count) : "25.000"} /{" "}
-              {m ? fmt(m.monitored_households_count) : "81"} gospodării, la cursul 4,9775 RON/EUR).
+              {m ? fmt(m.monitored_households_count) : "81"} instalații, la cursul 4,9775 RON/EUR).
             </p>
           </div>
         </div>

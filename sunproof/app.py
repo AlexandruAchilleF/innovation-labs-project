@@ -101,7 +101,7 @@ def _scenario_or_404(household_id: str):
     try:
         return get_scenario_by_id(household_id)
     except KeyError:
-        raise HTTPException(status_code=404, detail=f"Gospodărie necunoscută: {household_id}")
+        raise HTTPException(status_code=404, detail=f"Instalație necunoscută: {household_id}")
 
 
 def _neighborhood_or_404(neighborhood_id: str):

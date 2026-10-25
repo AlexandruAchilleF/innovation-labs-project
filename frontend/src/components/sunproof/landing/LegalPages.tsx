@@ -43,7 +43,7 @@ const LEGAL_DOCUMENTS: Record<LegalDocKey, LegalDocument> = {
         id: "obiect",
         title: "1. Obiectul serviciului și identificarea platformei",
         paragraphs: [
-          "Prezentul document («Termenii și condițiile») reglementează accesul și utilizarea platformei software SunProof («Platforma»), un sistem determinist de analiză, diagnostic tehnic și reconciliere energetică destinat furnizorilor de energie electrică, echipelor de operare și mentenanță (O&M) și gospodăriilor cu statut de prosumator racordate la rețelele electrice de joasă tensiune din România.",
+          "Prezentul document («Termenii și condițiile») reglementează accesul și utilizarea platformei software SunProof («Platforma»), un sistem determinist de analiză, diagnostic tehnic și reconciliere energetică destinat furnizorilor de energie electrică, echipelor de operare și mentenanță (O&M) și prosumatorilor racordate la rețelele electrice de joasă tensiune din România.",
           "Prin accesarea interfeței web, consultarea hărților de contur de joasă tensiune, generarea dosarelor tehnice PDF pentru operatorii de distribuție sau utilizarea portalului dedicat prosumatorului, utilizatorul confirmă că a citit, a înțeles și acceptă în mod necondiționat prezentele condiții legale.",
         ],
       },
@@ -80,7 +80,7 @@ const LEGAL_DOCUMENTS: Record<LegalDocKey, LegalDocument> = {
         id: "arhitectura-verdicte",
         title: "3. Natura deterministă a diagnosticelor și limitele tehnice",
         paragraphs: [
-          "SunProof funcționează pe principiul separării stricte între decizia algoritmică și explicația în limbaj natural: motoarele deterministe decid, iar textul doar explică cifrele deja calculate. Platforma evaluează trei ipoteze tehnice principale pentru fiecare gospodărie:",
+          "SunProof funcționează pe principiul separării stricte între decizia algoritmică și explicația în limbaj natural: motoarele deterministe decid, iar textul doar explică cifrele deja calculate. Platforma evaluează trei ipoteze tehnice principale pentru fiecare instalație:",
         ],
         bullets: [
           [
@@ -114,7 +114,7 @@ const LEGAL_DOCUMENTS: Record<LegalDocKey, LegalDocument> = {
           ],
           [
             "Integritatea datelor și securitatea accesului",
-            "Furnizorii și operatorii O&M au obligația de a proteja credențialele de acces, de a respecta confidențialitatea datelor de telemetrie ale gospodăriilor monitorizate și de a nu utiliza API-urile Platformei pentru interogări abuzive sau inginerie inversă.",
+            "Furnizorii și operatorii O&M au obligația de a proteja credențialele de acces, de a respecta confidențialitatea datelor de telemetrie ale instalațiilor monitorizate și de a nu utiliza API-urile Platformei pentru interogări abuzive sau inginerie inversă.",
           ],
         ],
       },
@@ -122,7 +122,7 @@ const LEGAL_DOCUMENTS: Record<LegalDocKey, LegalDocument> = {
         id: "portofoliu-demonstrativ",
         title: "5. Regimul datelor demonstrative și al simulărilor «What-If»",
         paragraphs: [
-          "Mediul demonstrativ public al Platformei include un portofoliu sintetic calibrat fizic (81 de scenarii de gospodării distribuite în 8 rețele de joasă tensiune din România), construit pe baza ecuațiilor de flux de putere și a profilurilor reale de iradiere și preț OPCOM PZU din august 2026.",
+          "Mediul demonstrativ public al Platformei include un portofoliu sintetic calibrat fizic (81 de scenarii de instalații distribuite în 8 rețele de joasă tensiune din România), construit pe baza ecuațiilor de flux de putere și a profilurilor reale de iradiere și preț OPCOM PZU din august 2026.",
           "Simulările de tip «Ce-ar fi dacă» (ex. reglajul prizei transformatorului din postul de transformare, activarea regimului Volt-VAR Q(U) la invertoare sau eliberarea rezervelor de baterie în vârful de seară) au caracter analitic și estimativ. Aplicarea în teren a măsurilor pe rețeaua de distribuție cade în competența exclusivă a Operatorului de Distribuție concesionar.",
         ],
       },
@@ -192,12 +192,12 @@ const LEGAL_DOCUMENTS: Record<LegalDocKey, LegalDocument> = {
         id: "categorii-date",
         title: "2. Categorii de date prelucrate",
         paragraphs: [
-          "Conform jurisprudenței și orientărilor europene în sectorul energetic, datele de telemetrie și curbele de sarcină înregistrate la nivel de gospodărie constituie date cu caracter personal atunci când pot fi asociate unui titular de contract sau unui cod unic de identificare a punctului de măsurare (POD). SunProof prelucrează exclusiv datele strict necesare diagnosticului tehnic și financiar:",
+          "Conform jurisprudenței și orientărilor europene în sectorul energetic, datele de telemetrie și curbele de sarcină înregistrate la nivel de instalație constituie date cu caracter personal atunci când pot fi asociate unui titular de contract sau unui cod unic de identificare a punctului de măsurare (POD). SunProof prelucrează exclusiv datele strict necesare diagnosticului tehnic și financiar:",
         ],
         bullets: [
           [
             "Date de identificare a locului de consum/producție",
-            "Identificatorul intern al gospodăriei, numele titularului (în mediul demonstrativ: exclusiv identități sintetice), localitatea, județul, operatorul de distribuție concesionar, codul postului de transformare (PT) și fiderul de joasă tensiune.",
+            "Identificatorul intern al instalației, numele titularului (în mediul demonstrativ: exclusiv identități sintetice), localitatea, județul, operatorul de distribuție concesionar, codul postului de transformare (PT) și fiderul de joasă tensiune.",
           ],
           [
             "Telemetrie tehnică de la invertor și baterie",
@@ -276,7 +276,7 @@ const LEGAL_DOCUMENTS: Record<LegalDocKey, LegalDocument> = {
         title: "6. Perioada de stocare și măsurile de securitate",
         paragraphs: [
           "Datele de telemetrie la nivel de minut și de 15 minute sunt păstrate pe durata contractuală necesară auditării ciclurilor anuale de decontare și compensare cantitativă (conform termenelor de prescripție și arhivare contabilă din legislația română, de regulă 3 ani pentru datele operaționale de măsurare și până la 5–10 ani pentru documentele financiar-contabile justificative).",
-          "Platforma aplică măsuri tehnice și organizatorice de securitate: criptarea comunicațiilor în tranzit (TLS 1.3), izolarea logică a datelor pe gospodării, controlul accesului bazat pe rol (Furnizor vs. Prosumator) și validarea integrității datelor la fiecare interogare.",
+          "Platforma aplică măsuri tehnice și organizatorice de securitate: criptarea comunicațiilor în tranzit (TLS 1.3), izolarea logică a datelor pe instalații, controlul accesului bazat pe rol (Furnizor vs. Prosumator) și validarea integrității datelor la fiecare interogare.",
         ],
       },
       {
@@ -337,12 +337,12 @@ const LEGAL_DOCUMENTS: Record<LegalDocKey, LegalDocument> = {
         id: "tehnologii-utilizate",
         title: "2. Elemente tehnice de stocare și resurse externe",
         paragraphs: [
-          "Pentru a asigura funcționarea hărții interactive de joasă tensiune, comutarea instantanee între gospodării și păstrarea stării tichetelor operaționale în timpul sesiunii de lucru, aplicația utilizează următoarele mecanisme tehnice în browser:",
+          "Pentru a asigura funcționarea hărții interactive de joasă tensiune, comutarea instantanee între instalații și păstrarea stării tichetelor operaționale în timpul sesiunii de lucru, aplicația utilizează următoarele mecanisme tehnice în browser:",
         ],
         bullets: [
           [
             "Stare de sesiune și parametri URL (TanStack Router & Query Cache)",
-            "Păstrează în memoria volatilă a aplicației gospodăria selectată (ex. ?household=RO-TM-001), rezultatele calculelor deterministe și simulările «Ce-ar fi dacă» pentru a evita reîncărcarea repetată a seriilor de timp.",
+            "Păstrează în memoria volatilă a aplicației instalația selectată (ex. ?household=RO-TM-001), rezultatele calculelor deterministe și simulările «Ce-ar fi dacă» pentru a evita reîncărcarea repetată a seriilor de timp.",
           ],
           [
             "Stocare locală pentru tichete și preferințe UI",
