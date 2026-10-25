@@ -2,14 +2,12 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 import type { Map as MlMap, StyleSpecification } from "maplibre-gl";
 import { ROMANIA_CENTER } from "@/lib/geo";
 import { COUNTRY_MASK_LAYER_ID, OUTSIDE_ROMANIA, ROMANIA_BOUNDARY } from "@/lib/romania-map";
-import { createMapNavigation } from "@/lib/map-navigation";
 import { SolarMaskPattern } from "./SolarMaskPattern";
 
 type MapLib = typeof import("maplibre-gl");
 export interface MapApi {
   map: MlMap;
   lib: MapLib;
-  fitBounds: ReturnType<typeof createMapNavigation>["fitBounds"];
 }
 export type Basemap = "satellite" | "dark";
 
@@ -33,6 +31,24 @@ const style: StyleSpecification = {
       tileSize: 256,
       maxzoom: 19,
       attribution: "Imagery © Esri, Maxar, Earthstar Geographics",
+    },
+    // A separate coarse source stays rendered at every camera zoom. Unlike parent
+    // tile fallback, it is not dropped when the detail source changes zoom level.
+    "satellite-overview": {
+      type: "raster",
+      tiles: [
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      ],
+      tileSize: 256,
+      maxzoom: 5,
+    },
+    "dark-overview": {
+      type: "raster",
+      tiles: [
+        "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+      ],
+      tileSize: 256,
+      maxzoom: 5,
     },
     labels: {
       type: "raster",
@@ -62,6 +78,17 @@ const style: StyleSpecification = {
   },
   layers: [
     { id: "base-background", type: "background", paint: { "background-color": "#111111" } },
+    {
+      id: "base-satellite-overview",
+      type: "raster",
+      source: "satellite-overview",
+      paint: {
+        "raster-saturation": -0.35,
+        "raster-brightness-max": 0.78,
+        "raster-contrast": 0.08,
+        "raster-fade-duration": 0,
+      },
+    },
     // muted + darkened imagery so data layers stay legible on the Altitude canvas
     {
       id: "base-satellite",
@@ -70,6 +97,13 @@ const style: StyleSpecification = {
       paint: { "raster-saturation": -0.35, "raster-brightness-max": 0.78, "raster-contrast": 0.08 },
     },
     { id: "base-labels", type: "raster", source: "labels", paint: { "raster-opacity": 0.85 } },
+    {
+      id: "base-dark-overview",
+      type: "raster",
+      source: "dark-overview",
+      layout: { visibility: "none" },
+      paint: { "raster-fade-duration": 0 },
+    },
     { id: "base-dark", type: "raster", source: "dark", layout: { visibility: "none" } },
     {
       id: "base-dark-labels",
@@ -111,7 +145,6 @@ export function MapCanvas({
     let map: MlMap | undefined;
     let cancelled = false;
     let ro: ResizeObserver | undefined;
-    let navigation: ReturnType<typeof createMapNavigation> | undefined;
     void import("maplibre-gl").then((mod) => {
       const lib = ((mod as unknown as { default?: MapLib }).default ?? mod) as MapLib;
       if (cancelled || !el.current) return;
@@ -123,7 +156,7 @@ export function MapCanvas({
         maxPitch: 0,
         dragRotate: false,
         cancelPendingTileRequestsWhileZooming: false,
-        // Retain the country, intermediate and roof tiles while replaying the flight.
+        // Keep imagery from previous views available during normal camera flights.
         maxTileCacheZoomLevels: 16,
         renderWorldCopies: false,
         attributionControl: { compact: true },
@@ -139,17 +172,13 @@ export function MapCanvas({
         el.current
           ?.querySelector(".maplibregl-ctrl-attrib")
           ?.classList.remove("maplibregl-compact-show");
-        if (!cancelled) {
-          navigation = createMapNavigation(map!);
-          setApi({ map: map!, lib, fitBounds: navigation.fitBounds });
-        }
+        if (!cancelled) setApi({ map: map!, lib });
         moveRef.current?.(map!);
       });
     });
     return () => {
       cancelled = true;
       ro?.disconnect();
-      navigation?.dispose();
       map?.remove();
     };
   }, []);
@@ -158,8 +187,10 @@ export function MapCanvas({
     if (!api) return;
     const sat = basemap === "satellite" ? "visible" : "none";
     const dark = basemap === "dark" ? "visible" : "none";
+    api.map.setLayoutProperty("base-satellite-overview", "visibility", sat);
     api.map.setLayoutProperty("base-satellite", "visibility", sat);
     api.map.setLayoutProperty("base-labels", "visibility", sat);
+    api.map.setLayoutProperty("base-dark-overview", "visibility", dark);
     api.map.setLayoutProperty("base-dark", "visibility", dark);
     api.map.setLayoutProperty("base-dark-labels", "visibility", dark);
   }, [api, basemap]);

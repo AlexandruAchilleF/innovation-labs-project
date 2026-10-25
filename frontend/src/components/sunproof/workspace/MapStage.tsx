@@ -15,7 +15,7 @@ import { houseBearings } from "@/lib/geo-features";
 import { resolveMapGeometry } from "@/lib/map-geography";
 import type { GridState, HouseholdSummary, Neighborhood } from "@/lib/types";
 import type { CompareView } from "@/routes/harta";
-import { LayersMenu, ToolRail, ZoomRail } from "./MapChrome";
+import { LayersMenu, ToolRail, ZoomRail, prefersReducedMotion } from "./MapChrome";
 import { MapSearch } from "./MapSearch";
 import { TimeScrubber } from "./TimeScrubber";
 
@@ -228,7 +228,7 @@ export function Camera({
     // side padding clears the tool/zoom rails plus half of a roof label, so the client never lands under chrome
     // (less on the left when the PT anchors the frame: its ring is narrower than a centred label)
     const narrow = api.map.getContainer().clientWidth < 640;
-    api.fitBounds(
+    api.map.fitBounds(
       [
         [Math.min(...lons), Math.min(...lats)],
         [Math.max(...lons), Math.max(...lats)],
@@ -238,6 +238,7 @@ export function Camera({
           ? { top: 120, bottom: 200, left: 72, right: 72 }
           : { top: 140, bottom: 200, left: withPt ? 110 : 170, right: 130 },
         maxZoom: 18,
+        duration: prefersReducedMotion() ? 0 : 2400,
       },
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps

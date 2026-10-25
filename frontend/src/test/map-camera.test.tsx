@@ -5,8 +5,8 @@ import { neighborhoods } from "@/lib/mock/neighborhoods";
 import { resolveMapGeometry } from "@/lib/map-geography";
 
 const api = vi.hoisted(() => ({
-  fitBounds: vi.fn(),
   map: {
+    fitBounds: vi.fn(),
     getContainer: () => ({ clientWidth: 1200 }),
     getZoom: () => 18,
     getBounds: () => ({ contains: () => true }),
@@ -16,6 +16,7 @@ vi.mock("@/components/sunproof/map/MapCanvas", () => ({ useMapApi: () => api }))
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  vi.restoreAllMocks();
 });
 
 it("preserves the current camera when selecting a visible house in the same neighborhood", () => {
@@ -23,9 +24,9 @@ it("preserves the current camera when selecting a visible house in the same neig
   const ready = resolveMapGeometry(first, first.houses);
   const nb = { ...first, houses: ready.houses };
   const { rerender } = render(<Camera nb={nb} center={ready.center} selectedId="" />);
-  expect(api.fitBounds).toHaveBeenCalledTimes(1);
+  expect(api.map.fitBounds).toHaveBeenCalledTimes(1);
   rerender(<Camera nb={nb} center={ready.center} selectedId={ready.houses[0]!.house_id} />);
-  expect(api.fitBounds).toHaveBeenCalledTimes(1);
+  expect(api.map.fitBounds).toHaveBeenCalledTimes(1);
 });
 
 it("frames the new neighborhood when geometry recovers after stale simulation data", () => {
@@ -36,10 +37,32 @@ it("frames the new neighborhood when geometry recovers after stale simulation da
   const { rerender } = render(
     <Camera nb={{ ...first, houses: initial.houses }} center={initial.center} selectedId="" />,
   );
-  expect(api.fitBounds).toHaveBeenCalledTimes(1);
+  expect(api.map.fitBounds).toHaveBeenCalledTimes(1);
   rerender(<Camera nb={{ ...next, houses: [] }} center={ready.center} selectedId="" />);
-  expect(api.fitBounds).toHaveBeenCalledTimes(1);
+  expect(api.map.fitBounds).toHaveBeenCalledTimes(1);
   rerender(<Camera nb={{ ...next, houses: ready.houses }} center={ready.center} selectedId="" />);
-  expect(api.fitBounds).toHaveBeenCalledTimes(2);
-  expect(api.fitBounds.mock.calls[1]?.[0]).not.toEqual(api.fitBounds.mock.calls[0]?.[0]);
+  expect(api.map.fitBounds).toHaveBeenCalledTimes(2);
+  expect(api.map.fitBounds.mock.calls[1]?.[0]).not.toEqual(api.map.fitBounds.mock.calls[0]?.[0]);
+});
+
+it("starts the normal animated flight immediately without a loading prepass", () => {
+  const first = neighborhoods[0]!;
+  const ready = resolveMapGeometry(first, first.houses);
+  render(<Camera nb={{ ...first, houses: ready.houses }} center={ready.center} selectedId="" />);
+  expect(api.map.fitBounds).toHaveBeenCalledTimes(1);
+  expect(api.map.fitBounds).toHaveBeenCalledWith(
+    expect.any(Array),
+    expect.objectContaining({ duration: 2400 }),
+  );
+});
+
+it("skips animation when reduced motion is requested", () => {
+  vi.spyOn(window, "matchMedia").mockReturnValue({ matches: true } as MediaQueryList);
+  const first = neighborhoods[0]!;
+  const ready = resolveMapGeometry(first, first.houses);
+  render(<Camera nb={{ ...first, houses: ready.houses }} center={ready.center} selectedId="" />);
+  expect(api.map.fitBounds).toHaveBeenCalledWith(
+    expect.any(Array),
+    expect.objectContaining({ duration: 0 }),
+  );
 });
