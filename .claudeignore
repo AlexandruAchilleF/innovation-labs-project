@@ -20,7 +20,6 @@ sunproof/data/
 # Large docs and interview/pitch transcripts not needed for coding
 docs/plan.md
 docs/pitch/
-docs/interviews/
 data/raw/
 
 # Build and binary outputs

@@ -1,8 +1,10 @@
 # SunProof — Diagnostic pentru furnizori și prosumatori
 
 > **Aflați de ce s-a oprit invertorul înainte să trimiteți echipa.**
-> Proiect pentru **Innovation Labs 2026 · AI Validation Bootcamp, Challenge 1**: *„One view of the energy a prosumer produces, consumes and stores.”*
+> Proiect realizat la **Innovation Labs 2026 · AI Validation Bootcamp, Challenge 1**: *„One view of the energy a prosumer produces, consumes and stores.”*
 > Echipa: **Alex & David**.
+
+![Analiza detaliată a unei instalații: tensiunea la invertor, contor și vecini, plus producția pierdută față de PVGIS](frontend/public/landing/hero.webp)
 
 [![Demo live](https://img.shields.io/badge/Demo%20live-innovation--labs--project.vercel.app-000000?style=for-the-badge&logo=vercel)](https://innovation-labs-project.vercel.app)
 [![Challenge Brief](https://img.shields.io/badge/Innovation%20Labs-2026%20Challenge%201-FF6B00?style=for-the-badge)](https://docs.google.com/document/d/1IPJvOmaBwrPZeOkEAt2mUe2IOyT_wOXSl8bA7UVBSBA/edit?tab=t.0)
@@ -18,17 +20,13 @@ Motoarele deterministe stabilesc verdictul. Textul doar explică cifrele deja ca
 
 ---
 
-## Livrabile pentru juriu
+## Despre proiect
 
-Toate se află în [`deliverables/`](deliverables/):
+Prototip construit în cadrul Innovation Labs 2026. Materialele de prezentare se află în [`deliverables/`](deliverables/):
 
-| Fișier | Conținut |
-|---|---|
-| [`01_Primary_Hypothesis.pdf`](deliverables/01_Primary_Hypothesis.pdf) | Ipoteza principală (furnizorul plătește, prosumatorul are acces gratuit), sub-ipotezele H1–H3 testate în prototip, ce nu construim |
-| [`02_Interview_Questions_and_Raw_Quotes.pdf`](deliverables/02_Interview_Questions_and_Raw_Quotes.pdf) | Ghidul de interviu și citatele exacte ale interlocutorilor |
-| [`03_Pitch_Deck.pdf`](deliverables/03_Pitch_Deck.pdf) | Prezentarea pentru juriu (10 diapozitive, 16:9) |
-| [`04_Pitch_2_Minute_2_Persoane.pdf`](deliverables/04_Pitch_2_Minute_2_Persoane.pdf) | Textul pitch-ului, diapozitiv cu diapozitiv, împărțit pe doi vorbitori ([sursa `.md`](deliverables/04_Pitch_2_Minute_2_Persoane.md)) |
-| [`demo-sunproof.mp4`](deliverables/demo-sunproof.mp4) | Video demo (~60 s, 1080p): landing → hartă și portofoliu → analiză detaliată și simulare → aplicația prosumatorului |
+- [Prezentarea finală](deliverables/03_Pitch_Deck.pdf) (10 diapozitive)
+- [Video demo](deliverables/demo-sunproof.mp4) (~60 s): landing → hartă și portofoliu → analiză detaliată și simulare → aplicația prosumatorului
+- [Ipoteza de business](docs/01_Primary_Hypothesis.md): furnizorul plătește, prosumatorul are acces gratuit
 
 ---
 
@@ -45,6 +43,8 @@ Toate se află în [`deliverables/`](deliverables/):
 
 Cazul din pitch: **Andrei, Dumbrăvița** (`RO-TM-001`). 6 din 11 invertoare de pe același post se opresc în același minut, la 257 V.
 
+![Harta rețelei de joasă tensiune: postul de transformare, instalația analizată și cronologia opririlor din ziua respectivă](frontend/public/landing/grid-map.webp)
+
 ---
 
 ## Problema
@@ -55,7 +55,7 @@ Cazul din pitch: **Andrei, Dumbrăvița** (`RO-TM-001`). 6 din 11 invertoare de 
 - **Baterii care nu livrează seara.** Rezerva setată de instalator poate diferi de ce a cerut proprietarul (de exemplu 80% în loc de 20%). Seara, energia pe piața spot a ajuns în vara 2026 la un raport de aproximativ 8:1 față de amiază ([Puterea.ro](https://www.puterea.ro/cel-mai-scump-kilowatt-e-cel-pe-care-nu-l-poti-muta/)).
 - **Facturi greu de verificat.** Compensarea cantitativă 1:1 din Legea 160/2026, între import (1.8.0) și export (2.8.0), poate produce diferențe între invertor, contor și factură.
 
-Dovezile din interviuri și din surse publice sunt în [livrabilul 02](deliverables/02_Interview_Questions_and_Raw_Quotes.pdf) și în [sinteza dovezilor](docs/interviews/2026-10-24-sinteza-dovezi-interviuri.md).
+Sursele publice folosite sunt descrise în [analiza surselor de date](docs/research/2026-10-24-surse-date.md).
 
 ---
 
@@ -150,8 +150,8 @@ sunproof/            backend: modele, simulator, motoare, texte, PDF, Telegram, 
 frontend/            aplicația React (landing, /harta, /triaj, /prosumator)
 tests/               teste pytest, validate față de get_ground_truth pe toate cele 81 de scenarii
 scripts/             run_demo.sh, evaluate_proof.py, import_map_geometry.py
-docs/                ipoteză, interviuri, cercetare, materiale de pitch, raportul de evaluare
-deliverables/        documentele pentru juriu
+docs/                ipoteză, cercetare, raportul de evaluare și graficele lui
+deliverables/        prezentarea finală și video-ul demo
 ```
 
 ---
@@ -195,3 +195,7 @@ cd frontend && npm test                       # teste frontend (Vitest)
 - **Ce căutăm:** un furnizor de energie sau o firmă de mentenanță pentru pilot.
 - **Ce măsurăm în pilot:** corectitudinea diagnosticului față de verificarea tehnicianului, alarmele false, timpul de rezolvare și costul intervențiilor.
 - **Model propus (de validat):** furnizorul plătește un abonament pe instalație monitorizată, prosumatorul are acces gratuit.
+
+## Licență
+
+[MIT](LICENSE)

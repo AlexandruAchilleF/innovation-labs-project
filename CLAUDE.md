@@ -5,7 +5,7 @@ local installation? (2) is the battery locked out of the expensive evening peak?
 Deterministic engines decide; text (LLM or template) only explains numbers the engines already computed.
 
 ## Commands
-- Python: `.venv/bin/python` (3.14). Tests: `.venv/bin/python -m pytest -q --tb=short` (~19 s; 823 passed).
+- Python: `.venv/bin/python` (3.14). Tests: `.venv/bin/python -m pytest -q --tb=short` (~16 s; 900 passed).
 - Run API + UI: `.venv/bin/uvicorn sunproof.app:app --reload` (env: `SUNPROOF_USE_LLM=1` + `ANTHROPIC_API_KEY` for LLM
   texts, `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID` for real alerts; otherwise templates / simulated alerts).
 - Run full demo: `./scripts/run_demo.sh` (FastAPI backend :8000 + React 19 Frontend :3000).
